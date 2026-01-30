@@ -11,6 +11,7 @@ Run a strict, survival-first trading workflow on Binance using browser relay. Op
 
 - **No autonomous trading.** Always require explicit user approval (YES/NO) before placing any order.
 - **Spot-first by default.** Do not use futures/perps unless the user explicitly requests it.
+- **15m is for entries only.** Determine bias/levels from higher TFs; use 15m for timing.
 - **Ring-fence the bankroll.** Track a dedicated sub-balance (e.g., $100 USDT) separately from the rest of the wallet.
 - **Hard stops:**
   - Max risk per trade: **1–2%** of the ring-fenced bankroll.
@@ -27,11 +28,12 @@ Run a strict, survival-first trading workflow on Binance using browser relay. Op
 2. Verify you are on `binance.com/en-GB/` and can see wallet/spot trading pages.
 
 ### 2) Read the situation (top-down)
-1. Select universe: **BTC, ETH, SOL** (optionally BNB). Avoid illiquid small caps.
-2. Determine regime:
+1. Select universe: liquid **USDT pairs**. Prefer majors + high-volume large caps; avoid thin books and brand-new listings.
+2. Determine regime (4H/1H):
    - **Trend:** higher highs/higher lows (only buys) or lower highs/lower lows (avoid longs).
    - **Range:** clear top/bottom; only trade edges.
 3. Mark 2–4 key levels (previous swing high/low, range top/bottom).
+4. Drop to **15m** for entry timing only (retest/rejection + candlestick confirmation).
 
 ### 3) Choose one setup type (keep it simple)
 Prefer one of these:
@@ -45,7 +47,7 @@ Prefer one of these:
 - a **Fib retracement ~0.618** of the prior swing (confluence, not magic), and
 - a **candlestick confirmation** (e.g., bullish engulfing / morning star / hammer for longs; bearish equivalents for shorts).
 
-(For quick reminders + definitions, read `references/patterns.md` and `references/candlesticks.md`.)
+(For quick reminders + definitions, read `references/patterns.md`, `references/candlesticks.md`, and `references/15m-momentum.md`.)
 
 ### 4) Generate a trade card (proposal)
 Create a single trade card, then wait for approval.
