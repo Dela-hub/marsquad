@@ -23,7 +23,9 @@ Avoid: buying the first green candle through resistance.
 
 ## 4) Trend pullback continuation
 - Trade only with structure.
-- Enter after pullback and confirmation.
+- Enter after pullback into **support/demand**.
+- Prefer **Fib ~0.618** confluence of the prior impulse.
+- Require **candlestick confirmation** (see `candlesticks.md`).
 - Stop: beyond pullback swing.
 
 ## “No trade” conditions

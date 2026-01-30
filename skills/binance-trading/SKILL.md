@@ -40,7 +40,12 @@ Prefer one of these:
 - **Range edge** (buy bottom / sell top; stop beyond range).
 - **Trend pullback continuation** (enter after pullback + confirmation; stop beyond swing).
 
-(For quick reminders + definitions, read `references/patterns.md`.)
+**Confluence rule (strongly preferred):** for pullbacks, require:
+- a clear **support/demand zone**,
+- a **Fib retracement ~0.618** of the prior swing (confluence, not magic), and
+- a **candlestick confirmation** (e.g., bullish engulfing / morning star / hammer for longs; bearish equivalents for shorts).
+
+(For quick reminders + definitions, read `references/patterns.md` and `references/candlesticks.md`.)
 
 ### 4) Generate a trade card (proposal)
 Create a single trade card, then wait for approval.
