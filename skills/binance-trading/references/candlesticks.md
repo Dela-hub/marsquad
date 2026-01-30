@@ -7,12 +7,14 @@ Do **not** take trades based on candlesticks alone.
 ## Bullish confirmations (for longs)
 
 ### Bullish engulfing
-- A bullish candle whose body fully engulfs the prior bearish candle’s body.
+- A bullish candle whose real body fully engulfs the prior bearish candle’s real body.
 - Best when it happens **after a pullback into support/demand**.
+- Use as confirmation (don’t chase): prefer an entry on a retest or with a tight invalidation.
 
 ### Hammer
-- Small body near the top, long lower wick.
-- Signals rejection of lower prices. Best at support.
+- Small real body near the top, long lower wick (often ≥ 2× the body), minimal/no upper wick.
+- Signals rejection of lower prices. Best at support/demand.
+- Requires confirmation (next candle closes bullish / above the hammer high). (See Investopedia hammer overview.)
 
 ### Morning star (3-candle reversal)
 - Strong bearish candle → small indecision candle → strong bullish candle closing into/above the first candle’s body.
@@ -49,3 +51,9 @@ Do **not** take trades based on candlesticks alone.
 - Prefer confirmations on **1H or 4H** (less noise) and execute on **15m–1H**.
 - For pullback entries: confirmation candle should appear **at/near the level**.
 - If the confirmation candle is huge (wide body), risk may be too large → skip.
+- Prefer **confluence**: support/demand + Fib ~0.618 + confirmation candle.
+
+## Sources (quick refresh)
+- Wikipedia: Candlestick chart (OHLC, body, wick) https://en.wikipedia.org/wiki/Candlestick_chart
+- Wikipedia: Candlestick pattern (pattern catalog incl. hammer/hanging man/shooting star) https://en.wikipedia.org/wiki/Candlestick_pattern
+- Investopedia: Hammer candlestick overview (confirmation + confluence at support/Fib) https://www.investopedia.com/terms/h/hammer.asp
