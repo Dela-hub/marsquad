@@ -6,7 +6,8 @@ description: Trading strategy playbook + bot-signal heuristics for S/R, supply/d
 # Trading Skills (Playbook → Bot Rules)
 
 ## Quick use
-- For the full playbook and the bot-ready heuristics + JSON blueprint, read: `references/tradingskills.md`.
+- Playbook + bot-ready heuristics + JSON blueprint: `references/tradingskills.md`
+- Strict all-confirm confluence checklist (MTF): `references/confluence.md`
 
 ## Workflow
 1) Ask for market(s), instrument(s), and timeframes.
