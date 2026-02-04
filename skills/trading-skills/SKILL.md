@@ -8,6 +8,7 @@ description: Trading strategy playbook + bot-signal heuristics for S/R, supply/d
 ## Quick use
 - Playbook + bot-ready heuristics + JSON blueprint: `references/tradingskills.md`
 - Strict all-confirm confluence checklist (MTF): `references/confluence.md`
+- Engulfing pattern spotting training + bot rules: `references/engulfing-training.md`
 
 ## Workflow
 1) Ask for market(s), instrument(s), and timeframes.
