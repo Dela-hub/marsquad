@@ -137,6 +137,6 @@ module.exports = {
   scout: createSubAgent('scout'),
   herald: createSubAgent('herald'),
   sage: createSubAgent('sage'),
-  minion: createSubAgent('minion'),
+  researcher: createSubAgent('researcher'),
   observer: createSubAgent('observer'),
 };
