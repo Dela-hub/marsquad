@@ -17,7 +17,13 @@ const ctx = canvas.getContext('2d');
 
 /* ── Agent definitions ── */
 const AGENT_DEFS = {
-  dilo:     { name: 'Dilo',     avatar: 'face', role: 'The Boss', accent: 'linear-gradient(135deg,#3b82f6,#6366f1)', glow: 'rgba(59,130,246,.4)', boss: true },
+  dilo:    { name: 'Dilo',    avatar: 'face-dilo',    role: 'Primary Agent',           accent: 'linear-gradient(135deg,#3b82f6,#6366f1)', glow: 'rgba(59,130,246,.4)', boss: true },
+  phantom: { name: 'Phantom', avatar: 'face-phantom', role: 'Ops / Execution',         accent: 'linear-gradient(135deg,#f43f5e,#be123c)', glow: 'rgba(244,63,94,.4)' },
+  nyx:     { name: 'Nyx',     avatar: 'face-nyx',     role: 'Monitoring / Watch',     accent: 'linear-gradient(135deg,#a855f7,#7c3aed)', glow: 'rgba(168,85,247,.4)' },
+  cipher:  { name: 'Cipher',  avatar: 'face-cipher',  role: 'Security / Privacy',     accent: 'linear-gradient(135deg,#06b6d4,#0e7490)', glow: 'rgba(6,182,212,.4)' },
+  pulse:   { name: 'Pulse',   avatar: 'face-pulse',   role: 'Analytics / Trends',     accent: 'linear-gradient(135deg,#10b981,#047857)', glow: 'rgba(16,185,129,.4)' },
+  wraith:  { name: 'Wraith',  avatar: 'face-wraith',  role: 'QA / Red-team',          accent: 'linear-gradient(135deg,#6366f1,#4338ca)', glow: 'rgba(99,102,241,.4)' },
+  specter: { name: 'Specter', avatar: 'face-specter', role: 'Comms / Drafts / Copy',  accent: 'linear-gradient(135deg,#f59e0b,#d97706)', glow: 'rgba(245,158,11,.4)' },
 };
 
 const FALLBACK_AVATARS = ['🔧', '⚙️', '🛠️', '🔨', '💻', '📝', '🎯', '🔍', '📊', '🚀'];
@@ -66,7 +72,7 @@ let isPaused = false;
 /* ── Normalize agent IDs ── */
 const agentAliases = new Map();
 let aliasCounter = 0;
-const ALIAS_NAMES = ['researcher', 'spark', 'echo', 'flux', 'nova', 'drift', 'pulse', 'arc'];
+const ALIAS_NAMES = ['phantom', 'nyx', 'cipher', 'pulse', 'wraith', 'specter', 'echo', 'flux'];
 function normalizeAgentId(raw) {
   if (!raw) return 'unknown';
   if (raw.length <= 16 && !raw.includes('-')) return raw;
@@ -118,6 +124,14 @@ function resizeCanvas() {
   computeDeskPositions();
   drawOffice();
   repositionAgents();
+}
+
+/* ── Debounced canvas redraw ── */
+let _redrawQueued = false;
+function queueRedraw() {
+  if (_redrawQueued) return;
+  _redrawQueued = true;
+  requestAnimationFrame(() => { _redrawQueued = false; drawOffice(); });
 }
 
 function drawOffice() {
@@ -173,11 +187,26 @@ function drawOffice() {
   ctx.fillStyle = '#334155';
   ctx.beginPath(); ctx.arc(58, 82, 3, 0, Math.PI * 2); ctx.fill();
 
+  // Build desk → agent glow color map
+  const deskGlowMap = new Map();
+  let dIdx = 0;
+  for (const [, a] of agents) {
+    if (!a.hasDesk) continue;
+    const isActive = a.status === 'working' || a.status === 'active';
+    if (isActive) {
+      // Extract base color from glow (e.g. "rgba(59,130,246,.4)" → use the rgb portion)
+      const match = a.def.glow.match(/rgba?\(([^)]+)\)/);
+      if (match) deskGlowMap.set(dIdx, match[1]);
+    }
+    dIdx++;
+  }
+
   // Desks — only draw ones that have agents, plus the boss desk always
   DESK_POSITIONS.forEach((d, i) => {
     // Boss desk always drawn; worker desks only if an agent occupies them
     const occupied = i === 0 || i < countDeskAgents();
-    drawDesk(d.x, d.y, occupied, d.boss);
+    const agentGlow = deskGlowMap.get(i) || null;
+    drawDesk(d.x, d.y, occupied, d.boss, agentGlow);
   });
 
   // Meeting area (right side)
@@ -221,7 +250,7 @@ function drawOffice() {
   ctx.fillText('🪻', w * 0.5, h - 18);
 }
 
-function drawDesk(x, y, hasAgent, isBoss) {
+function drawDesk(x, y, hasAgent, isBoss, agentGlow) {
   // Monitor
   const mw = isBoss ? 80 : 60, mh = isBoss ? 52 : 44;
   ctx.fillStyle = hasAgent
@@ -233,30 +262,25 @@ function drawDesk(x, y, hasAgent, isBoss) {
   ctx.roundRect(x - mw / 2, y - mh - 10, mw, mh, [6, 6, 0, 0]);
   ctx.fill(); ctx.stroke();
 
-  // Screen glow
+  // Screen glow — uses agent color when active, default cyan otherwise
   if (hasAgent) {
     ctx.save();
-    ctx.globalAlpha = 0.06;
-    ctx.fillStyle = '#06b6d4';
+    const glowColor = agentGlow
+      ? `rgba(${agentGlow.split(',').slice(0, 3).join(',')},.12)`
+      : 'rgba(6,182,212,.06)';
+    ctx.globalAlpha = agentGlow ? 0.12 : 0.06;
+    ctx.fillStyle = glowColor;
     ctx.beginPath();
     ctx.roundRect(x - mw / 2 - 8, y - mh - 18, mw + 16, mh + 10, 12);
     ctx.fill();
     ctx.restore();
   }
 
-  // Screen content (code lines)
-  if (hasAgent) {
-    const sx = x - mw / 2 + 5, sy = y - mh - 4;
-    const lineColors = ['rgba(16,185,129,.5)', 'rgba(139,92,246,.35)', 'rgba(6,182,212,.4)', 'rgba(245,158,11,.25)'];
-    lineColors.forEach((c, i) => {
-      ctx.fillStyle = c;
-      const lw = 10 + Math.random() * 24;
-      ctx.fillRect(sx, sy + i * 8, lw, 2.5);
-    });
-  }
-
-  // LED
-  ctx.fillStyle = '#10b981';
+  // LED — agent color when active, default emerald
+  const ledColor = agentGlow
+    ? `rgba(${agentGlow.split(',').slice(0, 3).join(',')},1)`
+    : '#10b981';
+  ctx.fillStyle = ledColor;
   ctx.globalAlpha = .8;
   ctx.beginPath(); ctx.arc(x + mw / 2 - 8, y - mh - 4, 2.5, 0, Math.PI * 2); ctx.fill();
   ctx.globalAlpha = 1;
@@ -296,20 +320,120 @@ function countDeskAgents() {
   return n;
 }
 
-/* ── Dilo face SVG ── */
+/* ── Agent face SVGs ── */
+
 function diloFaceSvg() {
-  return `<svg class="dilo-face" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Eyes -->
+  return `<svg class="agent-face face-dilo" viewBox="0 0 28 28" fill="none">
     <ellipse class="dilo-eye dilo-blink" cx="9" cy="11" rx="3.5" ry="4"/>
     <ellipse class="dilo-eye dilo-blink" cx="19" cy="11" rx="3.5" ry="4"/>
     <ellipse class="dilo-pupil" cx="9.5" cy="11.5" rx="1.8" ry="2.2"/>
     <ellipse class="dilo-pupil" cx="19.5" cy="11.5" rx="1.8" ry="2.2"/>
-    <!-- Eye shine -->
     <circle cx="8" cy="9.5" r="1" fill="rgba(255,255,255,.8)"/>
     <circle cx="18" cy="9.5" r="1" fill="rgba(255,255,255,.8)"/>
-    <!-- Smile -->
     <path class="dilo-mouth" d="M 9 19 Q 14 24 19 19"/>
   </svg>`;
+}
+
+function phantomFaceSvg() {
+  return `<svg class="agent-face face-phantom" viewBox="0 0 28 28" fill="none">
+    <rect class="phantom-visor" x="3" y="10" width="22" height="5" rx="2.5" fill="rgba(244,63,94,.15)" stroke="rgba(244,63,94,.6)" stroke-width=".8"/>
+    <line class="phantom-scan" x1="5" y1="12.5" x2="23" y2="12.5" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
+    <circle cx="14" cy="12.5" r="1.2" fill="#fff" opacity=".9"/>
+    <line x1="10" y1="20" x2="14" y2="18" stroke="rgba(244,63,94,.3)" stroke-width=".6"/>
+    <line x1="18" y1="20" x2="14" y2="18" stroke="rgba(244,63,94,.3)" stroke-width=".6"/>
+  </svg>`;
+}
+
+function nyxFaceSvg() {
+  return `<svg class="agent-face face-nyx" viewBox="0 0 28 28" fill="none">
+    <ellipse class="nyx-eye nyx-blink" cx="9" cy="12" rx="3.2" ry="2.5" fill="rgba(168,85,247,.2)" stroke="rgba(168,85,247,.7)" stroke-width=".8"/>
+    <ellipse class="nyx-eye nyx-blink" cx="19" cy="12" rx="3.2" ry="2.5" fill="rgba(168,85,247,.2)" stroke="rgba(168,85,247,.7)" stroke-width=".8"/>
+    <ellipse class="nyx-pupil" cx="9" cy="12" rx="1.5" ry="1.8" fill="#e9d5ff"/>
+    <ellipse class="nyx-pupil" cx="19" cy="12" rx="1.5" ry="1.8" fill="#e9d5ff"/>
+    <circle cx="8" cy="10.5" r=".8" fill="rgba(255,255,255,.7)"/>
+    <circle cx="18" cy="10.5" r=".8" fill="rgba(255,255,255,.7)"/>
+    <path class="nyx-moon" d="M 22 4 A 4 4 0 0 1 22 10" stroke="rgba(168,85,247,.5)" stroke-width=".8" fill="none"/>
+    <circle cx="22.5" cy="5" r=".5" fill="rgba(168,85,247,.3)"/>
+  </svg>`;
+}
+
+function cipherFaceSvg() {
+  return `<svg class="agent-face face-cipher" viewBox="0 0 28 28" fill="none">
+    <rect class="cipher-eye" x="5" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
+    <rect class="cipher-eye" x="17" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
+    <rect class="cipher-led" x="6.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
+    <rect class="cipher-led" x="18.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
+    <line class="cipher-data" x1="4" y1="19" x2="24" y2="19" stroke="rgba(6,182,212,.4)" stroke-width=".6" stroke-dasharray="2,2"/>
+    <circle class="cipher-dot" cx="8" cy="19" r="1" fill="#06b6d4"/>
+    <circle class="cipher-dot" cx="14" cy="19" r="1" fill="#06b6d4" opacity=".6"/>
+    <circle class="cipher-dot" cx="20" cy="19" r="1" fill="#06b6d4" opacity=".3"/>
+  </svg>`;
+}
+
+function pulseFaceSvg() {
+  return `<svg class="agent-face face-pulse" viewBox="0 0 28 28" fill="none">
+    <circle class="pulse-eye pulse-blink" cx="9" cy="11" r="3" fill="rgba(16,185,129,.15)" stroke="rgba(16,185,129,.7)" stroke-width=".8"/>
+    <circle class="pulse-eye pulse-blink" cx="19" cy="11" r="3" fill="rgba(16,185,129,.15)" stroke="rgba(16,185,129,.7)" stroke-width=".8"/>
+    <circle cx="9" cy="11" r="1.5" fill="#6ee7b7"/>
+    <circle cx="19" cy="11" r="1.5" fill="#6ee7b7"/>
+    <circle cx="8" cy="10" r=".7" fill="rgba(255,255,255,.7)"/>
+    <circle cx="18" cy="10" r=".7" fill="rgba(255,255,255,.7)"/>
+    <path class="pulse-wave" d="M 3 6 Q 8 3 14 6 Q 20 9 25 6" stroke="rgba(16,185,129,.35)" stroke-width=".7" fill="none"/>
+    <path class="pulse-wave2" d="M 3 4 Q 8 1 14 4 Q 20 7 25 4" stroke="rgba(16,185,129,.2)" stroke-width=".5" fill="none"/>
+    <path class="pulse-smile" d="M 9 18 Q 14 22 19 18" stroke="rgba(16,185,129,.6)" stroke-width="1" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function wraithFaceSvg() {
+  return `<svg class="agent-face face-wraith" viewBox="0 0 28 28" fill="none">
+    <ellipse class="wraith-eye" cx="9" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
+    <ellipse class="wraith-eye" cx="19" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
+    <circle class="wraith-core" cx="9" cy="12" r="1.5" fill="#a5b4fc"/>
+    <circle class="wraith-core" cx="19" cy="12" r="1.5" fill="#a5b4fc"/>
+    <path class="wraith-wisp" d="M 4 8 Q 2 12 5 16" stroke="rgba(99,102,241,.25)" stroke-width=".6" fill="none"/>
+    <path class="wraith-wisp" d="M 24 8 Q 26 12 23 16" stroke="rgba(99,102,241,.25)" stroke-width=".6" fill="none"/>
+    <path class="wraith-wisp" d="M 6 20 Q 14 24 22 20" stroke="rgba(99,102,241,.15)" stroke-width=".5" fill="none"/>
+  </svg>`;
+}
+
+function specterFaceSvg() {
+  return `<svg class="agent-face face-specter" viewBox="0 0 28 28" fill="none">
+    <path class="specter-visor" d="M 4 10 L 24 10 L 22 15 L 6 15 Z" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.6)" stroke-width=".8" stroke-linejoin="round"/>
+    <rect class="specter-led" x="9" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
+    <rect class="specter-led" x="16" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
+    <circle class="specter-clock" cx="14" cy="21" r="3" fill="none" stroke="rgba(245,158,11,.4)" stroke-width=".7"/>
+    <line class="specter-hand" x1="14" y1="21" x2="14" y2="19" stroke="#f59e0b" stroke-width=".7" stroke-linecap="round"/>
+    <line class="specter-hand2" x1="14" y1="21" x2="15.5" y2="21.5" stroke="#f59e0b" stroke-width=".5" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ── Per-agent screen content ── */
+const SCREEN_CONTENT = {
+  dilo: () => `<div class="scr-line scr-prompt">$ overview --agents</div><div class="scr-line scr-dim">agents: <span class="scr-hl">${agents.size}</span>  tasks: <span class="scr-hl">${tasksDone}</span></div><div class="scr-line scr-dim">signals: ${signalCount}</div>`,
+  phantom: () => `<div class="scr-line scr-prompt">exec: stealth_op</div><div class="scr-bar"><div class="scr-bar-fill phantom-fill"></div></div><div class="scr-line scr-dim">pid: ${Math.floor(Math.random()*9000+1000)}</div>`,
+  nyx: () => `<div class="scr-line scr-prompt">search: intel</div><div class="scr-line scr-result">&#9656; result_${Math.floor(Math.random()*99)}.json</div><div class="scr-line scr-result">&#9656; source_${Math.floor(Math.random()*50)}.md</div>`,
+  cipher: () => {const bars = [0.3,0.7,0.5,0.9,0.4].map(v=>`<div class="scr-chart-bar" style="height:${v*100}%"></div>`).join('');return `<div class="scr-chart">${bars}</div><div class="scr-line scr-hl">BTC ${(60000+Math.random()*5000).toFixed(0)}</div>`;},
+  pulse: () => `<div class="scr-line scr-in">&#9664; incoming</div><div class="scr-line scr-out">&#9654; delivered</div><div class="scr-line scr-dim">queue: ${Math.floor(Math.random()*5)}</div>`,
+  wraith: () => `<div class="scr-line scr-prompt">[mem] index: ${(2800+Math.floor(Math.random()*200)).toLocaleString()}</div><div class="scr-line scr-dim">sync: <span class="scr-ok">ok</span></div>`,
+  specter: () => {const h=new Date().getHours(),m=new Date().getMinutes();return `<div class="scr-line scr-prompt">cron ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}</div><div class="scr-line scr-dim">jobs: ${3+Math.floor(Math.random()*4)} queued</div><div class="scr-line scr-ok">&#10003; last run ok</div>`;},
+};
+
+function getScreenContent(agentId) {
+  const fn = SCREEN_CONTENT[agentId];
+  return fn ? fn() : `<div class="scr-line scr-dim">standby</div>`;
+}
+
+function getAgentFaceSvg(avatarType) {
+  switch (avatarType) {
+    case 'face-dilo':    return diloFaceSvg();
+    case 'face-phantom': return phantomFaceSvg();
+    case 'face-nyx':     return nyxFaceSvg();
+    case 'face-cipher':  return cipherFaceSvg();
+    case 'face-pulse':   return pulseFaceSvg();
+    case 'face-wraith':  return wraithFaceSvg();
+    case 'face-specter': return specterFaceSvg();
+    default:             return null;
+  }
 }
 
 function createAgentEl(id) {
@@ -325,14 +449,15 @@ function createAgentEl(id) {
   if (hasDesk) {
     const deskIdx = deskAgents % DESK_POSITIONS.length;
     const desk = DESK_POSITIONS[deskIdx];
-    pos = { x: desk.x, y: desk.y + (isBoss ? 75 : 65) };
+    pos = { x: desk.x, y: desk.y + (isBoss ? 40 : 30) };
   } else {
     pos = { x: -200, y: -200 };
   }
 
-  // Avatar content: SVG face for Dilo, emoji for others
-  const avatarContent = def.avatar === 'face'
-    ? diloFaceSvg()
+  // Avatar content: SVG face or emoji fallback
+  const faceSvg = def.avatar.startsWith('face-') ? getAgentFaceSvg(def.avatar) : null;
+  const avatarContent = faceSvg
+    ? faceSvg
     : `<span class="agent-emoji" style="font-size:24px">${def.avatar}</span>`;
 
   // Leg color derived from agent glow
@@ -356,6 +481,7 @@ function createAgentEl(id) {
       <div class="agent-ping" style="display:none"></div>
       <div class="agent-energy"><div class="agent-energy-bar" style="width:100%"></div></div>
     </div>
+    <div class="agent-chair" style="--chair-color:${def.glow.replace(/[\d.]+\)$/, '0.25)')}"></div>
     <div class="agent-legs" style="--leg-color:${legColor};--shoe-color:${shoeColor}">
       <div class="agent-leg agent-leg-l"><div class="agent-leg-shoe"></div></div>
       <div class="agent-leg agent-leg-r"><div class="agent-leg-shoe"></div></div>
@@ -366,7 +492,16 @@ function createAgentEl(id) {
   el.addEventListener('click', () => showModal(id));
   agentLayerEl.appendChild(el);
 
-  const agent = { pos, status: 'idle', task: null, def, energy: 100, el, bubbleEl: null, msgs: 0, tasks: 0, hasDesk, homePos: { ...pos } };
+  // Monitor screen overlay (DOM element positioned over the canvas monitor)
+  let screenEl = null;
+  if (hasDesk) {
+    screenEl = document.createElement('div');
+    screenEl.className = 'monitor-screen';
+    screenEl.innerHTML = getScreenContent(id);
+    agentLayerEl.appendChild(screenEl);
+  }
+
+  const agent = { pos, status: 'idle', task: null, def, energy: 100, el, bubbleEl: null, msgs: 0, tasks: 0, hasDesk, homePos: { ...pos }, screenEl };
   agents.set(id, agent);
   updateStatCards();
   renderStatusbar();
@@ -385,12 +520,25 @@ function updateAgentEl(id) {
   if (dots) dots.style.display = isWorking && !a.bubbleEl ? 'flex' : 'none';
   if (ping) ping.style.display = isWorking ? 'block' : 'none';
 
-  // Walking class for Dilo face
-  if (id === 'dilo' && isWorking) a.el.classList.add('working');
-  else if (id === 'dilo') a.el.classList.remove('working');
+  // Working class for face animations
+  const hasFace = a.def.avatar && a.def.avatar.startsWith('face-');
+  if (hasFace && isWorking) a.el.classList.add('working');
+  else if (hasFace) a.el.classList.remove('working');
 
   const energyBar = a.el.querySelector('.agent-energy-bar');
   if (energyBar) energyBar.style.width = a.energy + '%';
+
+  // Screen overlay: active glow + content refresh
+  if (a.screenEl) {
+    if (isWorking) {
+      a.screenEl.classList.add('screen-active');
+      a.screenEl.innerHTML = getScreenContent(id);
+    } else {
+      a.screenEl.classList.remove('screen-active');
+    }
+  }
+
+  queueRedraw();
 }
 
 /* ── Agent walking animation ── */
@@ -508,7 +656,7 @@ function showModal(id) {
 
   modalCardEl.innerHTML = `
     <div class="modal-agent-header">
-      <div class="modal-avatar" style="background:${d.accent};--agent-glow:${d.glow}">${d.avatar === 'face' ? diloFaceSvg() : d.avatar}</div>
+      <div class="modal-avatar" style="background:${d.accent};--agent-glow:${d.glow}">${d.avatar.startsWith('face-') ? getAgentFaceSvg(d.avatar) : d.avatar}</div>
       <div>
         <div class="modal-name">${d.name}</div>
         <div class="modal-role">${d.role}</div>
@@ -545,7 +693,7 @@ function renderStatusbar() {
     const chip = document.createElement('div');
     chip.className = 'statusbar-chip';
     chip.innerHTML = `
-      <div class="statusbar-chip-avatar" style="background:${d.accent}">${d.avatar === 'face' ? '🧠' : d.avatar}</div>
+      <div class="statusbar-chip-avatar" style="background:${d.accent}">${d.avatar.startsWith('face-') ? getAgentFaceSvg(d.avatar) : d.avatar}</div>
       <span class="statusbar-chip-name">${d.name}</span>
       <div class="statusbar-chip-dot" style="background:${dotColor};box-shadow:0 0 6px ${dotColor}"></div>
     `;
@@ -565,6 +713,7 @@ function updateStatCards() {
 /* ── Feed ── */
 function feedTypeClass(type) {
   if (type.includes('error')) return 'type-error';
+  if (type.includes('mission')) return 'type-mission';
   if (type.includes('task') || type.includes('progress')) return 'type-task';
   if (type.includes('message')) return 'type-message';
   if (type.includes('think')) return 'type-thinking';
@@ -587,7 +736,7 @@ function addFeedItem(evt) {
   const div = document.createElement('div');
   div.className = 'feed-item';
   div.innerHTML = `
-    <div class="feed-item-avatar" style="background:${def.accent}">${def.avatar === 'face' ? '🧠' : def.avatar}</div>
+    <div class="feed-item-avatar" style="background:${def.accent}">${def.avatar.startsWith('face-') ? getAgentFaceSvg(def.avatar) : def.avatar}</div>
     <div class="feed-item-body">
       <div class="feed-item-header">
         <span class="feed-item-name">${def.name}</span>
@@ -648,7 +797,7 @@ function handleEvent(evt) {
     const desk = DESK_POSITIONS[deskIdx % DESK_POSITIONS.length];
     // Use evt.pos to nudge around desk area
     const px = desk.x + (evt.pos.x % 3 - 1) * 30;
-    const py = desk.y + 55 + (evt.pos.y % 3 - 1) * 15;
+    const py = desk.y + 30 + (evt.pos.y % 3 - 1) * 8;
     upsertAgent(agent, { pos: { x: px, y: py } });
   }
 
@@ -691,18 +840,128 @@ function handleEvent(evt) {
   if (evt.type === 'tool_call' && evt.text) {
     upsertAgent(agent, { status: 'working', task: evt.text });
   }
+  // Mission events
+  if (evt.type.startsWith('mission.')) {
+    handleMissionEvent(evt);
+  }
+
   if (evt.type === 'conversation' && evt.text) {
     showSpeechBubble(agent, evt.text);
-    // Draw line to a random other desk agent and walk toward them
-    const others = Array.from(agents.entries()).filter(([k, a]) => k !== agent && a.hasDesk).map(([k]) => k);
-    if (others.length > 0) {
-      const target = others[Math.floor(Math.random() * others.length)];
+    // If the event has a task field naming another agent, target that agent specifically
+    const targetId = evt.task && agents.has(normalizeAgentId(evt.task)) ? normalizeAgentId(evt.task) : null;
+    let target;
+    if (targetId && targetId !== agent) {
+      target = targetId;
+    } else {
+      // Fallback: random other desk agent
+      const others = Array.from(agents.entries()).filter(([k, a]) => k !== agent && a.hasDesk).map(([k]) => k);
+      target = others.length > 0 ? others[Math.floor(Math.random() * others.length)] : null;
+    }
+    if (target) {
+      // Auto-create target if referenced but not yet in office
+      if (!agents.has(target)) upsertAgent(target, { status: 'idle' });
       drawConversationLine(agent, target);
       const tb = agents.get(target);
-      if (tb) walkAgentToAndBack(agent, tb.pos.x, tb.pos.y);
+      if (tb && tb.hasDesk) walkAgentToAndBack(agent, tb.pos.x, tb.pos.y);
     }
   }
 }
+
+/* ── Mission Board ── */
+const missionBoardEl = document.getElementById('missionBoard');
+const missions = new Map(); // missionId -> { agent, task, progress, latestStep, status, ts, fadeAt }
+
+function handleMissionEvent(evt) {
+  if (!evt.missionId) return;
+
+  if (evt.type === 'mission.created') {
+    // Skip missions older than 10 minutes (history replay guard)
+    const age = Date.now() - (evt.ts || Date.now());
+    if (age > 10 * 60 * 1000) return;
+    missions.set(evt.missionId, {
+      agent: normalizeAgentId(evt.agent),
+      task: evt.task || 'Mission',
+      progress: 0,
+      latestStep: '',
+      status: 'active',
+      ts: evt.ts || Date.now(),
+      fadeAt: null,
+    });
+  }
+
+  if (evt.type === 'mission.step') {
+    const m = missions.get(evt.missionId);
+    if (m) {
+      m.progress = evt.progress || m.progress;
+      m.latestStep = evt.text || m.latestStep;
+      m.status = 'active';
+    }
+  }
+
+  if (evt.type === 'mission.completed') {
+    const m = missions.get(evt.missionId);
+    if (m) {
+      m.progress = 1;
+      m.status = 'completed';
+      m.fadeAt = (evt.ts || Date.now()) + 30000; // fade 30s after event timestamp
+    }
+  }
+
+  if (evt.type === 'mission.failed') {
+    const m = missions.get(evt.missionId);
+    if (m) {
+      m.status = 'failed';
+      m.latestStep = evt.text || 'Failed';
+      m.fadeAt = (evt.ts || Date.now()) + 30000;
+    }
+  }
+
+  renderMissionBoard();
+}
+
+function renderMissionBoard() {
+  // Prune faded missions
+  const now = Date.now();
+  for (const [id, m] of missions) {
+    if (m.fadeAt && now > m.fadeAt) missions.delete(id);
+  }
+
+  if (missions.size === 0) {
+    missionBoardEl.style.display = 'none';
+    return;
+  }
+
+  missionBoardEl.style.display = 'block';
+
+  // Show up to 4 most recent
+  const sorted = [...missions.entries()]
+    .sort(([, a], [, b]) => b.ts - a.ts)
+    .slice(0, 4);
+
+  missionBoardEl.innerHTML = `<div class="mission-board-title">Missions</div>` +
+    sorted.map(([id, m]) => {
+      const def = getAgentDef(m.agent);
+      const faceSvg = def.avatar.startsWith('face-') ? getAgentFaceSvg(def.avatar) : null;
+      const avatarHtml = faceSvg || def.avatar;
+      const pct = Math.round(m.progress * 100);
+      const statusClass = m.status === 'completed' ? 'mission-done' : m.status === 'failed' ? 'mission-fail' : 'mission-active';
+      const fading = m.fadeAt ? ' mission-fading' : '';
+      return `<div class="mission-card ${statusClass}${fading}">
+        <div class="mission-card-avatar" style="background:${def.accent}">${avatarHtml}</div>
+        <div class="mission-card-body">
+          <div class="mission-card-task">${escHtml(m.task.slice(0, 50))}</div>
+          <div class="mission-card-bar"><div class="mission-card-fill" style="width:${pct}%;background:${m.status === 'failed' ? '#f43f5e' : m.status === 'completed' ? '#10b981' : 'var(--accent)'}"></div></div>
+          <div class="mission-card-step">${escHtml(m.latestStep.slice(0, 60)) || '...'}</div>
+        </div>
+        <div class="mission-card-status">
+          <div class="mission-dot-${m.status}"></div>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// Periodic cleanup of faded missions
+setInterval(renderMissionBoard, 10000);
 
 /* ── SSE + data loading ── */
 async function loadRecent() {
@@ -733,6 +992,16 @@ function connectSse() {
   };
 }
 
+/* ── Toggle feed ── */
+document.getElementById('btnToggleFeed').addEventListener('click', () => {
+  const pane = document.getElementById('feedPane');
+  const mainEl = document.querySelector('main');
+  pane.classList.toggle('collapsed');
+  mainEl.classList.toggle('feed-collapsed');
+  // Re-layout office after transition
+  setTimeout(resizeCanvas, 320);
+});
+
 /* ── Pause ── */
 document.getElementById('btnPause').addEventListener('click', () => {
   isPaused = !isPaused;
@@ -745,17 +1014,70 @@ document.getElementById('btnPause').addEventListener('click', () => {
 /* ── Test button ── */
 document.getElementById('btnTest').addEventListener('click', async () => {
   const ts = Date.now();
-  await postEvent({ type: 'task.started', agent: 'dilo', task: 'test-run', ts });
-  await postEvent({ type: 'message', agent: 'dilo', text: 'Running diagnostics...', ts });
-  setTimeout(() => postEvent({ type: 'task.progress', agent: 'dilo', task: 'test-run', progress: 0.5, ts: Date.now() }), 600);
+  const mid = `test-${ts}`;
+  // User message arrives → mission created
+  await postEvent({ type: 'message', agent: 'dilo', text: 'User: Investigate BTC price drop and post summary', ts });
+  await postEvent({ type: 'mission.created', agent: 'dilo', missionId: mid, task: 'Investigate BTC price drop', ts });
+  setTimeout(() => postEvent({ type: 'task.started', agent: 'dilo', task: 'investigate-btc', ts: Date.now() }), 400);
+  // Dilo delegates research to Nyx
   setTimeout(() => {
-    postEvent({ type: 'conversation', agent: 'dilo', text: 'Hey Scout, check the logs', ts: Date.now() });
+    postEvent({ type: 'conversation', agent: 'dilo', task: 'nyx', text: 'Nyx, investigate the BTC drop', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'nyx', missionId: mid, text: 'Dispatching intel gatherer', progress: 0.1, ts: Date.now() });
   }, 800);
-  setTimeout(() => postEvent({ type: 'task.done', agent: 'dilo', task: 'test-run', ts: Date.now() }), 1500);
+  setTimeout(() => postEvent({ type: 'task.started', agent: 'nyx', task: 'research-btc', ts: Date.now() }), 1200);
+  setTimeout(() => {
+    postEvent({ type: 'tool_call', agent: 'nyx', text: 'tool: web_search', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'nyx', missionId: mid, text: 'tool: web_search', progress: 0.25, ts: Date.now() });
+  }, 1600);
+  // Dilo delegates data analysis to Cipher
+  setTimeout(() => {
+    postEvent({ type: 'conversation', agent: 'dilo', task: 'cipher', text: 'Cipher, pull the price charts', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'cipher', missionId: mid, text: 'Dispatching data analyst', progress: 0.35, ts: Date.now() });
+  }, 2000);
+  setTimeout(() => postEvent({ type: 'task.started', agent: 'cipher', task: 'analyze-charts', ts: Date.now() }), 2400);
+  setTimeout(() => {
+    postEvent({ type: 'thinking', agent: 'cipher', text: 'Analyzing 24h price movement...', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'cipher', missionId: mid, text: 'Analyzing charts', progress: 0.5, ts: Date.now() });
+  }, 2800);
+  // Nyx reports back
+  setTimeout(() => {
+    postEvent({ type: 'conversation', agent: 'nyx', task: 'dilo', text: 'Found: whale liquidation triggered cascade', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'nyx', missionId: mid, text: 'Intel received', progress: 0.6, ts: Date.now() });
+  }, 3500);
+  setTimeout(() => postEvent({ type: 'task.done', agent: 'nyx', task: 'research-btc', ts: Date.now() }), 3800);
+  // Cipher reports back
+  setTimeout(() => {
+    postEvent({ type: 'conversation', agent: 'cipher', task: 'dilo', text: 'Charts confirm -4.2% in 6h, support at 62k', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'cipher', missionId: mid, text: 'Data analysis complete', progress: 0.75, ts: Date.now() });
+  }, 4200);
+  setTimeout(() => postEvent({ type: 'task.done', agent: 'cipher', task: 'analyze-charts', ts: Date.now() }), 4500);
+  // Dilo sends to Pulse to post
+  setTimeout(() => {
+    postEvent({ type: 'conversation', agent: 'dilo', task: 'pulse', text: 'Pulse, post the BTC summary', ts: Date.now() });
+    postEvent({ type: 'mission.step', agent: 'pulse', missionId: mid, text: 'Posting via Pulse', progress: 0.85, ts: Date.now() });
+  }, 5000);
+  setTimeout(() => postEvent({ type: 'task.started', agent: 'pulse', task: 'post-summary', ts: Date.now() }), 5300);
+  setTimeout(() => postEvent({ type: 'tool_call', agent: 'pulse', text: 'tool: moltbook_post', ts: Date.now() }), 5600);
+  setTimeout(() => postEvent({ type: 'task.done', agent: 'pulse', task: 'post-summary', ts: Date.now() }), 6000);
+  // Dilo wraps up → mission completed
+  setTimeout(() => postEvent({ type: 'message', agent: 'dilo', text: 'Done — BTC analysis posted. Whale liquidation cascaded.', ts: Date.now() }), 6500);
+  setTimeout(() => {
+    postEvent({ type: 'task.done', agent: 'dilo', task: 'investigate-btc', ts: Date.now() });
+    postEvent({ type: 'mission.completed', agent: 'dilo', missionId: mid, task: 'Investigate BTC price drop', ts: Date.now() });
+  }, 6800);
 });
 
 /* ── Clock ── */
 setInterval(() => { clockEl.textContent = nowStr(); }, 250);
+
+/* ── Periodic screen content refresh for active agents ── */
+setInterval(() => {
+  for (const [id, a] of agents) {
+    if (!a.screenEl) continue;
+    const isActive = a.status === 'working' || a.status === 'active';
+    if (isActive) a.screenEl.innerHTML = getScreenContent(id);
+  }
+}, 3000);
 
 /* ── Init ── */
 window.addEventListener('resize', resizeCanvas);
@@ -773,13 +1095,21 @@ function repositionAgents() {
     if (!a.hasDesk) continue;
     const desk = DESK_POSITIONS[deskIdx % DESK_POSITIONS.length];
     const isBoss = !!desk.boss;
-    a.pos = { x: desk.x, y: desk.y + (isBoss ? 75 : 65) };
+    a.pos = { x: desk.x, y: desk.y + (isBoss ? 40 : 30) };
     a.homePos = { ...a.pos };
     updateAgentEl(id);
+    // Position screen overlay over monitor
+    if (a.screenEl) {
+      const mw = isBoss ? 80 : 60, mh = isBoss ? 52 : 44;
+      a.screenEl.style.left = (desk.x - mw / 2 + 4) + 'px';
+      a.screenEl.style.top = (desk.y - mh - 6) + 'px';
+      a.screenEl.style.width = (mw - 8) + 'px';
+      a.screenEl.style.height = (mh - 8) + 'px';
+    }
     deskIdx++;
   }
 }
 
 renderStatusbar();
 updateStatCards();
-loadRecent().then(connectSse);
+loadRecent().then(() => { renderMissionBoard(); connectSse(); });
