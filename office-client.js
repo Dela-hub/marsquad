@@ -6,15 +6,26 @@
 
 const OFFICE_URL = process.env.OFFICE_URL || 'http://localhost:3010';
 
-async function post(evt) {
-  const res = await fetch(`${OFFICE_URL}/api/event`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(evt),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-  return data;
+async function post(evt, { retries = 6 } = {}) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(`${OFFICE_URL}/api/event`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(evt),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      return data;
+    } catch (e) {
+      lastErr = e;
+      // Backoff for transient network errors (server restarting, connection resets, etc.)
+      const delay = Math.min(2000, 150 * Math.pow(1.6, i));
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
 }
 
 function now() { return Date.now(); }

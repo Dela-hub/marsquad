@@ -51,6 +51,10 @@ async function handleObj(file, obj) {
 
   const agent = agentIdFromFile(file);
 
+  const safe = async (fn) => {
+    try { return await fn(); } catch { return null; }
+  };
+
   const key = obj.id ? `${file}:${obj.id}` : null;
   if (key) {
     if (seen.has(key)) return;
@@ -61,7 +65,7 @@ async function handleObj(file, obj) {
   }
 
   if (obj.type === 'session') {
-    await office.agentStatus(agent, 'active', 'online');
+    await safe(() => office.agentStatus(agent, 'active', 'online'));
     maybeMove(agent);
     return;
   }
@@ -72,7 +76,7 @@ async function handleObj(file, obj) {
     // User message arriving into session
     if (m.role === 'user') {
       const text = (m.content || []).map(p => p?.text).filter(Boolean).join(' ').slice(0, 240);
-      if (text) await office.message(agent, `User: ${text}`);
+      if (text) await safe(() => office.message(agent, `User: ${text}`));
       maybeMove(agent);
       return;
     }
@@ -81,20 +85,20 @@ async function handleObj(file, obj) {
     if (m.role === 'assistant' && Array.isArray(m.content)) {
       for (const part of m.content) {
         if (part?.type === 'thinking') {
-          await office.thinking(agent, (part.thinking || 'thinking…').toString().slice(0, 240));
-          await office.agentStatus(agent, 'working');
+          await safe(() => office.thinking(agent, (part.thinking || 'thinking…').toString().slice(0, 240)));
+          await safe(() => office.agentStatus(agent, 'working'));
           maybeMove(agent);
         }
         if (part?.type === 'toolCall') {
           const tool = part?.name || 'tool';
-          await office.toolCall(agent, tool, `tool: ${tool}`);
-          await office.agentStatus(agent, 'working');
+          await safe(() => office.toolCall(agent, tool, `tool: ${tool}`));
+          await safe(() => office.agentStatus(agent, 'working'));
           // If we are spawning subagents or messaging them, show as conversation
           if (tool === 'sessions_spawn') {
-            await office.conversation(agent, 'subagents', 'spawn');
+            await safe(() => office.conversation(agent, 'subagents', 'spawn'));
           }
           if (tool === 'sessions_send') {
-            await office.conversation(agent, 'subagents', 'message');
+            await safe(() => office.conversation(agent, 'subagents', 'message'));
           }
           maybeMove(agent);
         }
@@ -110,9 +114,9 @@ async function handleObj(file, obj) {
         .slice(0, 240);
 
       if (text) {
-        await office.message(agent, text);
+        await safe(() => office.message(agent, text));
         // treat as finishing a step
-        await office.agentStatus(agent, 'idle');
+        await safe(() => office.agentStatus(agent, 'idle'));
         maybeMove(agent);
       }
 
@@ -121,15 +125,15 @@ async function handleObj(file, obj) {
 
     if (m.role === 'toolResult') {
       const toolName = m.toolName || 'tool';
-      await office.taskDone(agent, toolName);
+      await safe(() => office.taskDone(agent, toolName));
       maybeMove(agent);
       return;
     }
   }
 
   if (obj.type === 'error' || obj.customType === 'error') {
-    await office.taskError(agent, 'error', 'error');
-    await office.agentStatus(agent, 'error');
+    await safe(() => office.taskError(agent, 'error', 'error'));
+    await safe(() => office.agentStatus(agent, 'error'));
     maybeMove(agent);
   }
 }
