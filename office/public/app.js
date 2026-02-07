@@ -21,7 +21,7 @@ const AGENT_DEFS = {
   phantom: { name: 'Phantom', avatar: 'face-phantom', role: 'Ops / Execution',         accent: 'linear-gradient(135deg,#f43f5e,#be123c)', glow: 'rgba(244,63,94,.4)' },
   nyx:     { name: 'Nyx',     avatar: 'face-nyx',     role: 'Monitoring / Watch',     accent: 'linear-gradient(135deg,#a855f7,#7c3aed)', glow: 'rgba(168,85,247,.4)' },
   cipher:  { name: 'Cipher',  avatar: 'face-cipher',  role: 'Security / Privacy',     accent: 'linear-gradient(135deg,#06b6d4,#0e7490)', glow: 'rgba(6,182,212,.4)' },
-  pulse:   { name: 'Pulse',   avatar: 'face-pulse',   role: 'Analytics / Trends',     accent: 'linear-gradient(135deg,#10b981,#047857)', glow: 'rgba(16,185,129,.4)' },
+  pulse:   { name: 'Pulse',   avatar: 'face-pulse',   role: 'Data Analyst (Stocks, Trends)',     accent: 'linear-gradient(135deg,#10b981,#047857)', glow: 'rgba(16,185,129,.4)' },
   wraith:  { name: 'Wraith',  avatar: 'face-wraith',  role: 'QA / Red-team',          accent: 'linear-gradient(135deg,#6366f1,#4338ca)', glow: 'rgba(99,102,241,.4)' },
   specter: { name: 'Specter', avatar: 'face-specter', role: 'Comms / Drafts / Copy',  accent: 'linear-gradient(135deg,#f59e0b,#d97706)', glow: 'rgba(245,158,11,.4)' },
 };
@@ -209,20 +209,36 @@ function drawOffice() {
     drawDesk(d.x, d.y, occupied, d.boss, agentGlow);
   });
 
-  // Meeting area (right side)
-  ctx.fillStyle = 'rgba(139,92,246,.1)';
+  // Meeting room (center-right, between desk rows)
+  const mrx = w * 0.62, mry = h * 0.35;
+  const mrW = 260, mrH = 180;
+  ctx.fillStyle = 'rgba(139,92,246,.06)';
   ctx.strokeStyle = 'rgba(139,92,246,.12)';
   ctx.beginPath();
-  ctx.roundRect(w - 160, h * 0.35, 130, 90, 14);
+  ctx.roundRect(mrx - 20, mry - 20, mrW, mrH, 14);
   ctx.fill(); ctx.stroke();
-  // Couch
-  ctx.fillStyle = 'rgba(139,92,246,.18)';
+  // "STANDUP" label
+  ctx.fillStyle = 'rgba(139,92,246,.25)';
+  ctx.font = 'bold 8px ui-sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('STANDUP', mrx + mrW / 2 - 20, mry - 6);
+  // Conference table (centered in room)
+  ctx.fillStyle = 'rgba(71,85,105,.3)';
+  ctx.strokeStyle = 'rgba(139,92,246,.15)';
   ctx.beginPath();
-  ctx.roundRect(w - 150, h * 0.35 + 15, 110, 28, 8);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.roundRect(w - 150, h * 0.35 + 50, 110, 28, 8);
-  ctx.fill();
+  ctx.roundRect(mrx + 40, mry + 25, 140, 85, 12);
+  ctx.fill(); ctx.stroke();
+  // Chair dots (7 seats around table — boss at head)
+  ctx.fillStyle = 'rgba(139,92,246,.12)';
+  const chairPositions = [
+    [mrx + 110, mry + 5],                              // head (Dilo)
+    [mrx + 55,  mry + 15],  [mrx + 165, mry + 15],     // top sides
+    [mrx + 15,  mry + 65],  [mrx + 205, mry + 65],     // mid sides
+    [mrx + 55,  mry + 125], [mrx + 165, mry + 125],    // bottom sides
+  ];
+  chairPositions.forEach(([cx, cy]) => {
+    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+  });
 
   // Server rack (bottom right)
   const rx = w - 40, ry = h - 160;
@@ -242,10 +258,26 @@ function drawOffice() {
     ctx.fillRect(rx - 6, ly + 2, 22, 2.5);
   }
 
+  // Smoke spot (bottom left — near the "exit")
+  ctx.fillStyle = 'rgba(30,41,59,.5)';
+  ctx.strokeStyle = 'rgba(71,85,105,.3)';
+  ctx.beginPath();
+  ctx.roundRect(14, h - 80, 56, 60, 8);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(99,102,241,.12)';
+  ctx.font = '8px ui-sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('EXIT', 42, h - 68);
+  // Door slit
+  ctx.strokeStyle = 'rgba(99,102,241,.2)';
+  ctx.beginPath();
+  ctx.moveTo(42, h - 62); ctx.lineTo(42, h - 28);
+  ctx.stroke();
+
   // Plants
   ctx.font = '24px serif';
   ctx.textAlign = 'center';
-  ctx.fillText('🪴', 30, h - 20);
+  ctx.fillText('🪴', 80, h - 20);
   ctx.fillText('🌿', w - 150, h - 16);
   ctx.fillText('🪻', w * 0.5, h - 18);
 }
@@ -495,14 +527,25 @@ function createAgentEl(id) {
   // Monitor screen overlay (DOM element positioned over the canvas monitor)
   let screenEl = null;
   if (hasDesk) {
+    const deskIdx = deskAgents % DESK_POSITIONS.length;
+    const desk = DESK_POSITIONS[deskIdx];
     screenEl = document.createElement('div');
     screenEl.className = 'monitor-screen';
     screenEl.innerHTML = getScreenContent(id);
+    // Position over the desk's monitor area
+    const mw = isBoss ? 80 : 60, mh = isBoss ? 52 : 44;
+    screenEl.style.left = (desk.x - mw / 2 + 4) + 'px';
+    screenEl.style.top = (desk.y - mh - 6) + 'px';
+    screenEl.style.width = (mw - 8) + 'px';
+    screenEl.style.height = (mh - 8) + 'px';
     agentLayerEl.appendChild(screenEl);
   }
 
   const agent = { pos, status: 'idle', task: null, def, energy: 100, el, bubbleEl: null, msgs: 0, tasks: 0, hasDesk, homePos: { ...pos }, screenEl };
   agents.set(id, agent);
+  markActivity(id);
+  if (id === 'wraith') scheduleWraithSmoke();
+  else scheduleCoffeeBreak(id);
   updateStatCards();
   renderStatusbar();
   return agent;
@@ -542,20 +585,30 @@ function updateAgentEl(id) {
 }
 
 /* ── Agent walking animation ── */
+const _walkIds = new Map(); // agentId -> walkSeq (cancel previous walks)
+let _walkSeq = 0;
+
 function walkAgentTo(id, targetX, targetY, onDone) {
   const a = agents.get(id);
   if (!a || !a.hasDesk) return;
+
+  // Cancel any in-progress walk for this agent
+  const seq = ++_walkSeq;
+  _walkIds.set(id, seq);
 
   a.el.classList.add('walking');
 
   const startX = a.pos.x, startY = a.pos.y;
   const dist = Math.sqrt((targetX - startX) ** 2 + (targetY - startY) ** 2);
-  const duration = Math.min(Math.max(dist * 3, 400), 1500); // speed proportional to distance
+  const duration = Math.min(Math.max(dist * 2.5, 400), 3500);
   const startTime = performance.now();
 
   function step(now) {
+    // If a newer walk started, abort this one
+    if (_walkIds.get(id) !== seq) return;
+
     const t = Math.min((now - startTime) / duration, 1);
-    const ease = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2; // easeInOutQuad
+    const ease = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
     a.pos.x = startX + (targetX - startX) * ease;
     a.pos.y = startY + (targetY - startY) * ease;
     a.el.style.left = a.pos.x + 'px';
@@ -587,6 +640,392 @@ function walkAgentToAndBack(id, targetX, targetY) {
   });
 }
 
+/* ── Thinking pace: small loop near desk ── */
+const _pacingAgents = new Set();
+function startThinkingPace(id) {
+  const a = agents.get(id);
+  if (!a || !a.hasDesk || _pacingAgents.has(id) || a.el.classList.contains('walking') || _standupInProgress) return;
+  _pacingAgents.add(id);
+  const home = { ...a.homePos };
+  const offsets = [{x:12,y:-5},{x:-12,y:-5},{x:8,y:4},{x:-8,y:4}];
+  let step = 0;
+  function nextStep() {
+    if (!_pacingAgents.has(id)) return;
+    const off = offsets[step % offsets.length];
+    walkAgentTo(id, home.x + off.x, home.y + off.y, () => {
+      step++;
+      if (_pacingAgents.has(id)) setTimeout(nextStep, 600);
+    });
+  }
+  nextStep();
+}
+function stopThinkingPace(id) {
+  if (!_pacingAgents.has(id)) return;
+  _pacingAgents.delete(id);
+  const a = agents.get(id);
+  if (a && a.homePos) walkAgentTo(id, a.homePos.x, a.homePos.y);
+}
+
+/* ── Error shake ── */
+function triggerErrorShake(id) {
+  const a = agents.get(id);
+  if (!a || !a.el) return;
+  a.el.classList.add('error-shake');
+  setTimeout(() => a.el.classList.remove('error-shake'), 1300);
+}
+
+/* ── Screen flash on task completion ── */
+function flashScreen(id, type) {
+  const a = agents.get(id);
+  if (!a || !a.screenEl) return;
+  const cls = type === 'error' ? 'screen-flash-error' : 'screen-flash-success';
+  a.screenEl.classList.add(cls);
+  setTimeout(() => a.screenEl.classList.remove(cls), 700);
+}
+
+/* ── Document pass: floating icon along conversation line ── */
+function animateDocPass(fromId, toId) {
+  const a = agents.get(fromId), b = agents.get(toId);
+  if (!a || !b || !a.hasDesk || !b.hasDesk) return;
+  const el = document.createElement('div');
+  el.className = 'doc-pass';
+  el.textContent = '📄';
+  el.style.cssText = `left:${a.pos.x}px;top:${a.pos.y - 20}px`;
+  agentLayerEl.appendChild(el);
+  const startX = a.pos.x, startY = a.pos.y - 20;
+  const endX = b.pos.x, endY = b.pos.y - 20;
+  const midX = (startX + endX) / 2, midY = Math.min(startY, endY) - 40;
+  const dur = 1200;
+  const t0 = performance.now();
+  function step(now) {
+    const t = Math.min((now - t0) / dur, 1);
+    // Quadratic bezier
+    const u = 1 - t;
+    const px = u*u*startX + 2*u*t*midX + t*t*endX;
+    const py = u*u*startY + 2*u*t*midY + t*t*endY;
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+    el.style.opacity = t > 0.8 ? (1 - t) * 5 : 1;
+    if (t < 1) requestAnimationFrame(step);
+    else el.remove();
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── High-five burst on mission complete ── */
+function highfiveBurst(agentIds) {
+  const emojis = ['🙌', '✨', '🎉', '⚡'];
+  agentIds.forEach((id, i) => {
+    const a = agents.get(id);
+    if (!a || !a.hasDesk) return;
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'highfive-burst';
+      el.textContent = emojis[i % emojis.length];
+      el.style.cssText = `left:${a.pos.x}px;top:${a.pos.y - 35}px`;
+      agentLayerEl.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    }, i * 150);
+  });
+}
+
+/* ── Standup meeting: agents walk to meeting room, give updates, disperse ── */
+let _standupInProgress = false;
+
+// Standup lines per role — randomly selected, feel natural
+const STANDUP_LINES = {
+  dilo: {
+    status: [
+      "Alright team, quick standup.",
+      "Morning sync — let's go round.",
+      "Standup time. Keep it tight.",
+    ],
+    assign: [
+      "Good. Let's execute. Back to desks.",
+      "Clear plan. Move fast, stay sharp.",
+      "Assignments locked in. Let's ship it.",
+    ],
+  },
+  phantom: {
+    status: [
+      "Ops running clean. No blockers.",
+      "All pipelines green. Standing by for tasks.",
+      "Execution queue clear. Ready to deploy.",
+    ],
+  },
+  nyx: {
+    status: [
+      "Monitoring feeds. Nothing unusual yet.",
+      "Scanning sources. Few leads to follow up.",
+      "Research queue has 3 items. Working through them.",
+    ],
+  },
+  cipher: {
+    status: [
+      "Markets stable. Watching BTC closely.",
+      "Data pipelines synced. No anomalies.",
+      "Security checks passed. Keys rotated.",
+    ],
+  },
+  pulse: {
+    status: [
+      "Comms delivered. Queue at zero.",
+      "All messages sent. Engagement looks good.",
+      "Analytics dashboard updated. Trends normal.",
+    ],
+  },
+  wraith: {
+    status: [
+      "Memory index synced. Context is current.",
+      "QA pass done. Two minor flags, nothing critical.",
+      "Red-team check clean. No vulnerabilities.",
+    ],
+  },
+  specter: {
+    status: [
+      "Cron jobs all healthy. Next batch in 20min.",
+      "Draft queue: 3 posts ready for review.",
+      "Automation scripts green. No failures overnight.",
+    ],
+  },
+};
+
+function getStandupLine(agentId, type) {
+  const pool = STANDUP_LINES[agentId]?.[type] || STANDUP_LINES.phantom.status;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function getMeetingChairPositions() {
+  const wrap = canvas.parentElement;
+  const w = wrap?.clientWidth || 800;
+  const h = wrap?.clientHeight || 500;
+  const mrx = w * 0.62, mry = h * 0.35;
+  return [
+    { x: mrx + 110, y: mry + 5 },    // head of table (Dilo)
+    { x: mrx + 55,  y: mry + 15 },   // top-left
+    { x: mrx + 165, y: mry + 15 },   // top-right
+    { x: mrx + 15,  y: mry + 65 },   // mid-left
+    { x: mrx + 205, y: mry + 65 },   // mid-right
+    { x: mrx + 55,  y: mry + 125 },  // bottom-left
+    { x: mrx + 165, y: mry + 125 },  // bottom-right
+  ];
+}
+
+function startStandup(agentIds, missionTask) {
+  if (_standupInProgress) return;
+  _standupInProgress = true;
+
+  const chairs = getMeetingChairPositions();
+  const seated = [];
+  let arrivedCount = 0;
+  let sequenceStarted = false;
+
+  function tryStartSequence() {
+    if (sequenceStarted) return;
+    sequenceStarted = true;
+    runStandupSequence(seated, missionTask);
+  }
+
+  agentIds.forEach((id, i) => {
+    const a = agents.get(id);
+    if (!a || !a.hasDesk) return;
+    cancelCoffeeBreak(id);
+    stopThinkingPace(id);
+    if (id === 'wraith' && _smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+    markActivity(id);
+    a.el.classList.add('huddling');
+    seated.push(id);
+
+    const chair = chairs[i % chairs.length];
+    walkAgentTo(id, chair.x, chair.y, () => {
+      arrivedCount++;
+      if (arrivedCount >= seated.length) tryStartSequence();
+    });
+  });
+
+  // Fallback: start sequence after 4s even if not all walks completed
+  setTimeout(() => tryStartSequence(), 4000);
+}
+
+function runStandupSequence(agentIds, missionTask) {
+  const leader = agentIds[0] || 'dilo';
+  let delay = 800;
+
+  // Show projected meeting screen
+  showMeetingScreen(missionTask, agentIds);
+
+  // 1. Dilo opens the standup
+  const openLine = getStandupLine(leader, 'status');
+  setTimeout(() => {
+    showThoughtBubble(leader, openLine);
+    addMeetingScreenLine(leader, openLine, true);
+  }, delay);
+  delay += 3500;
+
+  // 2. If there's a mission, Dilo states it
+  if (missionTask) {
+    const focusLine = `Focus: ${missionTask.slice(0, 50)}`;
+    setTimeout(() => {
+      showThoughtBubble(leader, focusLine);
+      addMeetingScreenLine(leader, focusLine, true);
+    }, delay);
+    delay += 3500;
+  }
+
+  // 3. Each non-leader agent gives their update (one at a time)
+  agentIds.slice(1).forEach((id) => {
+    const line = getStandupLine(id, 'status');
+    setTimeout(() => {
+      showThoughtBubble(id, line);
+      addMeetingScreenLine(id, line, true);
+    }, delay);
+    delay += 3200;
+  });
+
+  // 4. Dilo wraps up with assignments
+  const closeLine = getStandupLine(leader, 'assign');
+  setTimeout(() => {
+    showThoughtBubble(leader, closeLine);
+    finishMeetingScreen();
+    addMeetingScreenLine(leader, closeLine, true);
+  }, delay);
+  delay += 3500;
+
+  // 5. Fade screen + disperse back to desks
+  setTimeout(() => {
+    finishMeetingScreen();
+    removeMeetingScreen();
+    agentIds.forEach(id => {
+      const a = agents.get(id);
+      if (!a || !a.hasDesk || !a.homePos) return;
+      a.el.classList.remove('huddling');
+      walkAgentTo(id, a.homePos.x, a.homePos.y);
+    });
+    _standupInProgress = false;
+  }, delay);
+}
+
+function disperseAgents(agentIds) {
+  agentIds.forEach(id => {
+    const a = agents.get(id);
+    if (!a || !a.hasDesk || !a.homePos) return;
+    a.el.classList.remove('huddling');
+    walkAgentTo(id, a.homePos.x, a.homePos.y);
+  });
+}
+
+/* ── Sleep / idle animation ── */
+const _lastActivity = new Map(); // agentId -> timestamp
+const SLEEP_THRESHOLD = 60000; // 60s idle
+
+function markActivity(id) {
+  _lastActivity.set(id, Date.now());
+  const a = agents.get(id);
+  if (!a || !a.el) return;
+  if (a.el.classList.contains('sleeping')) {
+    a.el.classList.remove('sleeping');
+    // Remove zzz elements
+    a.el.querySelectorAll('.agent-zzz').forEach(z => z.remove());
+  }
+}
+
+function checkSleepStates() {
+  const now = Date.now();
+  for (const [id, a] of agents) {
+    if (!a.hasDesk) continue;
+    const last = _lastActivity.get(id) || now;
+    const idle = a.status === 'idle' || a.status === 'waiting' || !a.status;
+    if (idle && (now - last > SLEEP_THRESHOLD) && !a.el.classList.contains('sleeping') && !a.el.classList.contains('walking')) {
+      a.el.classList.add('sleeping');
+      // Add zzz floaters if not present
+      if (!a.el.querySelector('.agent-zzz')) {
+        for (let i = 0; i < 3; i++) {
+          const z = document.createElement('div');
+          z.className = 'agent-zzz';
+          z.textContent = 'z';
+          a.el.appendChild(z);
+        }
+      }
+    }
+  }
+}
+setInterval(checkSleepStates, 5000);
+
+/* ── Coffee break: idle agents wander to break area ── */
+const _coffeeTimers = new Map();
+function scheduleCoffeeBreak(id) {
+  if (_coffeeTimers.has(id)) return;
+  // Random delay 45-120s
+  const delay = (45 + Math.random() * 75) * 1000;
+  const timer = setTimeout(() => {
+    _coffeeTimers.delete(id);
+    const a = agents.get(id);
+    if (!a || !a.hasDesk || !a.homePos) return;
+    if (_standupInProgress) return; // don't wander during standups
+    // Only go if still idle
+    const idle = a.status === 'idle' || a.status === 'waiting' || !a.status;
+    if (!idle || a.el.classList.contains('walking')) return;
+    // Walk to break area (meeting area on right side of canvas)
+    const wrap = canvas.parentElement;
+    const breakX = (wrap?.clientWidth || 800) - 95;
+    const breakY = (wrap?.clientHeight || 500) * 0.35 + 45;
+    markActivity(id); // wake up if sleeping
+    walkAgentTo(id, breakX, breakY, () => {
+      // Hang out for 4-8s, then walk back
+      setTimeout(() => {
+        const a2 = agents.get(id);
+        if (a2 && a2.homePos) walkAgentTo(id, a2.homePos.x, a2.homePos.y);
+      }, 4000 + Math.random() * 4000);
+    });
+  }, delay);
+  _coffeeTimers.set(id, timer);
+}
+
+function cancelCoffeeBreak(id) {
+  const t = _coffeeTimers.get(id);
+  if (t) { clearTimeout(t); _coffeeTimers.delete(id); }
+}
+
+/* ── Wraith smoke break ── */
+let _smokeInterval = null;
+function spawnSmokeParticle(x, y) {
+  const el = document.createElement('div');
+  el.className = 'smoke-puff';
+  el.style.cssText = `left:${x + (Math.random() - .5) * 10}px;top:${y}px`;
+  agentLayerEl.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function scheduleWraithSmoke() {
+  // Override Wraith's coffee break — he goes for a smoke instead
+  cancelCoffeeBreak('wraith');
+  const delay = (35 + Math.random() * 60) * 1000;
+  const timer = setTimeout(() => {
+    _coffeeTimers.delete('wraith');
+    const a = agents.get('wraith');
+    if (!a || !a.hasDesk || !a.homePos) return;
+    if (_standupInProgress) { scheduleWraithSmoke(); return; } // defer during standups
+    const idle = a.status === 'idle' || a.status === 'waiting' || !a.status;
+    if (!idle || a.el.classList.contains('walking')) { scheduleWraithSmoke(); return; }
+    const wrap = canvas.parentElement;
+    const smokeX = 42;
+    const smokeY = (wrap?.clientHeight || 500) - 50;
+    markActivity('wraith');
+    walkAgentTo('wraith', smokeX, smokeY, () => {
+      // Smoke particles while hanging out
+      _smokeInterval = setInterval(() => spawnSmokeParticle(smokeX, smokeY - 25), 400);
+      setTimeout(() => {
+        if (_smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+        const a2 = agents.get('wraith');
+        if (a2 && a2.homePos) walkAgentTo('wraith', a2.homePos.x, a2.homePos.y, () => {
+          scheduleWraithSmoke(); // schedule next one
+        });
+      }, 6000 + Math.random() * 4000);
+    });
+  }, delay);
+  _coffeeTimers.set('wraith', timer);
+}
+
 /* ── Speech bubbles ── */
 function showSpeechBubble(agentId, text) {
   const a = agents.get(agentId);
@@ -616,6 +1055,108 @@ function showSpeechBubble(agentId, text) {
     if (a.bubbleEl === el) a.bubbleEl = null;
     updateAgentEl(agentId);
   }, 4000);
+}
+
+/* ── Thought bubbles (standup meetings) ── */
+function showThoughtBubble(agentId, text) {
+  const a = agents.get(agentId);
+  if (!a || !a.hasDesk) return;
+  // Remove existing bubble
+  if (a.bubbleEl && a.bubbleEl.parentNode) a.bubbleEl.parentNode.removeChild(a.bubbleEl);
+
+  const def = getAgentDef(agentId);
+  const el = document.createElement('div');
+  el.className = 'thought-bubble';
+  el.innerHTML = `<div class="thought-name">${def.name}</div>${text.length > 80 ? text.slice(0, 77) + '...' : text}`;
+  el.style.cssText = `left:${a.pos.x - 20}px;top:${a.pos.y - 55}px;transform:translateX(-30%)`;
+  agentLayerEl.appendChild(el);
+  a.bubbleEl = el;
+
+  setTimeout(() => {
+    if (el.parentNode) {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity .5s';
+      setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 500);
+    }
+    if (a.bubbleEl === el) a.bubbleEl = null;
+  }, 3800);
+}
+
+/* ── Projected meeting screen ── */
+let _meetingScreenEl = null;
+
+function showMeetingScreen(missionTask, agentIds) {
+  removeMeetingScreen();
+  const wrap = canvas.parentElement;
+  const w = wrap?.clientWidth || 800, h = wrap?.clientHeight || 500;
+  const mrx = w * 0.62, mry = h * 0.35;
+
+  const el = document.createElement('div');
+  el.className = 'meeting-screen';
+  // Position to the left of the meeting area — large readable panel
+  const scrW = 320;
+  el.style.cssText = `left:${mrx - scrW - 30}px;top:${mry - 20}px;width:${scrW}px`;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'meeting-screen-header';
+  header.innerHTML = `<span class="screen-dot"></span><span class="screen-title">Standup &middot; ${agentIds.length} agents</span>`;
+  el.appendChild(header);
+
+  // Agenda line
+  if (missionTask) {
+    const agenda = document.createElement('div');
+    agenda.className = 'meeting-screen-agenda';
+    agenda.textContent = missionTask.length > 60 ? missionTask.slice(0, 57) + '...' : missionTask;
+    el.appendChild(agenda);
+  }
+
+  // Body (lines will be added during sequence)
+  const body = document.createElement('div');
+  body.className = 'meeting-screen-body';
+  el.appendChild(body);
+
+  agentLayerEl.appendChild(el);
+  _meetingScreenEl = el;
+  return el;
+}
+
+function addMeetingScreenLine(agentId, text, isActive) {
+  if (!_meetingScreenEl) return;
+  const body = _meetingScreenEl.querySelector('.meeting-screen-body');
+  if (!body) return;
+
+  // Mark previous active line as done
+  const prev = body.querySelector('.meeting-screen-line.active');
+  if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+
+  const def = getAgentDef(agentId);
+  const line = document.createElement('div');
+  line.className = 'meeting-screen-line' + (isActive ? ' active' : '');
+  line.innerHTML = `<span class="line-agent">${def.name}</span><span class="line-text">${text.length > 80 ? text.slice(0, 77) + '...' : text}</span><span class="line-check">&#10003;</span>`;
+  body.appendChild(line);
+
+  // Auto-scroll to latest
+  body.scrollTop = body.scrollHeight;
+}
+
+function finishMeetingScreen() {
+  if (!_meetingScreenEl) return;
+  const body = _meetingScreenEl.querySelector('.meeting-screen-body');
+  if (body) {
+    const prev = body.querySelector('.meeting-screen-line.active');
+    if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+  }
+}
+
+function removeMeetingScreen() {
+  if (_meetingScreenEl && _meetingScreenEl.parentNode) {
+    _meetingScreenEl.style.opacity = '0';
+    _meetingScreenEl.style.transition = 'opacity .6s';
+    const el = _meetingScreenEl;
+    setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 600);
+  }
+  _meetingScreenEl = null;
 }
 
 /* ── Conversation lines ── */
@@ -790,12 +1331,13 @@ function handleEvent(evt) {
   addFeedItem(evt);
 
   const agent = normalizeAgentId(evt.agent);
+  // Track activity for sleep detection
+  markActivity(agent);
 
   if (evt.type === 'agent.move' && evt.pos) {
     // Convert grid pos to pixel pos
     const deskIdx = agents.has(agent) ? Array.from(agents.keys()).indexOf(agent) : agents.size;
     const desk = DESK_POSITIONS[deskIdx % DESK_POSITIONS.length];
-    // Use evt.pos to nudge around desk area
     const px = desk.x + (evt.pos.x % 3 - 1) * 30;
     const py = desk.y + 30 + (evt.pos.y % 3 - 1) * 8;
     upsertAgent(agent, { pos: { x: px, y: py } });
@@ -803,10 +1345,27 @@ function handleEvent(evt) {
 
   if (evt.type === 'agent.status' && evt.status) {
     upsertAgent(agent, { status: evt.status });
+    if (evt.status === 'error') triggerErrorShake(agent);
+    // Cancel coffee/smoke break when agent becomes active
+    if (evt.status === 'working' || evt.status === 'active') {
+      cancelCoffeeBreak(agent);
+      stopThinkingPace(agent);
+      if (agent === 'wraith' && _smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+    }
+    // Schedule break when agent goes idle
+    if (evt.status === 'idle' || evt.status === 'waiting') {
+      if (agent === 'wraith') scheduleWraithSmoke();
+      else scheduleCoffeeBreak(agent);
+    }
   }
 
   if (evt.type === 'task.started') {
+    cancelCoffeeBreak(agent);
+    stopThinkingPace(agent);
     upsertAgent(agent, { status: 'working', task: evt.task || null });
+    // Fast typing for tool-heavy tasks
+    const a = agents.get(agent);
+    if (a && a.el) a.el.classList.remove('fast-typing');
     missionTextEl.textContent = `${getAgentDef(agent).name}: started ${evt.task || 'task'}`;
   }
   if (evt.type === 'task.progress') {
@@ -816,12 +1375,21 @@ function handleEvent(evt) {
     tasksDone++;
     const a = agents.get(agent);
     if (a) a.tasks++;
+    stopThinkingPace(agent);
+    if (a && a.el) a.el.classList.remove('fast-typing');
     upsertAgent(agent, { status: 'idle', task: null });
+    flashScreen(agent, 'success');
     missionTextEl.textContent = `${getAgentDef(agent).name}: completed ${evt.task || 'task'}`;
     updateStatCards();
+    // Schedule break now that agent is idle
+    if (agent === 'wraith') scheduleWraithSmoke();
+    else scheduleCoffeeBreak(agent);
   }
   if (evt.type === 'task.error') {
+    stopThinkingPace(agent);
     upsertAgent(agent, { status: 'error', task: evt.task || null });
+    triggerErrorShake(agent);
+    flashScreen(agent, 'error');
     missionTextEl.textContent = `${getAgentDef(agent).name}: error in ${evt.task || 'task'}`;
   }
 
@@ -836,33 +1404,59 @@ function handleEvent(evt) {
   if (evt.type === 'thinking' && evt.text) {
     showSpeechBubble(agent, evt.text);
     upsertAgent(agent, { status: 'working' });
+    // Start thinking pace (small wander near desk)
+    startThinkingPace(agent);
+    // Slower typing bob for thinking
+    const a = agents.get(agent);
+    if (a && a.el) a.el.classList.remove('fast-typing');
   }
   if (evt.type === 'tool_call' && evt.text) {
+    stopThinkingPace(agent);
     upsertAgent(agent, { status: 'working', task: evt.text });
+    // Fast typing for tool calls
+    const a = agents.get(agent);
+    if (a && a.el) a.el.classList.add('fast-typing');
   }
   // Mission events
   if (evt.type.startsWith('mission.')) {
     handleMissionEvent(evt);
   }
 
+  // Standup trigger — can be called via POST /api/event { type: "standup", agent: "dilo", text: "agenda" }
+  if (evt.type === 'standup') {
+    const attendees = ['dilo'];
+    for (const [id, a] of agents) {
+      if (id !== 'dilo' && a.hasDesk) attendees.push(id);
+    }
+    if (attendees.length > 1) {
+      startStandup(attendees, evt.text || 'Team standup');
+    }
+  }
+
   if (evt.type === 'conversation' && evt.text) {
     showSpeechBubble(agent, evt.text);
-    // If the event has a task field naming another agent, target that agent specifically
     const targetId = evt.task && agents.has(normalizeAgentId(evt.task)) ? normalizeAgentId(evt.task) : null;
     let target;
     if (targetId && targetId !== agent) {
       target = targetId;
     } else {
-      // Fallback: random other desk agent
       const others = Array.from(agents.entries()).filter(([k, a]) => k !== agent && a.hasDesk).map(([k]) => k);
       target = others.length > 0 ? others[Math.floor(Math.random() * others.length)] : null;
     }
     if (target) {
-      // Auto-create target if referenced but not yet in office
       if (!agents.has(target)) upsertAgent(target, { status: 'idle' });
       drawConversationLine(agent, target);
+      animateDocPass(agent, target); // floating document icon
       const tb = agents.get(target);
-      if (tb && tb.hasDesk) walkAgentToAndBack(agent, tb.pos.x, tb.pos.y);
+      const sa = agents.get(agent);
+      if (tb && tb.hasDesk && sa && sa.hasDesk && !_standupInProgress) {
+        // Sender walks toward target
+        walkAgentToAndBack(agent, tb.pos.x, tb.pos.y);
+        // Target walks toward sender (meet halfway then return)
+        cancelCoffeeBreak(target);
+        if (target === 'wraith' && _smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+        walkAgentToAndBack(target, sa.pos.x, sa.pos.y);
+      }
     }
   }
 }
@@ -886,7 +1480,20 @@ function handleMissionEvent(evt) {
       status: 'active',
       ts: evt.ts || Date.now(),
       fadeAt: null,
+      involvedAgents: new Set([normalizeAgentId(evt.agent)]),
     });
+    // Standup meeting: agents walk to meeting room, give updates, then disperse
+    const leaderId = normalizeAgentId(evt.agent);
+    const leaderAgent = agents.get(leaderId);
+    if (leaderAgent && leaderAgent.hasDesk && !_standupInProgress) {
+      const attendees = [leaderId];
+      for (const [id, a] of agents) {
+        if (id !== leaderId && a.hasDesk) attendees.push(id);
+      }
+      if (attendees.length > 1) {
+        startStandup(attendees, evt.task || 'Mission briefing');
+      }
+    }
   }
 
   if (evt.type === 'mission.step') {
@@ -895,6 +1502,8 @@ function handleMissionEvent(evt) {
       m.progress = evt.progress || m.progress;
       m.latestStep = evt.text || m.latestStep;
       m.status = 'active';
+      // Track which agents participated
+      if (m.involvedAgents) m.involvedAgents.add(normalizeAgentId(evt.agent));
     }
   }
 
@@ -903,7 +1512,10 @@ function handleMissionEvent(evt) {
     if (m) {
       m.progress = 1;
       m.status = 'completed';
-      m.fadeAt = (evt.ts || Date.now()) + 30000; // fade 30s after event timestamp
+      m.fadeAt = (evt.ts || Date.now()) + 30000;
+      // High-five celebration for all involved agents
+      const involved = m.involvedAgents ? [...m.involvedAgents] : [normalizeAgentId(evt.agent)];
+      highfiveBurst(involved);
     }
   }
 
@@ -1087,6 +1699,8 @@ resizeCanvas();
 
 // Create Dilo — the only real agent
 createAgentEl('dilo');
+markActivity('dilo');
+scheduleCoffeeBreak('dilo');
 
 function repositionAgents() {
   if (DESK_POSITIONS.length === 0) return;
