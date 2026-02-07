@@ -11,6 +11,8 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
+const db = require('./db');
+
 const PORT = process.env.OFFICE_PORT ? Number(process.env.OFFICE_PORT) : 3010;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -128,12 +130,28 @@ const server = http.createServer(async (req, res) => {
         text: data.text,
         ts: data.ts || Date.now(),
       };
+
+      // persist + broadcast
+      db.appendEvent(evt);
       broadcast('event', evt);
+
       res.writeHead(200, {
         'content-type': 'application/json; charset=utf-8',
         'access-control-allow-origin': '*',
       });
       res.end(JSON.stringify({ ok: true, event: evt }));
+      return;
+    }
+
+    // Recent events
+    if (req.method === 'GET' && u.pathname === '/api/events') {
+      const limit = Math.max(1, Math.min(1000, Number(u.searchParams.get('limit') || '200')));
+      const events = db.readRecentEvents({ limit });
+      res.writeHead(200, {
+        'content-type': 'application/json; charset=utf-8',
+        'access-control-allow-origin': '*',
+      });
+      res.end(JSON.stringify({ ok: true, events, ts: Date.now() }));
       return;
     }
 
@@ -143,7 +161,7 @@ const server = http.createServer(async (req, res) => {
         'content-type': 'application/json; charset=utf-8',
         'access-control-allow-origin': '*',
       });
-      res.end(JSON.stringify({ ok: true, clients: sseClients.size, ts: Date.now() }));
+      res.end(JSON.stringify({ ok: true, clients: sseClients.size, ts: Date.now(), dbPath: db.DB_PATH }));
       return;
     }
 
@@ -159,6 +177,12 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// Periodic pruning (24h retention)
+setInterval(() => {
+  try { db.prune(); } catch {}
+}, 60 * 1000);
+
 server.listen(PORT, '0.0.0.0', () => {
+  try { db.prune(); } catch {}
   console.log(`[office] listening on http://localhost:${PORT}`);
 });

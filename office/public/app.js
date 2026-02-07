@@ -186,6 +186,18 @@ function handleEvent(evt) {
   }
 }
 
+async function loadRecent() {
+  try {
+    const res = await fetch('/api/events?limit=120');
+    const data = await res.json();
+    if (data?.events?.length) {
+      // render oldest -> newest so the feed ends up newest on top after prepend
+      const ordered = [...data.events].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      for (const evt of ordered) handleEvent(evt);
+    }
+  } catch {}
+}
+
 function connectSse() {
   setStatus(null, 'connecting…');
   const es = new EventSource('/events');
@@ -232,4 +244,4 @@ upsertAgent('sub:alpha', { pos: { x: 8, y: 2 }, status: 'idle' });
 upsertAgent('sub:beta', { pos: { x: 6, y: 6 }, status: 'idle' });
 
 render();
-connectSse();
+loadRecent().then(connectSse);
