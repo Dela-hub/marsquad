@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dilo Office</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="title">Dilo Office</div>
+      <div class="right">
+        <div id="status" class="pill">connecting…</div>
+        <button id="btnTest">Send test event</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="pane world">
+        <canvas id="world" width="900" height="520"></canvas>
+        <div class="hint">Click a tile to move <b>main</b>. Events update avatars in real time.</div>
+      </section>
+
+      <section class="pane feed">
+        <div class="feedHeader">
+          <div>Live Feed</div>
+          <div class="small" id="clock"></div>
+        </div>
+        <div id="feed"></div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="small">SSE: <code>/events</code> · Publish: <code>POST /api/event</code></div>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
