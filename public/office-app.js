@@ -2309,7 +2309,6 @@ updateStatCards();
 if (!__officeDisableStream) {
 loadRecent().then(() => { renderMissionBoard(); connectSse(); });
 }
-}
 
 // Seed all known agents so they appear on canvas even without events
 for (const id of Object.keys(AGENT_DEFS)) {
@@ -2318,3 +2317,4 @@ for (const id of Object.keys(AGENT_DEFS)) {
 }
 
 window.__officeHandleEvent = handleEvent;
+}
