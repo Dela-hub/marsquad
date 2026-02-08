@@ -785,6 +785,10 @@ body {
   overflow: hidden;
 }
 
+.obs-canvas .ambient {
+  display: none;
+}
+
 .obs-canvas #feedPane,
 .obs-canvas header,
 .obs-canvas .stats-row {
@@ -792,7 +796,7 @@ body {
 }
 
 .obs-canvas main {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
 }
 
 .obs-canvas .office-pane {
@@ -842,12 +846,12 @@ body {
 
 .obs-prompt input:focus {
   outline: none;
-  border-color: var(--border-accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
+  border-color: rgba(34,197,94,.25);
+  box-shadow: 0 0 0 3px rgba(34,197,94,.15);
 }
 
 .obs-prompt button {
-  background: var(--accent);
+  background: #22c55e;
   color: #04110a;
   border: none;
   border-radius: 10px;
