@@ -1,2 +1,5 @@
 .next/
 dev.log
+.next/
+node_modules/
+dev.log
