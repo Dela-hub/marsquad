@@ -2127,6 +2127,115 @@ document.getElementById('btnTest').addEventListener('click', async () => {
   }, 6800);
 });
 
+/* ── Idle Chatter System (AI-powered) ── */
+let _chatterTimer = null;
+let _chatterActive = false;
+
+function getIdleAgents() {
+  const idle = [];
+  for (const [id, a] of agents) {
+    if (!a.hasDesk) continue;
+    if (a.el && a.el.classList.contains('walking')) continue;
+    if (_pacingAgents.has(id)) continue;
+    const isIdle = a.status === 'idle' || a.status === 'waiting' || !a.status;
+    if (isIdle) idle.push(id);
+  }
+  return idle;
+}
+
+function startIdleChatter() {
+  if (_chatterTimer) return;
+  scheduleNextChatter();
+}
+
+function scheduleNextChatter() {
+  // 20-40s random interval
+  const delay = (20 + Math.random() * 20) * 1000;
+  _chatterTimer = setTimeout(() => {
+    _chatterTimer = null;
+    doIdleChatter();
+    scheduleNextChatter();
+  }, delay);
+}
+
+async function fetchChatterLines(nameA, roleA, nameB, roleB) {
+  try {
+    const res = await fetch('/api/chatter', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nameA, roleA, nameB, roleB }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.lineA && data.lineB) return data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function doIdleChatter() {
+  if (_standupInProgress || _threatActive || _chatterActive) return;
+  const idle = getIdleAgents();
+  if (idle.length < 2) return;
+
+  // Pick two random idle agents
+  const shuffled = idle.sort(() => Math.random() - 0.5);
+  const agentA = shuffled[0];
+  const agentB = shuffled[1];
+
+  const defA = getAgentDef(agentA);
+  const defB = getAgentDef(agentB);
+
+  // Fetch AI-generated lines
+  const lines = await fetchChatterLines(defA.name, defA.role, defB.name, defB.role);
+  if (!lines) return;
+
+  _chatterActive = true;
+
+  // Agent A speaks first
+  showSpeechBubble(agentA, lines.lineA);
+  drawConversationLine(agentA, agentB);
+
+  // Both walk toward each other
+  const a = agents.get(agentA), b = agents.get(agentB);
+  if (a && b && a.homePos && b.homePos) {
+    cancelCoffeeBreak(agentA);
+    cancelCoffeeBreak(agentB);
+    if (agentA === 'wraith' && _smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+    if (agentB === 'wraith' && _smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+    walkAgentToAndBack(agentA, b.pos.x, b.pos.y);
+    walkAgentToAndBack(agentB, a.pos.x, a.pos.y);
+  }
+
+  // Agent B responds after a short delay
+  setTimeout(() => {
+    showSpeechBubble(agentB, lines.lineB);
+  }, 2200);
+
+  // Reset chatter lock after conversation ends
+  setTimeout(() => {
+    _chatterActive = false;
+    // Re-schedule breaks for agents if still idle
+    for (const id of [agentA, agentB]) {
+      const ag = agents.get(id);
+      if (ag) {
+        const isIdle = ag.status === 'idle' || ag.status === 'waiting' || !ag.status;
+        if (isIdle) {
+          if (id === 'wraith') scheduleWraithSmoke();
+          else scheduleCoffeeBreak(id);
+        }
+      }
+    }
+  }, 6000);
+
+  // Log to feed
+  addFeedItem({ type: 'chatter', agent: agentA, text: `${defA.name} → ${defB.name}: "${lines.lineA}"`, ts: Date.now() });
+}
+
+// Start chatter system after a short warmup
+setTimeout(startIdleChatter, 10000);
+
 /* ── Clock ── */
 setInterval(() => { clockEl.textContent = nowStr(); }, 250);
 
