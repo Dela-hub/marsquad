@@ -1315,9 +1315,10 @@ function showMeetingScreen(missionTask, agentIds) {
 
   const el = document.createElement('div');
   el.className = 'meeting-screen';
-  // Position to the left of the meeting area — large readable panel
-  const scrW = 320;
-  el.style.cssText = `left:${mrx - scrW - 30}px;top:${mry - 20}px;width:${scrW}px`;
+  // Responsive width: clamp to available space on small screens
+  const scrW = Math.min(320, w * 0.7);
+  const left = Math.max(8, mrx - scrW - 30);
+  el.style.cssText = `left:${left}px;top:${mry - 20}px;width:${scrW}px;max-width:calc(100% - 16px)`;
 
   // Header
   const header = document.createElement('div');

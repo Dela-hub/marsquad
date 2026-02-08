@@ -502,4 +502,12 @@ main.feed-collapsed{grid-template-columns:1fr 48px}
 ::-webkit-scrollbar-thumb{background:rgba(148,163,184,.2);border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.3)}
 
-@media(max-width:900px){main{grid-template-columns:1fr}.feed-pane{display:none}.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){main{grid-template-columns:1fr}.feed-pane{display:none}.stats-row{grid-template-columns:repeat(2,1fr)}
+  .meeting-screen{max-width:calc(100% - 16px)!important;left:8px!important}
+  .meeting-screen-agenda{font-size:12px;padding:8px 12px}
+  .meeting-screen-body{max-height:200px;padding:6px 10px}
+  .meeting-screen-line{font-size:11px;padding:5px 8px;gap:6px}
+  .meeting-screen-line .line-agent{min-width:48px;font-size:10px}
+  .meeting-screen-header{padding:8px 12px 6px}
+  .meeting-screen-header .screen-title{font-size:9px}
+}

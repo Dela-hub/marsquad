@@ -24,6 +24,7 @@ const AGENT_DEFS = {
   pulse:   { name: 'Pulse',   avatar: 'face-pulse',   role: 'Data Analyst (Stocks, Trends)',     accent: 'linear-gradient(135deg,#10b981,#047857)', glow: 'rgba(16,185,129,.4)' },
   wraith:  { name: 'Wraith',  avatar: 'face-wraith',  role: 'QA / Red-team',          accent: 'linear-gradient(135deg,#6366f1,#4338ca)', glow: 'rgba(99,102,241,.4)' },
   specter: { name: 'Specter', avatar: 'face-specter', role: 'Comms / Drafts / Copy',  accent: 'linear-gradient(135deg,#f59e0b,#d97706)', glow: 'rgba(245,158,11,.4)' },
+  visitor: { name: 'Visitor', avatar: '👤', role: 'Observatory Visitor', accent: 'linear-gradient(135deg,#94a3b8,#64748b)', glow: 'rgba(148,163,184,.4)', visitor: true },
 };
 
 const FALLBACK_AVATARS = ['🔧', '⚙️', '🛠️', '🔨', '💻', '📝', '🎯', '🔍', '📊', '🚀'];
@@ -68,6 +69,55 @@ let signalCount = 0;
 let tasksDone = 0;
 let messageCount = 0;
 let isPaused = false;
+
+/* ── Agent mood / workload tracking ── */
+const _workloadEvents = new Map(); // agentId -> [timestamp, timestamp, ...]
+const WORKLOAD_WINDOW = 30000; // 30s rolling window
+const MOOD_CLASSES = ['mood-calm', 'mood-warm', 'mood-hot', 'mood-glitch', 'mood-golden'];
+
+function recordWorkload(id) {
+  if (!_workloadEvents.has(id)) _workloadEvents.set(id, []);
+  const events = _workloadEvents.get(id);
+  events.push(Date.now());
+  // Trim old events outside window
+  const cutoff = Date.now() - WORKLOAD_WINDOW;
+  while (events.length > 0 && events[0] < cutoff) events.shift();
+}
+
+function getWorkloadIntensity(id) {
+  const events = _workloadEvents.get(id);
+  if (!events) return 0;
+  const cutoff = Date.now() - WORKLOAD_WINDOW;
+  while (events.length > 0 && events[0] < cutoff) events.shift();
+  return events.length;
+}
+
+function getAgentMood(id) {
+  const a = agents.get(id);
+  if (!a) return null;
+  // Glitch takes priority (error state)
+  if (a.status === 'error') return 'mood-glitch';
+  // Golden aura (recently completed)
+  if (a._goldenUntil && Date.now() < a._goldenUntil) return 'mood-golden';
+  // Workload-based
+  const intensity = getWorkloadIntensity(id);
+  if (intensity >= 6) return 'mood-hot';
+  if (intensity >= 3) return 'mood-warm';
+  // Sleeping agents stay as-is (no mood class)
+  if (a.el && a.el.classList.contains('sleeping')) return null;
+  // Idle = calm
+  if (a.status === 'idle' || a.status === 'waiting' || !a.status) return 'mood-calm';
+  return null;
+}
+
+function applyMood(id) {
+  const a = agents.get(id);
+  if (!a || !a.el) return;
+  const mood = getAgentMood(id);
+  // Remove all mood classes, then add current
+  for (const cls of MOOD_CLASSES) a.el.classList.remove(cls);
+  if (mood) a.el.classList.add(mood);
+}
 
 /* ── Normalize agent IDs ── */
 const agentAliases = new Map();
@@ -370,7 +420,10 @@ function phantomFaceSvg() {
   return `<svg class="agent-face face-phantom" viewBox="0 0 28 28" fill="none">
     <rect class="phantom-visor" x="3" y="10" width="22" height="5" rx="2.5" fill="rgba(244,63,94,.15)" stroke="rgba(244,63,94,.6)" stroke-width=".8"/>
     <line class="phantom-scan" x1="5" y1="12.5" x2="23" y2="12.5" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
-    <circle cx="14" cy="12.5" r="1.2" fill="#fff" opacity=".9"/>
+    <ellipse class="phantom-pupil" cx="10" cy="12.5" rx="1.6" ry="1.8" fill="#fff" opacity=".9"/>
+    <ellipse class="phantom-pupil" cx="18" cy="12.5" rx="1.6" ry="1.8" fill="#fff" opacity=".9"/>
+    <circle cx="9.3" cy="11.8" r=".6" fill="rgba(244,63,94,.5)"/>
+    <circle cx="17.3" cy="11.8" r=".6" fill="rgba(244,63,94,.5)"/>
     <line x1="10" y1="20" x2="14" y2="18" stroke="rgba(244,63,94,.3)" stroke-width=".6"/>
     <line x1="18" y1="20" x2="14" y2="18" stroke="rgba(244,63,94,.3)" stroke-width=".6"/>
   </svg>`;
@@ -391,10 +444,10 @@ function nyxFaceSvg() {
 
 function cipherFaceSvg() {
   return `<svg class="agent-face face-cipher" viewBox="0 0 28 28" fill="none">
-    <rect class="cipher-eye" x="5" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
-    <rect class="cipher-eye" x="17" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
-    <rect class="cipher-led" x="6.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
-    <rect class="cipher-led" x="18.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
+    <rect class="cipher-eye cipher-blink" x="5" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
+    <rect class="cipher-eye cipher-blink" x="17" y="9" width="6" height="5" rx="1" fill="rgba(6,182,212,.15)" stroke="rgba(6,182,212,.7)" stroke-width=".8"/>
+    <rect class="cipher-led cipher-pupil" x="6.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
+    <rect class="cipher-led cipher-pupil" x="18.5" y="10.5" width="3" height="2" rx=".5" fill="#06b6d4"/>
     <line class="cipher-data" x1="4" y1="19" x2="24" y2="19" stroke="rgba(6,182,212,.4)" stroke-width=".6" stroke-dasharray="2,2"/>
     <circle class="cipher-dot" cx="8" cy="19" r="1" fill="#06b6d4"/>
     <circle class="cipher-dot" cx="14" cy="19" r="1" fill="#06b6d4" opacity=".6"/>
@@ -406,8 +459,8 @@ function pulseFaceSvg() {
   return `<svg class="agent-face face-pulse" viewBox="0 0 28 28" fill="none">
     <circle class="pulse-eye pulse-blink" cx="9" cy="11" r="3" fill="rgba(16,185,129,.15)" stroke="rgba(16,185,129,.7)" stroke-width=".8"/>
     <circle class="pulse-eye pulse-blink" cx="19" cy="11" r="3" fill="rgba(16,185,129,.15)" stroke="rgba(16,185,129,.7)" stroke-width=".8"/>
-    <circle cx="9" cy="11" r="1.5" fill="#6ee7b7"/>
-    <circle cx="19" cy="11" r="1.5" fill="#6ee7b7"/>
+    <circle class="pulse-pupil" cx="9" cy="11" r="1.5" fill="#6ee7b7"/>
+    <circle class="pulse-pupil" cx="19" cy="11" r="1.5" fill="#6ee7b7"/>
     <circle cx="8" cy="10" r=".7" fill="rgba(255,255,255,.7)"/>
     <circle cx="18" cy="10" r=".7" fill="rgba(255,255,255,.7)"/>
     <path class="pulse-wave" d="M 3 6 Q 8 3 14 6 Q 20 9 25 6" stroke="rgba(16,185,129,.35)" stroke-width=".7" fill="none"/>
@@ -418,10 +471,10 @@ function pulseFaceSvg() {
 
 function wraithFaceSvg() {
   return `<svg class="agent-face face-wraith" viewBox="0 0 28 28" fill="none">
-    <ellipse class="wraith-eye" cx="9" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
-    <ellipse class="wraith-eye" cx="19" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
-    <circle class="wraith-core" cx="9" cy="12" r="1.5" fill="#a5b4fc"/>
-    <circle class="wraith-core" cx="19" cy="12" r="1.5" fill="#a5b4fc"/>
+    <ellipse class="wraith-eye wraith-blink" cx="9" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
+    <ellipse class="wraith-eye wraith-blink" cx="19" cy="12" rx="2.5" ry="3.5" fill="none" stroke="rgba(99,102,241,.5)" stroke-width=".7"/>
+    <circle class="wraith-core wraith-pupil" cx="9" cy="12" r="1.5" fill="#a5b4fc"/>
+    <circle class="wraith-core wraith-pupil" cx="19" cy="12" r="1.5" fill="#a5b4fc"/>
     <path class="wraith-wisp" d="M 4 8 Q 2 12 5 16" stroke="rgba(99,102,241,.25)" stroke-width=".6" fill="none"/>
     <path class="wraith-wisp" d="M 24 8 Q 26 12 23 16" stroke="rgba(99,102,241,.25)" stroke-width=".6" fill="none"/>
     <path class="wraith-wisp" d="M 6 20 Q 14 24 22 20" stroke="rgba(99,102,241,.15)" stroke-width=".5" fill="none"/>
@@ -430,9 +483,9 @@ function wraithFaceSvg() {
 
 function specterFaceSvg() {
   return `<svg class="agent-face face-specter" viewBox="0 0 28 28" fill="none">
-    <path class="specter-visor" d="M 4 10 L 24 10 L 22 15 L 6 15 Z" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.6)" stroke-width=".8" stroke-linejoin="round"/>
-    <rect class="specter-led" x="9" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
-    <rect class="specter-led" x="16" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
+    <path class="specter-visor specter-blink" d="M 4 10 L 24 10 L 22 15 L 6 15 Z" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.6)" stroke-width=".8" stroke-linejoin="round"/>
+    <rect class="specter-led specter-pupil" x="9" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
+    <rect class="specter-led specter-pupil" x="16" y="11.5" width="3" height="2" rx=".5" fill="#fbbf24"/>
     <circle class="specter-clock" cx="14" cy="21" r="3" fill="none" stroke="rgba(245,158,11,.4)" stroke-width=".7"/>
     <line class="specter-hand" x1="14" y1="21" x2="14" y2="19" stroke="#f59e0b" stroke-width=".7" stroke-linecap="round"/>
     <line class="specter-hand2" x1="14" y1="21" x2="15.5" y2="21.5" stroke="#f59e0b" stroke-width=".5" stroke-linecap="round"/>
@@ -581,14 +634,74 @@ function updateAgentEl(id) {
     }
   }
 
+  // Mood system
+  applyMood(id);
+
   queueRedraw();
+}
+
+/* ── Footstep trails ── */
+let _footstepSide = false; // alternates left/right
+
+function brightGlow(agentId) {
+  const def = AGENT_DEFS[agentId];
+  const g = def?.glow || 'rgba(148,163,184,.6)';
+  return g.replace(/,\s*[\d.]+\)$/, ',.9)');
+}
+
+function spawnFootstep(x, y, agentId) {
+  const dot = document.createElement('div');
+  dot.className = 'footstep ' + (_footstepSide ? 'left' : 'right');
+  _footstepSide = !_footstepSide;
+  const bright = brightGlow(agentId);
+  dot.style.cssText = `left:${x}px;top:${y + 25}px;background:${bright};box-shadow:0 0 10px ${bright},0 0 4px ${bright}`;
+  agentLayerEl.appendChild(dot);
+  setTimeout(() => dot.remove(), 1800);
+}
+
+function spawnDustPuff(x, y, agentId) {
+  const bright = brightGlow(agentId);
+  for (let i = 0; i < 3; i++) {
+    const p = document.createElement('div');
+    p.className = 'dust-puff';
+    const ox = (Math.random() - .5) * 14;
+    const oy = Math.random() * 5;
+    p.style.cssText = `left:${x + ox}px;top:${y + 22 + oy}px;background:${bright};box-shadow:0 0 8px ${bright}`;
+    agentLayerEl.appendChild(p);
+    setTimeout(() => p.remove(), 700);
+  }
+}
+
+function spawnDustBurst(x, y, agentId) {
+  const bright = brightGlow(agentId);
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI * 2 / 6) * i + Math.random() * .5;
+    const p = document.createElement('div');
+    p.className = 'dust-puff';
+    const dx = Math.cos(angle) * (12 + Math.random() * 10);
+    const dy = Math.sin(angle) * (8 + Math.random() * 6);
+    p.style.cssText = `left:${x}px;top:${y + 20}px;background:${bright};box-shadow:0 0 8px ${bright};--dx:${dx}px;--dy:${dy}px;animation:dust-burst-expand .8s ease-out forwards`;
+    agentLayerEl.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+function spawnGhostTrail(agentEl, x, y) {
+  const ghost = agentEl.cloneNode(true);
+  ghost.className = 'ghost-trail';
+  ghost.style.left = x + 'px';
+  ghost.style.top = y + 'px';
+  ghost.style.width = agentEl.offsetWidth + 'px';
+  ghost.style.height = agentEl.offsetHeight + 'px';
+  agentLayerEl.appendChild(ghost);
+  setTimeout(() => ghost.remove(), 800);
 }
 
 /* ── Agent walking animation ── */
 const _walkIds = new Map(); // agentId -> walkSeq (cancel previous walks)
 let _walkSeq = 0;
 
-function walkAgentTo(id, targetX, targetY, onDone) {
+function walkAgentTo(id, targetX, targetY, onDone, opts) {
   const a = agents.get(id);
   if (!a || !a.hasDesk) return;
 
@@ -600,8 +713,11 @@ function walkAgentTo(id, targetX, targetY, onDone) {
 
   const startX = a.pos.x, startY = a.pos.y;
   const dist = Math.sqrt((targetX - startX) ** 2 + (targetY - startY) ** 2);
-  const duration = Math.min(Math.max(dist * 2.5, 400), 3500);
+  const duration = Math.min(Math.max(dist * 5, 800), 6000);
   const startTime = performance.now();
+  const ghostMode = opts?.ghost || false;
+  let lastFootstepT = 0;
+  let lastGhostT = 0;
 
   function step(now) {
     // If a newer walk started, abort this one
@@ -614,10 +730,24 @@ function walkAgentTo(id, targetX, targetY, onDone) {
     a.el.style.left = a.pos.x + 'px';
     a.el.style.top = a.pos.y + 'px';
 
+    // Spawn footsteps every ~12% of walk progress
+    if (t - lastFootstepT > 0.12 && t < 0.95) {
+      lastFootstepT = t;
+      spawnFootstep(a.pos.x, a.pos.y, id);
+    }
+
+    // Ghost trail mode: spawn afterimage every ~8%
+    if (ghostMode && t - lastGhostT > 0.08 && t < 0.9) {
+      lastGhostT = t;
+      spawnGhostTrail(a.el, a.pos.x, a.pos.y);
+    }
+
     if (t < 1) {
       requestAnimationFrame(step);
     } else {
       a.el.classList.remove('walking');
+      // Small dust puff on arrival
+      spawnDustPuff(a.pos.x, a.pos.y, id);
       if (onDone) onDone();
     }
   }
@@ -811,17 +941,33 @@ function getMeetingChairPositions() {
   ];
 }
 
+let _standupSeq = 0; // sequence token — incremented on cancel to invalidate pending timeouts
+const _standupTimers = []; // track all setTimeout IDs for cleanup
+
+function standupTimeout(fn, ms) {
+  const seq = _standupSeq;
+  const id = setTimeout(() => {
+    if (_standupSeq !== seq) return; // cancelled
+    fn();
+  }, ms);
+  _standupTimers.push(id);
+  return id;
+}
+
 function startStandup(agentIds, missionTask) {
-  if (_standupInProgress) return;
+  if (_standupInProgress || _threatActive) return; // threats take priority
   _standupInProgress = true;
+  _standupSeq++;
+  _standupTimers.length = 0;
 
   const chairs = getMeetingChairPositions();
   const seated = [];
   let arrivedCount = 0;
   let sequenceStarted = false;
+  const seq = _standupSeq;
 
   function tryStartSequence() {
-    if (sequenceStarted) return;
+    if (sequenceStarted || _standupSeq !== seq) return;
     sequenceStarted = true;
     runStandupSequence(seated, missionTask);
   }
@@ -838,13 +984,15 @@ function startStandup(agentIds, missionTask) {
 
     const chair = chairs[i % chairs.length];
     walkAgentTo(id, chair.x, chair.y, () => {
+      if (_standupSeq !== seq) return;
+      spawnDustBurst(chair.x, chair.y, id);
       arrivedCount++;
       if (arrivedCount >= seated.length) tryStartSequence();
     });
   });
 
   // Fallback: start sequence after 4s even if not all walks completed
-  setTimeout(() => tryStartSequence(), 4000);
+  standupTimeout(() => tryStartSequence(), 4000);
 }
 
 function runStandupSequence(agentIds, missionTask) {
@@ -856,7 +1004,7 @@ function runStandupSequence(agentIds, missionTask) {
 
   // 1. Dilo opens the standup
   const openLine = getStandupLine(leader, 'status');
-  setTimeout(() => {
+  standupTimeout(() => {
     showThoughtBubble(leader, openLine);
     addMeetingScreenLine(leader, openLine, true);
   }, delay);
@@ -865,7 +1013,7 @@ function runStandupSequence(agentIds, missionTask) {
   // 2. If there's a mission, Dilo states it
   if (missionTask) {
     const focusLine = `Focus: ${missionTask.slice(0, 50)}`;
-    setTimeout(() => {
+    standupTimeout(() => {
       showThoughtBubble(leader, focusLine);
       addMeetingScreenLine(leader, focusLine, true);
     }, delay);
@@ -875,7 +1023,7 @@ function runStandupSequence(agentIds, missionTask) {
   // 3. Each non-leader agent gives their update (one at a time)
   agentIds.slice(1).forEach((id) => {
     const line = getStandupLine(id, 'status');
-    setTimeout(() => {
+    standupTimeout(() => {
       showThoughtBubble(id, line);
       addMeetingScreenLine(id, line, true);
     }, delay);
@@ -884,7 +1032,7 @@ function runStandupSequence(agentIds, missionTask) {
 
   // 4. Dilo wraps up with assignments
   const closeLine = getStandupLine(leader, 'assign');
-  setTimeout(() => {
+  standupTimeout(() => {
     showThoughtBubble(leader, closeLine);
     finishMeetingScreen();
     addMeetingScreenLine(leader, closeLine, true);
@@ -892,7 +1040,7 @@ function runStandupSequence(agentIds, missionTask) {
   delay += 3500;
 
   // 5. Fade screen + disperse back to desks
-  setTimeout(() => {
+  standupTimeout(() => {
     finishMeetingScreen();
     removeMeetingScreen();
     agentIds.forEach(id => {
@@ -951,6 +1099,11 @@ function checkSleepStates() {
 }
 setInterval(checkSleepStates, 5000);
 
+// Periodic mood refresh — lets moods decay as workload window slides
+setInterval(() => {
+  for (const [id] of agents) applyMood(id);
+}, 5000);
+
 /* ── Coffee break: idle agents wander to break area ── */
 const _coffeeTimers = new Map();
 function scheduleCoffeeBreak(id) {
@@ -961,7 +1114,7 @@ function scheduleCoffeeBreak(id) {
     _coffeeTimers.delete(id);
     const a = agents.get(id);
     if (!a || !a.hasDesk || !a.homePos) return;
-    if (_standupInProgress) return; // don't wander during standups
+    if (_standupInProgress || _threatActive) return; // don't wander during standups/threats
     // Only go if still idle
     const idle = a.status === 'idle' || a.status === 'waiting' || !a.status;
     if (!idle || a.el.classList.contains('walking')) return;
@@ -1004,7 +1157,7 @@ function scheduleWraithSmoke() {
     _coffeeTimers.delete('wraith');
     const a = agents.get('wraith');
     if (!a || !a.hasDesk || !a.homePos) return;
-    if (_standupInProgress) { scheduleWraithSmoke(); return; } // defer during standups
+    if (_standupInProgress || _threatActive) { scheduleWraithSmoke(); return; } // defer during standups/threats
     const idle = a.status === 'idle' || a.status === 'waiting' || !a.status;
     if (!idle || a.el.classList.contains('walking')) { scheduleWraithSmoke(); return; }
     const wrap = canvas.parentElement;
@@ -1057,6 +1210,76 @@ function showSpeechBubble(agentId, text) {
   }, 4000);
 }
 
+/* ── Visitor message (temporary agent at door) ── */
+let _visitorEl = null;
+let _visitorTimeout = null;
+
+function showVisitorMessage(text) {
+  const wrap = canvas.parentElement;
+  const w = wrap?.clientWidth || 800;
+  const h = wrap?.clientHeight || 500;
+  // Position visitor at bottom-left "door" area
+  const vx = 60;
+  const vy = h - 60;
+  const def = AGENT_DEFS.visitor;
+
+  // Create or reuse visitor element
+  if (!_visitorEl) {
+    const el = document.createElement('div');
+    el.className = 'agent-char visitor-agent';
+    el.style.cssText = `left:${vx}px;top:${vy}px;transform:translate(-50%,-50%);--agent-glow:${def.glow};opacity:0;transition:opacity .5s`;
+    el.innerHTML = `
+      <div class="agent-shadow" style="width:40px;height:14px;background:radial-gradient(ellipse,${def.glow} 0%,transparent 70%)"></div>
+      <div class="agent-body" style="width:48px;height:48px;background:linear-gradient(135deg,${def.glow} 0%,transparent 100%)">
+        <div class="agent-body-inner" style="background:${def.accent}"></div>
+        <span class="agent-emoji" style="font-size:24px">${def.avatar}</span>
+      </div>
+      <div class="agent-name" style="background:linear-gradient(135deg,${def.glow} 0%,transparent 100%)">Visitor</div>
+    `;
+    agentLayerEl.appendChild(el);
+    _visitorEl = el;
+    // Fade in
+    requestAnimationFrame(() => { el.style.opacity = '1'; });
+  } else {
+    _visitorEl.style.opacity = '1';
+    _visitorEl.style.left = vx + 'px';
+    _visitorEl.style.top = vy + 'px';
+  }
+
+  // Remove existing bubble
+  const existingBubble = _visitorEl.querySelector('.visitor-bubble');
+  if (existingBubble) existingBubble.remove();
+
+  // Speech bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'speech-bubble dir-right visitor-bubble';
+  bubble.textContent = text.length > 100 ? text.slice(0, 97) + '...' : text;
+  bubble.style.cssText = `left:${vx + 30}px;top:${vy - 40}px`;
+  agentLayerEl.appendChild(bubble);
+
+  // Clear existing timeout
+  if (_visitorTimeout) clearTimeout(_visitorTimeout);
+
+  // Fade out after 12 seconds
+  _visitorTimeout = setTimeout(() => {
+    if (bubble.parentNode) {
+      bubble.style.opacity = '0';
+      bubble.style.transition = 'opacity .5s';
+      setTimeout(() => bubble.parentNode && bubble.remove(), 500);
+    }
+    if (_visitorEl) {
+      _visitorEl.style.opacity = '0';
+      setTimeout(() => {
+        if (_visitorEl && _visitorEl.parentNode) {
+          _visitorEl.parentNode.removeChild(_visitorEl);
+          _visitorEl = null;
+        }
+      }, 500);
+    }
+    _visitorTimeout = null;
+  }, 12000);
+}
+
 /* ── Thought bubbles (standup meetings) ── */
 function showThoughtBubble(agentId, text) {
   const a = agents.get(agentId);
@@ -1093,9 +1316,10 @@ function showMeetingScreen(missionTask, agentIds) {
 
   const el = document.createElement('div');
   el.className = 'meeting-screen';
-  // Position to the left of the meeting area — large readable panel
-  const scrW = 320;
-  el.style.cssText = `left:${mrx - scrW - 30}px;top:${mry - 20}px;width:${scrW}px`;
+  // Responsive width: clamp to available space on small screens
+  const scrW = Math.min(320, w * 0.7);
+  const left = Math.max(8, mrx - scrW - 30);
+  el.style.cssText = `left:${left}px;top:${mry - 20}px;width:${scrW}px;max-width:calc(100% - 16px)`;
 
   // Header
   const header = document.createElement('div');
@@ -1157,6 +1381,179 @@ function removeMeetingScreen() {
     setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 600);
   }
   _meetingScreenEl = null;
+}
+
+/* ── Threat Detection Mode ── */
+let _threatActive = false;
+
+function cancelStandupForThreat() {
+  if (!_standupInProgress) return;
+  // Invalidate all pending standup timeouts
+  _standupSeq++;
+  for (const t of _standupTimers) clearTimeout(t);
+  _standupTimers.length = 0;
+  _standupInProgress = false;
+  // Remove meeting screen immediately
+  if (_meetingScreenEl && _meetingScreenEl.parentNode) _meetingScreenEl.parentNode.removeChild(_meetingScreenEl);
+  _meetingScreenEl = null;
+  // Rush all agents back to desks + clear bubbles
+  for (const [id, a] of agents) {
+    if (!a.hasDesk || !a.homePos) continue;
+    a.el.classList.remove('huddling');
+    if (a.bubbleEl && a.bubbleEl.parentNode) { a.bubbleEl.parentNode.removeChild(a.bubbleEl); a.bubbleEl = null; }
+    walkAgentTo(id, a.homePos.x, a.homePos.y);
+  }
+}
+
+function triggerThreatMode(errorText) {
+  if (_threatActive) return;
+
+  // Override standup — rush agents back to desks first
+  if (_standupInProgress) cancelStandupForThreat();
+
+  _threatActive = true;
+
+  const wrap = canvas.parentElement;
+  const w = wrap?.clientWidth || 800, h = wrap?.clientHeight || 500;
+  const cx = w * 0.5, cy = h * 0.48;
+
+  // 1. Create overlay container
+  const overlay = document.createElement('div');
+  overlay.className = 'threat-overlay active';
+  agentLayerEl.appendChild(overlay);
+
+  // Add red ambient wash
+  const ambient = document.createElement('div');
+  ambient.className = 'threat-ambient';
+  overlay.appendChild(ambient);
+
+  // Add scanning laser
+  const laser = document.createElement('div');
+  laser.className = 'threat-laser';
+  overlay.appendChild(laser);
+
+  // Add red border to canvas
+  agentLayerEl.classList.add('threat-active');
+
+  // Flash all agent screens red
+  for (const [id, a] of agents) {
+    if (a.screenEl) flashScreen(id, 'error');
+  }
+
+  // 2. Alert banner — flashes briefly
+  const banner = document.createElement('div');
+  banner.className = 'threat-banner';
+  banner.innerHTML = `<div class="threat-banner-inner"><div class="threat-alert-icon">\u26a0\ufe0f</div><div class="threat-alert-label">THREAT DETECTED</div></div>`;
+  overlay.appendChild(banner);
+
+  // Remove banner after 1.5s, replaced by holo
+  setTimeout(() => {
+    if (banner.parentNode) {
+      banner.style.opacity = '0';
+      banner.style.transition = 'opacity .4s';
+      setTimeout(() => banner.parentNode && banner.remove(), 400);
+    }
+  }, 1500);
+
+  // 3. Cipher sprints to center + holographic display
+  const cipher = agents.get('cipher');
+  const cipherHome = cipher?.homePos ? { ...cipher.homePos } : null;
+
+  if (cipher && cipher.hasDesk) {
+    cancelCoffeeBreak('cipher');
+    stopThinkingPace('cipher');
+    markActivity('cipher');
+    walkAgentTo('cipher', cx, cy, () => {
+      // Dust burst on dramatic arrival
+      spawnDustBurst(cx, cy, 'cipher');
+      // Show holographic threat display at Cipher's location
+      showHolographicDisplay(cx, cy, errorText, overlay);
+    }, { ghost: true });
+  } else {
+    // No Cipher — show holo at center anyway
+    setTimeout(() => showHolographicDisplay(cx, cy, errorText, overlay), 800);
+  }
+
+  // 4. Freeze other agents — they "look" toward center
+  for (const [id, a] of agents) {
+    if (id === 'cipher' || !a.hasDesk) continue;
+    cancelCoffeeBreak(id);
+    stopThinkingPace(id);
+    markActivity(id);
+  }
+
+  // 5. After 8s — Cipher resolves, green CLEAR pulse
+  setTimeout(() => {
+    resolveThreat(overlay, cx, cy, cipherHome);
+  }, 8000);
+}
+
+function showHolographicDisplay(x, y, errorText, overlay) {
+  const holo = document.createElement('div');
+  holo.className = 'threat-holo';
+  holo.style.cssText = `left:${x - 90}px;top:${y - 110}px`;
+  holo.innerHTML = `
+    <div class="threat-holo-hex">
+      <div class="threat-holo-ring"></div>
+      <div class="threat-holo-ring"></div>
+      <div class="threat-holo-shield">
+        <div class="threat-holo-icon">\ud83d\udee1\ufe0f</div>
+        <div class="threat-holo-label">Analyzing</div>
+        <div class="threat-holo-text">${(errorText || 'Unknown threat').slice(0, 60)}</div>
+      </div>
+    </div>`;
+  overlay.appendChild(holo);
+
+  // Cipher thought bubble
+  const cipher = agents.get('cipher');
+  if (cipher && cipher.hasDesk) {
+    showThoughtBubble('cipher', 'Running threat analysis...');
+  }
+
+  // After 3s, update holo to "Contained"
+  setTimeout(() => {
+    const label = holo.querySelector('.threat-holo-label');
+    const icon = holo.querySelector('.threat-holo-icon');
+    if (label) { label.textContent = 'Contained'; label.style.color = 'rgba(16,185,129,.8)'; }
+    if (icon) icon.textContent = '\u2705';
+    if (cipher && cipher.hasDesk) {
+      showThoughtBubble('cipher', 'Threat contained. All clear.');
+    }
+  }, 4000);
+}
+
+function resolveThreat(overlay, cx, cy, cipherHome) {
+  // Green CLEAR pulse from center
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const pulse = document.createElement('div');
+      pulse.className = 'threat-clear';
+      pulse.style.cssText = `left:${cx}px;top:${cy}px`;
+      overlay.appendChild(pulse);
+      setTimeout(() => pulse.remove(), 1600);
+    }, i * 300);
+  }
+
+  // Fade out overlay
+  setTimeout(() => {
+    overlay.classList.add('fading');
+    agentLayerEl.classList.remove('threat-active');
+
+    // Walk Cipher back
+    if (cipherHome) {
+      walkAgentTo('cipher', cipherHome.x, cipherHome.y);
+    }
+
+    // Flash all screens green — resolved
+    for (const [id, a] of agents) {
+      if (a.screenEl) flashScreen(id, 'success');
+    }
+
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.remove();
+      _threatActive = false;
+    }, 800);
+  }, 800);
 }
 
 /* ── Conversation lines ── */
@@ -1253,7 +1650,7 @@ function updateStatCards() {
 
 /* ── Feed ── */
 function feedTypeClass(type) {
-  if (type.includes('error')) return 'type-error';
+  if (type.includes('error') || type.includes('threat')) return 'type-error';
   if (type.includes('mission')) return 'type-mission';
   if (type.includes('task') || type.includes('progress')) return 'type-task';
   if (type.includes('message')) return 'type-message';
@@ -1331,8 +1728,21 @@ function handleEvent(evt) {
   addFeedItem(evt);
 
   const agent = normalizeAgentId(evt.agent);
-  // Track activity for sleep detection
+
+  // ── Visitor messages: show at door, don't create a desk agent ──
+  if (agent === 'visitor' && evt.type === 'message' && evt.text) {
+    messageCount++;
+    showVisitorMessage(evt.text);
+    missionTextEl.textContent = `Visitor: ${evt.text.slice(0, 60)}`;
+    updateStatCards();
+    return; // Don't process further — visitor has no desk
+  }
+
+  // Track activity for sleep detection + mood workload
   markActivity(agent);
+  if (['tool_call', 'thinking', 'task.started', 'task.done', 'task.error', 'message'].includes(evt.type)) {
+    recordWorkload(agent);
+  }
 
   if (evt.type === 'agent.move' && evt.pos) {
     // Convert grid pos to pixel pos
@@ -1391,6 +1801,9 @@ function handleEvent(evt) {
     triggerErrorShake(agent);
     flashScreen(agent, 'error');
     missionTextEl.textContent = `${getAgentDef(agent).name}: error in ${evt.task || 'task'}`;
+    // Trigger threat detection — only for recent events (not history replay)
+    const evtAge = Date.now() - (evt.ts || Date.now());
+    if (evtAge < 30000) triggerThreatMode(evt.text || evt.task || 'Error detected');
   }
 
   if (evt.type === 'message' && evt.text) {
@@ -1431,6 +1844,36 @@ function handleEvent(evt) {
     if (attendees.length > 1) {
       startStandup(attendees, evt.text || 'Team standup');
     }
+  }
+
+  // Threat detection — can be triggered via POST /api/event { type: "threat", text: "description" }
+  if (evt.type === 'threat') {
+    triggerThreatMode(evt.text || 'Threat detected');
+  }
+
+  // Celebrate / high-five — POST { type: "celebrate" }
+  if (evt.type === 'celebrate') {
+    const all = Array.from(agents.entries()).filter(([, a]) => a.hasDesk).map(([id]) => id);
+    highfiveBurst(all);
+    for (const [id, a] of agents) { if (a.screenEl) flashScreen(id, 'success'); }
+  }
+
+  // Coffee break — POST { type: "coffee", agent: "phantom" } or all
+  if (evt.type === 'coffee') {
+    if (agent && agents.has(agent) && agent !== 'all') {
+      cancelCoffeeBreak(agent);
+      scheduleCoffeeBreak(agent);
+      // Trigger immediately by clearing idle check
+      const a = agents.get(agent);
+      if (a) { a.status = 'idle'; }
+    }
+  }
+
+  // Smoke break for Wraith — POST { type: "smoke" }
+  if (evt.type === 'smoke') {
+    if (_smokeInterval) { clearInterval(_smokeInterval); _smokeInterval = null; }
+    cancelCoffeeBreak('wraith');
+    scheduleWraithSmoke();
   }
 
   if (evt.type === 'conversation' && evt.text) {
@@ -1516,6 +1959,11 @@ function handleMissionEvent(evt) {
       // High-five celebration for all involved agents
       const involved = m.involvedAgents ? [...m.involvedAgents] : [normalizeAgentId(evt.agent)];
       highfiveBurst(involved);
+      // Golden aura for all involved agents (5s)
+      for (const aid of involved) {
+        const ag = agents.get(aid);
+        if (ag) { ag._goldenUntil = Date.now() + 5000; applyMood(aid); }
+      }
     }
   }
 
@@ -1526,6 +1974,8 @@ function handleMissionEvent(evt) {
       m.latestStep = evt.text || 'Failed';
       m.fadeAt = (evt.ts || Date.now()) + 30000;
     }
+    const mAge = Date.now() - (evt.ts || Date.now());
+    if (mAge < 30000) triggerThreatMode(evt.text || evt.task || 'Mission failed');
   }
 
   renderMissionBoard();

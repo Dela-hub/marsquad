@@ -771,7 +771,8 @@ body {
 
 .obs-main {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
   gap: 16px;
   padding: 20px;
 }
@@ -867,8 +868,3 @@ body {
   cursor: not-allowed;
 }
 
-@media (max-width: 960px) {
-  .obs-main {
-    grid-template-columns: 1fr;
-  }
-}
