@@ -340,39 +340,290 @@ body {
   font-size: 12px;
 }
 
-/* ── Stage ── */
-.lp-stage {
-  padding: 20px 40px 80px;
-  animation: lp-fadeUp .8s ease both;
-  animation-delay: 1.2s;
+/* ══════════════════════════
+   Live Ticker
+   ══════════════════════════ */
+
+.ms-ticker {
+  overflow: hidden;
+  background: rgba(15,22,34,.6);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  position: relative;
 }
 
-.lp-stage-chrome {
-  border-radius: 18px;
+.ms-ticker::before,
+.ms-ticker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ms-ticker::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+
+.ms-ticker::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+}
+
+.ms-ticker-track {
+  display: flex;
+  gap: 40px;
+  animation: ms-scroll 60s linear infinite;
+  width: max-content;
+}
+
+.ms-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.ms-ticker-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .6;
+  flex-shrink: 0;
+}
+
+.ms-ticker-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.ms-ticker-time {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+@keyframes ms-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ══════════════════════════
+   Stats Bar
+   ══════════════════════════ */
+
+.ms-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  padding: 40px 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  animation: lp-fadeUp .7s ease both;
+}
+
+.ms-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 32px;
+  flex: 1;
+}
+
+.ms-stat-value {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 500;
+}
+
+.ms-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════
+   Section Titles
+   ══════════════════════════ */
+
+.ms-section-title {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* ══════════════════════════
+   Agent Cards
+   ══════════════════════════ */
+
+.ms-agents {
+  padding: 60px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ms-agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.ms-agent-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+  animation: lp-fadeUp .5s ease both;
+  animation-delay: calc(var(--agent-i) * .06s);
+}
+
+.ms-agent-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--agent-color);
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.ms-agent-card:hover {
+  border-color: var(--agent-color);
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 30px rgba(0,0,0,.3),
+    0 0 40px color-mix(in srgb, var(--agent-color) 10%, transparent);
+}
+
+.ms-agent-card:hover::before { opacity: 1; }
+
+.ms-agent-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ms-agent-avatar {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--agent-color) 12%, transparent);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.ms-agent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ms-agent-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.ms-agent-role {
+  font-size: 12px;
+  color: var(--agent-color);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.ms-agent-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  opacity: .4;
+  transition: all .3s;
+}
+
+.ms-agent-status--active {
+  background: var(--accent);
+  opacity: 1;
+  box-shadow: 0 0 10px var(--glow-accent);
+}
+
+.ms-agent-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ══════════════════════════
+   Live Terminal
+   ══════════════════════════ */
+
+.ms-terminal-section {
+  padding: 40px 40px 60px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.ms-terminal-chrome {
+  border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   box-shadow:
     0 0 0 1px rgba(255,255,255,.03),
     0 20px 80px rgba(0,0,0,.5),
-    0 0 120px rgba(34,197,94,.04);
+    0 0 80px rgba(34,197,94,.03);
 }
 
-.lp-stage-bar {
+.ms-terminal-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 12px 18px;
   background: rgba(15,22,34,.8);
   border-bottom: 1px solid var(--border);
 }
 
-.lp-stage-dots {
+.ms-terminal-dots {
   display: flex;
   gap: 7px;
 }
 
-.lp-stage-dots span {
+.ms-terminal-dots span {
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -380,18 +631,18 @@ body {
   border: 1px solid rgba(255,255,255,.06);
 }
 
-.lp-stage-dots span:first-child { background: rgba(239,68,68,.7); border-color: rgba(239,68,68,.3); }
-.lp-stage-dots span:nth-child(2) { background: rgba(251,191,36,.7); border-color: rgba(251,191,36,.3); }
-.lp-stage-dots span:last-child { background: rgba(34,197,94,.7); border-color: rgba(34,197,94,.3); }
+.ms-terminal-dots span:first-child { background: rgba(239,68,68,.7); border-color: rgba(239,68,68,.3); }
+.ms-terminal-dots span:nth-child(2) { background: rgba(251,191,36,.7); border-color: rgba(251,191,36,.3); }
+.ms-terminal-dots span:last-child { background: rgba(34,197,94,.7); border-color: rgba(34,197,94,.3); }
 
-.lp-stage-title {
+.ms-terminal-title {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
   letter-spacing: .02em;
 }
 
-.lp-stage-live {
+.ms-terminal-live {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -401,16 +652,159 @@ body {
   letter-spacing: .08em;
 }
 
-.lp-stage-frame {
+.ms-terminal-body {
   background: #080c12;
+  padding: 16px 20px;
+  height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  scroll-behavior: smooth;
 }
 
-.lp-stage-frame iframe {
-  display: block;
-  width: 100%;
-  height: 100vh;
-  min-height: 700px;
-  border: none;
+.ms-terminal-body::-webkit-scrollbar { width: 6px; }
+.ms-terminal-body::-webkit-scrollbar-track { background: transparent; }
+.ms-terminal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 3px; }
+
+.ms-terminal-line {
+  padding: 2px 0;
+  border-left: 2px solid transparent;
+  padding-left: 10px;
+  transition: border-color .2s;
+}
+
+.ms-terminal-line:hover {
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+
+.ms-terminal-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  padding: 20px 0;
+}
+
+.ms-terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--accent);
+  animation: ms-blink 1s step-end infinite;
+}
+
+@keyframes ms-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ══════════════════════════
+   Activity Grid
+   ══════════════════════════ */
+
+.ms-activity {
+  padding: 40px 40px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ms-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.ms-activity-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  transition: all .25s;
+  animation: lp-fadeUp .4s ease both;
+  animation-delay: calc(var(--card-i) * .05s);
+}
+
+.ms-activity-card:hover {
+  border-color: rgba(148,163,184,.2);
+  background: var(--panel-hover);
+}
+
+.ms-activity-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ms-activity-agent {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ms-activity-time {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.ms-activity-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+/* ══════════════════════════
+   CTA Section
+   ══════════════════════════ */
+
+.ms-cta {
+  padding: 40px 40px 60px;
+}
+
+.ms-cta-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-cta-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(34,197,94,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ms-cta-title {
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.ms-cta-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.ms-cta-btn {
+  position: relative;
 }
 
 /* ── How it works ── */
@@ -743,6 +1137,7 @@ body {
 @media (max-width: 1024px) {
   .lp-hero { grid-template-columns: 1.2fr 1fr; gap: 24px; }
   .lp-steps { grid-template-columns: repeat(2, 1fr); }
+  .ms-agent-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -751,12 +1146,22 @@ body {
   .lp-nav-link { display: none; }
   .lp-hero { padding: 60px 20px 40px; grid-template-columns: 1fr; }
   .lp-illustration { max-width: 400px; margin: 0 auto; }
-  .lp-stage { padding: 12px 20px 60px; }
   .lp-how { padding: 60px 20px 80px; }
   .lp-steps { grid-template-columns: 1fr; }
-  .lp-stage-frame iframe { height: 55vh; min-height: 380px; }
   .lp-roster { gap: 8px; }
   .lp-chip { padding: 6px 12px 6px 10px; font-size: 12px; }
+
+  .ms-stats { flex-wrap: wrap; gap: 12px; padding: 30px 20px 16px; }
+  .ms-stat { padding: 0 16px; }
+  .ms-stat-divider { display: none; }
+  .ms-agents { padding: 40px 20px; }
+  .ms-agent-grid { grid-template-columns: 1fr; }
+  .ms-terminal-section { padding: 20px 20px 40px; }
+  .ms-terminal-body { height: 300px; font-size: 11px; padding: 12px 14px; }
+  .ms-activity { padding: 20px 20px 60px; }
+  .ms-activity-grid { grid-template-columns: 1fr; }
+  .ms-cta { padding: 20px 20px 40px; }
+  .ms-cta-inner { padding: 36px 24px; }
 }
 
 /* ══════════════════════════

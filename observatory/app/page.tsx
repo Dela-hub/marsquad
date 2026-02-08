@@ -1,4 +1,5 @@
 import AgentIllustration from '../components/AgentIllustration';
+import LandingLive from '../components/LandingLive';
 
 export default function Page() {
   return (
@@ -13,9 +14,10 @@ export default function Page() {
           <span className="lp-logo-text">marsquad</span>
         </a>
         <div className="lp-nav-links">
-          <a href="#stage" className="lp-nav-link">live feed</a>
+          <a href="#terminal" className="lp-nav-link">live feed</a>
+          <a href="#agents" className="lp-nav-link">squad</a>
           <a href="#how" className="lp-nav-link">how it works</a>
-          <a href="#stage" className="lp-nav-cta">
+          <a href="#terminal" className="lp-nav-cta">
             <span className="lp-pulse" />
             watch now
           </a>
@@ -38,7 +40,7 @@ export default function Page() {
             Watch every decision happen in real time.
           </p>
           <div className="lp-hero-actions">
-            <a href="#stage" className="lp-btn lp-btn--primary">
+            <a href="#terminal" className="lp-btn lp-btn--primary">
               Open the stage
               <span className="lp-btn-arrow">→</span>
             </a>
@@ -73,24 +75,8 @@ export default function Page() {
         <AgentIllustration />
       </section>
 
-      {/* ── Stage ── */}
-      <section className="lp-stage" id="stage">
-        <div className="lp-stage-chrome">
-          <div className="lp-stage-bar">
-            <div className="lp-stage-dots">
-              <span /><span /><span />
-            </div>
-            <span className="lp-stage-title">marsquad — live operations</span>
-            <div className="lp-stage-live">
-              <span className="lp-pulse lp-pulse--red" />
-              <span>LIVE</span>
-            </div>
-          </div>
-          <div className="lp-stage-frame">
-            <iframe title="Marsquad Live" src="/live" loading="lazy" />
-          </div>
-        </div>
-      </section>
+      {/* ── Live sections (client component) ── */}
+      <LandingLive />
 
       {/* ── How it works ── */}
       <section className="lp-how" id="how">
@@ -133,6 +119,25 @@ export default function Page() {
               <p className="lp-step-desc">{s.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="ms-cta">
+        <div className="ms-cta-inner">
+          <h2 className="ms-cta-title">Send your first task</h2>
+          <p className="ms-cta-desc">
+            Message the squad on WhatsApp. One number, instant delegation.
+          </p>
+          <a
+            href="https://wa.me/message/marsquad"
+            className="lp-btn lp-btn--primary ms-cta-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Message on WhatsApp
+            <span className="lp-btn-arrow">→</span>
+          </a>
         </div>
       </section>
 
