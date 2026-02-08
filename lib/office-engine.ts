@@ -9,11 +9,6 @@ type InitOptions = {
 
 const OFFICE_TEMPLATE = `
   <div id="app">
-    <div class="ambient">
-      <div class="blob blob-violet"></div>
-      <div class="blob blob-cyan"></div>
-      <div class="blob blob-emerald"></div>
-    </div>
     <header>
       <div class="header-left">
         <div class="header-brand">
