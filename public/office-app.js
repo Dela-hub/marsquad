@@ -48,7 +48,8 @@ function computeDeskPositions() {
   // Slot 0: Boss desk (Dilo) centered at top
   // Slots 1-3: Row 1 (3 worker desks)
   // Slots 4-6: Row 2 (3 worker desks)
-  const marginX = 120;
+  const isMobile = w < 500;
+  const marginX = isMobile ? Math.max(30, w * 0.08) : 120;
   const bossY = h * 0.14;
   const row1Y = h * 0.44;
   const row2Y = h * 0.72;
@@ -195,53 +196,58 @@ function drawOffice() {
   const h = canvas.parentElement.clientHeight;
   ctx.clearRect(0, 0, w, h);
 
+  const _mobile = w < 500;
+
   // Windows along the top wall
   const winY = 20;
   ctx.fillStyle = 'rgba(99,102,241,.12)';
   ctx.strokeStyle = 'rgba(255,255,255,.06)';
   ctx.lineWidth = 1;
-  const windowPositions = [w * 0.28, w * 0.42, w * 0.56, w * 0.70];
+  const winW = _mobile ? 50 : 100;
+  const windowPositions = _mobile ? [w * 0.3, w * 0.55, w * 0.8] : [w * 0.28, w * 0.42, w * 0.56, w * 0.70];
   windowPositions.forEach(wx => {
     ctx.beginPath();
-    ctx.roundRect(wx - 50, winY, 100, 65, 8);
+    ctx.roundRect(wx - winW / 2, winY, winW, _mobile ? 40 : 65, 8);
     ctx.fill(); ctx.stroke();
-    // City light dots
     ctx.fillStyle = 'rgba(251,191,36,.15)';
-    ctx.beginPath(); ctx.arc(wx - 15, winY + 48, 2, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(wx + 12, winY + 44, 2, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(wx + 30, winY + 50, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wx - 8, winY + (_mobile ? 28 : 48), 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wx + 8, winY + (_mobile ? 25 : 44), 2, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(99,102,241,.12)';
   });
 
-  // Clock display (top right)
-  ctx.fillStyle = 'rgba(30,41,59,.6)';
-  ctx.strokeStyle = 'rgba(71,85,105,.5)';
-  ctx.beginPath();
-  ctx.roundRect(w - 130, 25, 100, 36, 10);
-  ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#10b981';
-  ctx.font = '14px "SF Mono", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(nowStr(), w - 80, 48);
+  // Clock display (top right) — hide on very small screens
+  if (!_mobile) {
+    ctx.fillStyle = 'rgba(30,41,59,.6)';
+    ctx.strokeStyle = 'rgba(71,85,105,.5)';
+    ctx.beginPath();
+    ctx.roundRect(w - 130, 25, 100, 36, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#10b981';
+    ctx.font = '14px "SF Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(nowStr(), w - 80, 48);
+  }
 
-  // Focus display (top left)
-  ctx.fillStyle = 'rgba(30,41,59,.7)';
-  ctx.strokeStyle = 'rgba(71,85,105,.5)';
-  ctx.beginPath();
-  ctx.roundRect(24, 22, 120, 70, 10);
-  ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#64748b';
-  ctx.font = '8px ui-sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText("TODAY'S FOCUS", 36, 40);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 11px ui-sans-serif';
-  ctx.fillText('Ship the office', 36, 56);
-  ctx.fillText('visualization', 36, 70);
-  ctx.fillStyle = '#10b981';
-  [0, 1].forEach((i) => { ctx.beginPath(); ctx.arc(38 + i * 10, 82, 3, 0, Math.PI * 2); ctx.fill(); });
-  ctx.fillStyle = '#334155';
-  ctx.beginPath(); ctx.arc(58, 82, 3, 0, Math.PI * 2); ctx.fill();
+  // Focus display (top left) — hide on mobile
+  if (!_mobile) {
+    ctx.fillStyle = 'rgba(30,41,59,.7)';
+    ctx.strokeStyle = 'rgba(71,85,105,.5)';
+    ctx.beginPath();
+    ctx.roundRect(24, 22, 120, 70, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#64748b';
+    ctx.font = '8px ui-sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText("TODAY'S FOCUS", 36, 40);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px ui-sans-serif';
+    ctx.fillText('Ship the office', 36, 56);
+    ctx.fillText('visualization', 36, 70);
+    ctx.fillStyle = '#10b981';
+    [0, 1].forEach((i) => { ctx.beginPath(); ctx.arc(38 + i * 10, 82, 3, 0, Math.PI * 2); ctx.fill(); });
+    ctx.fillStyle = '#334155';
+    ctx.beginPath(); ctx.arc(58, 82, 3, 0, Math.PI * 2); ctx.fill();
+  }
 
   // Build desk → agent glow color map
   const deskGlowMap = new Map();
@@ -266,8 +272,9 @@ function drawOffice() {
   });
 
   // Meeting room (center-right, between desk rows)
-  const mrx = w * 0.62, mry = h * 0.35;
-  const mrW = 260, mrH = 180;
+  const mrx = _mobile ? w * 0.52 : w * 0.62;
+  const mry = h * 0.35;
+  const mrW = _mobile ? 140 : 260, mrH = _mobile ? 100 : 180;
   ctx.fillStyle = 'rgba(139,92,246,.06)';
   ctx.strokeStyle = 'rgba(139,92,246,.12)';
   ctx.beginPath();
@@ -281,66 +288,78 @@ function drawOffice() {
   // Conference table (centered in room)
   ctx.fillStyle = 'rgba(71,85,105,.3)';
   ctx.strokeStyle = 'rgba(139,92,246,.15)';
+  const tblW = _mobile ? 70 : 140, tblH = _mobile ? 45 : 85;
+  const tblX = _mobile ? mrx + 20 : mrx + 40, tblY = _mobile ? mry + 15 : mry + 25;
   ctx.beginPath();
-  ctx.roundRect(mrx + 40, mry + 25, 140, 85, 12);
+  ctx.roundRect(tblX, tblY, tblW, tblH, _mobile ? 8 : 12);
   ctx.fill(); ctx.stroke();
-  // Chair dots (7 seats around table — boss at head)
+  // Chair dots (seats around table)
   ctx.fillStyle = 'rgba(139,92,246,.12)';
-  const chairPositions = [
-    [mrx + 110, mry + 5],                              // head (Dilo)
-    [mrx + 55,  mry + 15],  [mrx + 165, mry + 15],     // top sides
-    [mrx + 15,  mry + 65],  [mrx + 205, mry + 65],     // mid sides
-    [mrx + 55,  mry + 125], [mrx + 165, mry + 125],    // bottom sides
+  const chairR = _mobile ? 4 : 7;
+  const chairPositions = _mobile ? [
+    [tblX + tblW / 2, tblY - 8],
+    [tblX - 8, tblY + tblH / 2], [tblX + tblW + 8, tblY + tblH / 2],
+    [tblX + tblW / 2, tblY + tblH + 8],
+  ] : [
+    [mrx + 110, mry + 5],
+    [mrx + 55,  mry + 15],  [mrx + 165, mry + 15],
+    [mrx + 15,  mry + 65],  [mrx + 205, mry + 65],
+    [mrx + 55,  mry + 125], [mrx + 165, mry + 125],
   ];
   chairPositions.forEach(([cx, cy]) => {
-    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, chairR, 0, Math.PI * 2); ctx.fill();
   });
 
-  // Server rack (bottom right)
-  const rx = w - 40, ry = h - 160;
-  ctx.fillStyle = 'rgba(30,41,59,.9)';
-  ctx.strokeStyle = 'rgba(71,85,105,.5)';
-  ctx.beginPath();
-  ctx.roundRect(rx - 22, ry, 44, 130, 8);
-  ctx.fill(); ctx.stroke();
-  for (let i = 0; i < 9; i++) {
-    const ly = ry + 8 + i * 13;
-    const colors = ['#10b981', '#06b6d4', '#f59e0b'];
-    ctx.fillStyle = colors[i % 3];
-    ctx.globalAlpha = Math.random() > .3 ? .8 : .3;
-    ctx.beginPath(); ctx.arc(rx - 12, ly + 4, 2.5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(71,85,105,.3)';
-    ctx.globalAlpha = 1;
-    ctx.fillRect(rx - 6, ly + 2, 22, 2.5);
+  // Server rack (bottom right) — hide on mobile
+  if (!_mobile) {
+    const rx = w - 40, ry = h - 160;
+    ctx.fillStyle = 'rgba(30,41,59,.9)';
+    ctx.strokeStyle = 'rgba(71,85,105,.5)';
+    ctx.beginPath();
+    ctx.roundRect(rx - 22, ry, 44, 130, 8);
+    ctx.fill(); ctx.stroke();
+    for (let i = 0; i < 9; i++) {
+      const ly = ry + 8 + i * 13;
+      const colors = ['#10b981', '#06b6d4', '#f59e0b'];
+      ctx.fillStyle = colors[i % 3];
+      ctx.globalAlpha = Math.random() > .3 ? .8 : .3;
+      ctx.beginPath(); ctx.arc(rx - 12, ly + 4, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(71,85,105,.3)';
+      ctx.globalAlpha = 1;
+      ctx.fillRect(rx - 6, ly + 2, 22, 2.5);
+    }
   }
 
   // Smoke spot (bottom left — near the "exit")
+  const exitW = _mobile ? 36 : 56, exitH = _mobile ? 40 : 60;
   ctx.fillStyle = 'rgba(30,41,59,.5)';
   ctx.strokeStyle = 'rgba(71,85,105,.3)';
   ctx.beginPath();
-  ctx.roundRect(14, h - 80, 56, 60, 8);
+  ctx.roundRect(10, h - exitH - 20, exitW, exitH, 8);
   ctx.fill(); ctx.stroke();
   ctx.fillStyle = 'rgba(99,102,241,.12)';
-  ctx.font = '8px ui-sans-serif';
+  ctx.font = (_mobile ? '6' : '8') + 'px ui-sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('EXIT', 42, h - 68);
-  // Door slit
+  ctx.fillText('EXIT', 10 + exitW / 2, h - exitH - 8);
   ctx.strokeStyle = 'rgba(99,102,241,.2)';
   ctx.beginPath();
-  ctx.moveTo(42, h - 62); ctx.lineTo(42, h - 28);
+  ctx.moveTo(10 + exitW / 2, h - exitH - 2);
+  ctx.lineTo(10 + exitW / 2, h - 24);
   ctx.stroke();
 
   // Plants
-  ctx.font = '24px serif';
+  ctx.font = (_mobile ? '14' : '24') + 'px serif';
   ctx.textAlign = 'center';
-  ctx.fillText('🪴', 80, h - 20);
-  ctx.fillText('🌿', w - 150, h - 16);
-  ctx.fillText('🪻', w * 0.5, h - 18);
+  ctx.fillText('🪴', _mobile ? 60 : 80, h - (_mobile ? 10 : 20));
+  if (!_mobile) ctx.fillText('🌿', w - 150, h - 16);
+  ctx.fillText('🪻', w * 0.5, h - (_mobile ? 10 : 18));
 }
 
 function drawDesk(x, y, hasAgent, isBoss, agentGlow) {
   // Monitor
-  const mw = isBoss ? 80 : 60, mh = isBoss ? 52 : 44;
+  const _mob = (canvas.parentElement?.clientWidth || 800) < 500;
+  const mw = _mob ? (isBoss ? 50 : 38) : (isBoss ? 80 : 60);
+  const mh = _mob ? (isBoss ? 34 : 28) : (isBoss ? 52 : 44);
   ctx.fillStyle = hasAgent
     ? 'rgba(30,41,59,.9)'
     : 'rgba(15,23,42,.9)';
@@ -378,7 +397,8 @@ function drawDesk(x, y, hasAgent, isBoss, agentGlow) {
   ctx.fillRect(x - 5, y - 10, 10, 8);
 
   // Desk surface
-  const dw = isBoss ? 140 : 104, dh = isBoss ? 46 : 40;
+  const dw = _mob ? (isBoss ? 80 : 60) : (isBoss ? 140 : 104);
+  const dh = _mob ? (isBoss ? 30 : 26) : (isBoss ? 46 : 40);
   ctx.fillStyle = isBoss ? 'rgba(59,130,246,.12)' : 'rgba(51,65,85,.4)';
   ctx.strokeStyle = isBoss ? 'rgba(59,130,246,.2)' : 'rgba(71,85,105,.2)';
   ctx.beginPath();

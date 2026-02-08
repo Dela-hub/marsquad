@@ -872,3 +872,38 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .obs-main {
+    grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 8px;
+  }
+  .obs-canvas {
+    min-height: 55vh;
+    min-height: 55dvh;
+    border-radius: 12px;
+  }
+  .obs-terminal {
+    min-height: 30vh;
+    border-radius: 12px;
+    padding: 10px;
+  }
+  .terminal-lines {
+    font-size: 10px;
+  }
+  .obs-prompt {
+    padding: 8px 10px 12px;
+    gap: 8px;
+  }
+  .obs-prompt input {
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  .obs-prompt button {
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+}
