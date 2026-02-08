@@ -26,7 +26,8 @@ export async function GET(req: Request) {
   const { kv } = await import('@vercel/kv');
   const items = await kv.zrange('observatory:events', since, '+inf', {
     byScore: true,
-    limit: { offset: 0, count: limit },
+    offset: 0,
+    count: limit,
   });
 
   const events = items
