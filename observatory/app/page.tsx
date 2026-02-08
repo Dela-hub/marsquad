@@ -1,4 +1,5 @@
 import AgentIllustration from '../components/AgentIllustration';
+import ObservatoryClient from '../components/ObservatoryClient';
 
 export default function Page() {
   return (
@@ -75,6 +76,7 @@ export default function Page() {
 
       {/* ── Stage ── */}
       <section className="lp-stage" id="stage">
+        <link rel="stylesheet" href="/office.css" />
         <div className="lp-stage-chrome">
           <div className="lp-stage-bar">
             <div className="lp-stage-dots">
@@ -86,8 +88,8 @@ export default function Page() {
               <span>LIVE</span>
             </div>
           </div>
-          <div className="lp-stage-frame">
-            <iframe title="Marsquad Live" src="/live" loading="lazy" />
+          <div className="lp-stage-frame obs-shell">
+            <ObservatoryClient />
           </div>
         </div>
       </section>

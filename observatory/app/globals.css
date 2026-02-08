@@ -413,6 +413,10 @@ body {
   border: none;
 }
 
+.lp-stage-frame.obs-shell {
+  min-height: auto;
+}
+
 /* ── How it works ── */
 .lp-how {
   padding: 80px 40px 100px;
