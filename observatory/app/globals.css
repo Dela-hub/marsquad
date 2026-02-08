@@ -408,8 +408,8 @@ body {
 .lp-stage-frame iframe {
   display: block;
   width: 100%;
-  height: 140vh;
-  min-height: 900px;
+  height: 100vh;
+  min-height: 700px;
   border: none;
 }
 

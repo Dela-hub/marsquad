@@ -5,14 +5,6 @@ import { initOffice } from '../lib/office-engine';
 import TerminalPane from './TerminalPane';
 import PromptBar from './PromptBar';
 
-function useIsIframe() {
-  const [isIframe, setIsIframe] = useState(false);
-  useEffect(() => {
-    try { setIsIframe(window.self !== window.top); } catch { setIsIframe(true); }
-  }, []);
-  return isIframe;
-}
-
 const COOLDOWN_MS = 5 * 60 * 1000;
 
 type EventPayload = {
@@ -21,7 +13,6 @@ type EventPayload = {
 };
 
 export default function ObservatoryClient() {
-  const isIframe = useIsIframe();
   const [lines, setLines] = useState<string[]>([]);
   const [lastSentAt, setLastSentAt] = useState<number | null>(null);
   const [since, setSince] = useState(0);
@@ -95,7 +86,7 @@ export default function ObservatoryClient() {
         <div className="obs-canvas" id={containerId} />
         <TerminalPane lines={lines} />
       </section>
-      {!isIframe && <PromptBar onSend={onSend} cooldownMs={COOLDOWN_MS} lastSentAt={lastSentAt} />}
+      <PromptBar onSend={onSend} cooldownMs={COOLDOWN_MS} lastSentAt={lastSentAt} />
     </>
   );
 }
