@@ -1,0 +1,429 @@
+
+> observatory@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 16.8s
+ ○ Compiling /api/events ...
+ ✓ Compiled /api/events in 3.3s (34 modules)
+ GET /api/events?since=0&limit=5 200 in 11579ms
+ GET /api/events?since=1770488385259&limit=200 200 in 49640ms
+ ○ Compiling /live ...
+ ✓ Compiled /live in 179s (476 modules)
+ GET /live 200 in 130287ms
+ GET /api/events?since=1770488385259&limit=200 200 in 205815ms
+ GET /api/events?since=1770488385259&limit=200 200 in 19077ms
+ GET /api/events?since=0&limit=200 200 in 31813ms
+ GET /api/events?since=1770488385259&limit=200 200 in 50115ms
+ GET /api/events?since=0&limit=200 200 in 71613ms
+ GET /api/events?since=1770488385259&limit=200 200 in 98329ms
+ GET /api/events?since=0&limit=200 200 in 125097ms
+ GET /api/events?since=1770488385259&limit=200 200 in 110251ms
+ GET /api/events?since=1770488385259&limit=200 200 in 145834ms
+ GET /api/events?since=0&limit=200 200 in 133944ms
+ GET /api/events?since=1770488385259&limit=200 200 in 122079ms
+ GET /api/events?since=1770488385259&limit=200 200 in 107616ms
+ GET /api/events?since=1770488385259&limit=200 200 in 43151ms
+ GET /api/events?since=1770488385259&limit=200 200 in 15716ms
+ GET /api/events?since=1770488385259&limit=200 200 in 26765ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4844ms
+ GET /api/events?since=1770488385259&limit=200 200 in 18484ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 6.3s (465 modules)
+ GET /api/events?since=1770488385259&limit=200 404 in 7988ms
+ ○ Compiling / ...
+ ✓ Compiled /api/events in 32s (466 modules)
+ GET / 200 in 19715ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10723ms
+ GET /live 200 in 525ms
+ GET / 200 in 743ms
+ GET /live 200 in 499ms
+ GET /api/events?since=0&limit=200 200 in 26729ms
+ GET /api/events?since=0&limit=200 200 in 14366ms
+ GET /api/events?since=0&limit=200 200 in 5384ms
+ GET /api/events?since=0&limit=200 200 in 8539ms
+ GET /api/events?since=1770488385259&limit=200 200 in 6041ms
+ GET /api/events?since=0&limit=200 200 in 10669ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12050ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4269ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5814ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8934ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8896ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7442ms
+ GET /api/events?since=1770488385259&limit=200 200 in 19062ms
+ ✓ Compiled in 8.4s (240 modules)
+ ✓ Compiled in 0ms (240 modules)
+ ✓ Compiled in 3ms (240 modules)
+ ✓ Compiled in 1890ms (240 modules)
+ ✓ Compiled in 3.6s (226 modules)
+ GET / 200 in 11599ms
+ GET /api/events?since=1770488385259&limit=200 200 in 34130ms
+ GET /live 200 in 4625ms
+ GET /live 200 in 2545ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 25.8s (470 modules)
+ ✓ Compiled in 63ms (242 modules)
+ ✓ Compiled in 10s (470 modules)
+ GET /api/events?since=0&limit=200 404 in 46703ms
+ GET /api/events?since=0&limit=200 200 in 53756ms
+ GET /api/events?since=0&limit=200 200 in 41723ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4888ms
+ GET /api/events?since=0&limit=200 200 in 57299ms
+ GET /api/events?since=0&limit=200 200 in 61000ms
+ GET /api/events?since=1770488385259&limit=200 200 in 67037ms
+ GET /api/events?since=1770488385259&limit=200 200 in 44704ms
+ GET /api/events?since=0&limit=200 200 in 85479ms
+ GET /api/events?since=1770488385259&limit=200 200 in 65318ms
+ GET /api/events?since=1770488385259&limit=200 200 in 37454ms
+ GET /api/events?since=1770488385259&limit=200 200 in 49123ms
+ GET /api/events?since=1770488385259&limit=200 200 in 11275ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8524ms
+ GET /api/events?since=1770488385259&limit=200 200 in 21822ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12837ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9541ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8836ms
+ GET /api/events?since=1770488385259&limit=200 200 in 51397ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7995ms
+ GET /api/events?since=1770488385259&limit=200 200 in 32490ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8116ms
+ GET /api/events?since=1770488385259&limit=200 200 in 23519ms
+ GET /api/events?since=1770488385259&limit=200 200 in 25077ms
+ GET /api/events?since=1770488385259&limit=200 200 in 15103ms
+ GET /api/events?since=1770488385259&limit=200 200 in 25005ms
+ GET /api/events?since=1770488385259&limit=200 200 in 19093ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5852ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9214ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10211ms
+ GET /api/events?since=1770488385259&limit=200 200 in 11483ms
+ GET /api/events?since=1770488385259&limit=200 200 in 11886ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9922ms
+ GET /api/events?since=1770488385259&limit=200 200 in 15646ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7043ms
+ GET /api/events?since=1770488385259&limit=200 200 in 24995ms
+ GET /api/events?since=1770488385259&limit=200 200 in 20509ms
+ GET /api/events?since=1770488385259&limit=200 200 in 14030ms
+ GET /api/events?since=1770488385259&limit=200 200 in 40467ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9453ms
+ GET / 200 in 14528ms
+ GET /live 200 in 1565ms
+ GET /api/events?since=0&limit=200 200 in 41353ms
+ GET /api/events?since=0&limit=200 200 in 28664ms
+ GET /api/events?since=1770488385259&limit=200 200 in 17276ms
+ GET /api/events?since=0&limit=200 200 in 21510ms
+ GET /api/events?since=1770488385259&limit=200 200 in 3098ms
+ GET /api/events?since=1770488385259&limit=200 200 in 18741ms
+ ✓ Compiled in 24.9s (242 modules)
+ ✓ Compiled in 2ms (242 modules)
+ ✓ Compiled in 8.8s (482 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 7.2s (471 modules)
+ GET /api/events?since=1770488385259&limit=200 404 in 29827ms
+ ✓ Compiled in 1779ms (485 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/delaq/clawd/observatory/.next/cache/webpack/server-development/6.pack.gz_' -> '/Users/delaq/clawd/observatory/.next/cache/webpack/server-development/6.pack.gz'
+ ✓ Compiled in 49.5s (471 modules)
+ GET / 200 in 3547ms
+ GET /live 200 in 8249ms
+ GET / 200 in 9376ms
+ GET /live 200 in 1567ms
+ ○ Compiling /api/events ...
+ ✓ Compiled /api/events in 1118ms (242 modules)
+ GET /api/events?since=0&limit=200 200 in 35171ms
+ GET /api/events?since=0&limit=200 200 in 25037ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/delaq/clawd/observatory/.next/cache/webpack/server-development/1.pack.gz_' -> '/Users/delaq/clawd/observatory/.next/cache/webpack/server-development/1.pack.gz'
+ GET /api/events?since=0&limit=200 200 in 24595ms
+ GET /api/events?since=0&limit=200 200 in 20207ms
+ GET /api/events?since=1770488385259&limit=200 200 in 53068ms
+ GET /api/events?since=0&limit=200 200 in 46780ms
+ GET /api/events?since=1770488385259&limit=200 200 in 21739ms
+ GET /api/events?since=0&limit=200 200 in 9770ms
+ GET /api/events?since=1770488385259&limit=200 200 in 26646ms
+ GET /api/events?since=1770488385259&limit=200 200 in 25618ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7968ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12916ms
+ GET /api/events?since=1770488385259&limit=200 200 in 3734ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4088ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7085ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4377ms
+ GET /api/events?since=1770488385259&limit=200 200 in 6811ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5639ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4801ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5660ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4506ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5301ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5221ms
+ ✓ Compiled in 9.6s (242 modules)
+ GET /api/events?since=1770488385259&limit=200 200 in 27050ms
+ GET / 200 in 2336ms
+ GET /live 200 in 1158ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10995ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4231ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9877ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.8s (471 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/events?since=1770488385259&limit=200 404 in 5508ms
+ GET /_next/static/webpack/b2f43981318442d3.webpack.hot-update.json 404 in 1365ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/b2f43981318442d3.webpack.hot-update.json 404 in 424ms
+ GET /live 200 in 320ms
+ GET / 200 in 487ms
+ GET /live 200 in 50ms
+ GET /api/events?since=0&limit=200 200 in 3889ms
+ GET /api/events?since=0&limit=200 200 in 4800ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8370ms
+ GET /api/events?since=0&limit=200 200 in 18058ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9379ms
+ GET /api/events?since=1770488385259&limit=200 200 in 17140ms
+ GET /api/events?since=0&limit=200 200 in 16630ms
+ GET /api/events?since=0&limit=200 200 in 40595ms
+ GET /api/events?since=1770488385259&limit=200 200 in 37438ms
+ GET /api/events?since=0&limit=200 200 in 18519ms
+ GET /api/events?since=1770488385259&limit=200 200 in 18415ms
+ GET /api/events?since=1770488385259&limit=200 200 in 14665ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4601ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7800ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4174ms
+ GET /api/events?since=1770488385259&limit=200 200 in 14198ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8146ms
+ GET /api/events?since=1770488385259&limit=200 200 in 13267ms
+ GET /api/events?since=1770488385259&limit=200 200 in 26157ms
+ GET /api/events?since=1770488385259&limit=200 200 in 37656ms
+ GET /api/events?since=1770488385259&limit=200 200 in 57465ms
+ GET /api/events?since=1770488385259&limit=200 200 in 30691ms
+ GET /api/events?since=1770488385259&limit=200 200 in 31363ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9453ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8461ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7637ms
+ GET /api/events?since=1770488385259&limit=200 200 in 8588ms
+ GET /api/events?since=1770488385259&limit=200 200 in 17293ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10207ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9487ms
+ GET /api/events?since=1770488385259&limit=200 200 in 6762ms
+ GET /api/events?since=1770488385259&limit=200 200 in 13106ms
+ GET /api/events?since=1770488385259&limit=200 200 in 30821ms
+ GET /api/events?since=1770488385259&limit=200 200 in 15023ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5895ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7353ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10230ms
+ GET /api/events?since=1770488385259&limit=200 200 in 31917ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10078ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12826ms
+ GET /api/events?since=1770488385259&limit=200 200 in 23761ms
+ GET /api/events?since=1770488385259&limit=200 200 in 46120ms
+ GET /api/events?since=1770488385259&limit=200 200 in 46133ms
+ GET /api/events?since=1770488385259&limit=200 200 in 27990ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9020ms
+ GET /api/events?since=1770488385259&limit=200 200 in 22525ms
+ GET /api/events?since=1770488385259&limit=200 200 in 34075ms
+ GET /api/events?since=1770488385259&limit=200 200 in 21709ms
+ GET /api/events?since=1770488385259&limit=200 200 in 6748ms
+ GET /api/events?since=1770488385259&limit=200 200 in 5898ms
+ GET /api/events?since=1770488385259&limit=200 200 in 27819ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9466ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9765ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12860ms
+ GET /api/events?since=1770488385259&limit=200 200 in 39075ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9966ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9639ms
+ GET /api/events?since=1770488385259&limit=200 200 in 34112ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9978ms
+ GET /api/events?since=1770488385259&limit=200 200 in 16248ms
+ GET /api/events?since=1770488385259&limit=200 200 in 15280ms
+ GET /api/events?since=1770488385259&limit=200 200 in 25087ms
+ GET /api/events?since=1770488385259&limit=200 200 in 13992ms
+ GET /api/events?since=1770488385259&limit=200 200 in 9687ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10046ms
+ GET /api/events?since=1770488385259&limit=200 200 in 22010ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10767ms
+ GET /api/events?since=1770488385259&limit=200 200 in 4759ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10662ms
+ GET /api/events?since=1770488385259&limit=200 200 in 17515ms
+ GET /api/events?since=1770488385259&limit=200 200 in 7644ms
+ GET /api/events?since=1770488385259&limit=200 200 in 3327ms
+ GET /api/events?since=1770488385259&limit=200 200 in 10057ms
+ GET /api/events?since=1770488385259&limit=200 200 in 23446ms
+ GET /api/events?since=1770488385259&limit=200 200 in 33759ms
+ GET /api/events?since=1770488385259&limit=200 200 in 23377ms
+ GET /api/events?since=1770488385259&limit=200 200 in 24921ms
+ GET /api/events?since=1770488385259&limit=200 200 in 16619ms
+ GET /api/events?since=1770488385259&limit=200 200 in 12839ms
+ GET /api/events?since=1770488385259&limit=200 200 in 33837ms
+ GET /api/events?since=1770488385259&limit=200 200 in 30241ms
+ GET /api/events?since=1770488385259&limit=200 200 in 54980ms
+ GET /api/events?since=1770488385259&limit=200 200 in 56812ms
+ GET /api/events?since=1770488385259&limit=200 200 in 33646ms
+ GET /api/events?since=1770488385259&limit=200 200 in 40070ms
+ GET /api/events?since=1770488385259&limit=200 200 in 78513ms
+ GET /api/events?since=1770488385259&limit=200 200 in 95369ms
+ GET /api/events?since=1770488385259&limit=200 200 in 37436ms
+ GET /api/events?since=1770488385259&limit=200 200 in 104441ms
+ GET /api/events?since=1770488385259&limit=200 200 in 129975ms
+ GET /api/events?since=1770488385259&limit=200 200 in 73044ms
+ GET /api/events?since=1770488385259&limit=200 200 in 50979ms
+ GET /api/events?since=1770488385259&limit=200 200 in 33381ms
+ GET /api/events?since=1770488385259&limit=200 200 in 99093ms
+ GET /api/events?since=1770488385259&limit=200 200 in 81886ms
+ GET /api/events?since=1770488385259&limit=200 200 in 36358ms
+ GET /api/events?since=1770488385259&limit=200 200 in 19337ms
+ GET /api/events?since=1770488385259&limit=200 200 in 28979ms
+ GET /api/events?since=1770488385259&limit=200 200 in 24836ms
+ GET /api/events?since=1770488385260&limit=200 200 in 14112ms
+ GET /api/events?since=1770488385260&limit=200 200 in 15398ms
+ GET /api/events?since=1770488385260&limit=200 200 in 6070ms
+ GET / 200 in 2354ms
+ GET /api/events?since=1770488385259&limit=200 200 in 39482ms
+ GET /live 200 in 2450ms
+ ○ Compiling /api/prompt ...
+ ✓ Compiled /api/prompt in 7.4s (244 modules)
+ GET /api/events?since=1770488385260&limit=200 200 in 50612ms
+ POST /api/prompt 502 in 12602ms
+ GET /api/events?since=0&limit=200 200 in 56115ms
+ GET /api/events?since=1770488385260&limit=200 200 in 9748ms
+ GET / 200 in 3785ms
+ GET /api/events?since=0&limit=200 200 in 61535ms
+ GET /live 200 in 823ms
+ GET /api/events?since=1770488385260&limit=200 200 in 18318ms
+ GET /api/events?since=0&limit=200 200 in 18285ms
+ GET /api/events?since=0&limit=200 200 in 177744ms
+ GET /api/events?since=1770488385260&limit=200 200 in 166439ms
+ GET /api/events?since=0&limit=200 200 in 23046ms
+ GET /api/events?since=1770488385260&limit=200 200 in 18597ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4113ms
+ GET /api/events?since=1770488385260&limit=200 200 in 24597ms
+ GET /api/events?since=1770488385260&limit=200 200 in 3507ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1614ms
+ GET /api/events?since=1770488385260&limit=200 200 in 724ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2028ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1046ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1076ms
+ GET /api/events?since=1770488385260&limit=200 200 in 715ms
+ GET /api/events?since=1770488385260&limit=200 200 in 80293ms
+ GET /api/events?since=1770488385260&limit=200 200 in 72029ms
+ GET /api/events?since=1770488385260&limit=200 200 in 28918ms
+ GET /api/events?since=1770488385260&limit=200 200 in 19758ms
+ GET /api/events?since=1770488385260&limit=200 200 in 16585ms
+ GET /api/events?since=1770488385260&limit=200 200 in 24159ms
+ GET /api/events?since=1770488385260&limit=200 200 in 16668ms
+ GET /api/events?since=1770488385260&limit=200 200 in 6001ms
+ GET /api/events?since=1770488385260&limit=200 200 in 3035ms
+ GET /api/events?since=1770488385260&limit=200 200 in 9479ms
+ GET /api/events?since=1770488385260&limit=200 200 in 56462ms
+ GET /api/events?since=1770488385260&limit=200 200 in 76116ms
+ GET /api/events?since=1770488385260&limit=200 200 in 302015ms
+ GET /api/events?since=1770488385260&limit=200 200 in 161970ms
+ GET /api/events?since=1770488385260&limit=200 200 in 42665ms
+ GET /api/events?since=1770488385260&limit=200 200 in 29152ms
+ GET /api/events?since=1770488385260&limit=200 200 in 18517ms
+ GET /api/events?since=1770488385260&limit=200 200 in 56888ms
+ GET /api/events?since=1770488385260&limit=200 200 in 53590ms
+ GET /api/events?since=1770488385260&limit=200 200 in 45982ms
+ GET /api/events?since=1770488385260&limit=200 200 in 8336ms
+ GET /api/events?since=1770488385260&limit=200 200 in 16261ms
+ GET /api/events?since=1770488385260&limit=200 200 in 37813ms
+ GET /api/events?since=1770488385260&limit=200 200 in 49527ms
+ GET /api/events?since=1770488385260&limit=200 200 in 333117ms
+ GET /api/events?since=1770488385260&limit=200 200 in 303480ms
+ GET /api/events?since=1770488385260&limit=200 200 in 155597ms
+ GET /api/events?since=1770488385260&limit=200 200 in 81261ms
+ GET /api/events?since=1770488385260&limit=200 200 in 69204ms
+ GET /api/events?since=1770488385260&limit=200 200 in 30181ms
+ GET /api/events?since=1770488385260&limit=200 200 in 5041ms
+ GET /api/events?since=1770488385260&limit=200 200 in 463ms
+ GET /api/events?since=1770488385260&limit=200 200 in 417ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1270ms
+ GET /api/events?since=1770488385260&limit=200 200 in 462ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1308ms
+ GET /api/events?since=1770488385260&limit=200 200 in 467ms
+ GET /api/events?since=1770488385260&limit=200 200 in 446ms
+ GET /api/events?since=1770488385260&limit=200 200 in 457ms
+ GET /api/events?since=1770488385260&limit=200 200 in 433ms
+ GET /api/events?since=1770488385260&limit=200 200 in 687ms
+ GET /api/events?since=1770488385260&limit=200 200 in 423ms
+ GET /api/events?since=1770488385260&limit=200 200 in 431ms
+ GET /api/events?since=1770488385260&limit=200 200 in 638ms
+ GET /api/events?since=1770488385260&limit=200 200 in 413ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1189ms
+ GET /api/events?since=1770488385260&limit=200 200 in 6138ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1162ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1529ms
+ GET /api/events?since=1770488385260&limit=200 200 in 450ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1390ms
+ GET /api/events?since=1770488385260&limit=200 200 in 844ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1130ms
+ GET /api/events?since=1770488385260&limit=200 200 in 476ms
+ GET /api/events?since=1770488385260&limit=200 200 in 448ms
+ GET /api/events?since=1770488385260&limit=200 200 in 592ms
+ GET /api/events?since=1770488385260&limit=200 200 in 614ms
+ GET /api/events?since=1770488385260&limit=200 200 in 429ms
+ GET /api/events?since=1770488385260&limit=200 200 in 470ms
+ GET /api/events?since=1770488385260&limit=200 200 in 470ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2024ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1420ms
+ GET /api/events?since=1770488385260&limit=200 200 in 558ms
+ GET /api/events?since=1770488385260&limit=200 200 in 429ms
+ GET /api/events?since=1770488385260&limit=200 200 in 554ms
+ GET /api/events?since=1770488385260&limit=200 200 in 418ms
+ GET /api/events?since=1770488385260&limit=200 200 in 529ms
+ GET /api/events?since=1770488385260&limit=200 200 in 425ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1306ms
+ GET /api/events?since=1770488385260&limit=200 200 in 544ms
+ GET /api/events?since=1770488385260&limit=200 200 in 705ms
+ GET /api/events?since=1770488385260&limit=200 200 in 422ms
+ GET /api/events?since=1770488385260&limit=200 200 in 444ms
+ GET /api/events?since=1770488385260&limit=200 200 in 8281ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1008ms
+ GET /api/events?since=1770488385260&limit=200 200 in 441ms
+ GET /api/events?since=1770488385260&limit=200 200 in 329ms
+ GET /api/events?since=1770488385260&limit=200 200 in 405ms
+ GET /api/events?since=1770488385260&limit=200 200 in 443ms
+ GET /api/events?since=1770488385260&limit=200 200 in 853ms
+ GET /api/events?since=1770488385260&limit=200 200 in 727ms
+ GET /api/events?since=1770488385260&limit=200 200 in 944ms
+ GET /api/events?since=1770488385260&limit=200 200 in 726ms
+ GET /api/events?since=1770488385260&limit=200 200 in 428ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4987ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4986ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1551ms
+ GET /api/events?since=1770488385260&limit=200 200 in 16958ms
+ GET /api/events?since=1770488385260&limit=200 200 in 599ms
+ GET /api/events?since=1770488385260&limit=200 200 in 706ms
+ GET /api/events?since=1770488385260&limit=200 200 in 926ms
+ GET /api/events?since=1770488385260&limit=200 200 in 614ms
+ GET /api/events?since=1770488385260&limit=200 200 in 608ms
+ GET /api/events?since=1770488385260&limit=200 200 in 5709ms
+ GET /api/events?since=1770488385260&limit=200 200 in 603ms
+ GET /api/events?since=1770488385260&limit=200 200 in 414ms
+ GET /api/events?since=1770488385260&limit=200 200 in 466ms
+ GET /api/events?since=1770488385260&limit=200 200 in 867ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4162ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4284ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2299ms
+ GET /api/events?since=1770488385260&limit=200 200 in 3424ms
+ GET /api/events?since=1770488385260&limit=200 200 in 493ms
+ GET /api/events?since=1770488385260&limit=200 200 in 427ms
+ GET /api/events?since=1770488385260&limit=200 200 in 610ms
+ GET /api/events?since=1770488385260&limit=200 200 in 783ms
+ GET /api/events?since=1770488385260&limit=200 200 in 457ms
+ GET /api/events?since=1770488385260&limit=200 200 in 4755ms
+ GET /api/events?since=1770488385260&limit=200 200 in 842ms
+ GET /api/events?since=1770488385260&limit=200 200 in 1277ms
+ GET /api/events?since=1770488385260&limit=200 200 in 3302ms
+ GET /api/events?since=1770488385260&limit=200 200 in 7519ms
+ GET /api/events?since=1770488385260&limit=200 200 in 473ms
+ GET /api/events?since=1770488385260&limit=200 200 in 940ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2285ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2353ms
+ GET /api/events?since=1770488385260&limit=200 200 in 777ms
+ GET /api/events?since=1770488385260&limit=200 200 in 5051ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2636ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2112ms
+ GET /api/events?since=1770488385260&limit=200 200 in 478ms
+ GET /api/events?since=1770488385260&limit=200 200 in 739ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2680ms
+ GET /api/events?since=1770488385260&limit=200 200 in 2601ms
+ GET /api/events?since=1770488385260&limit=200 200 in 865ms
