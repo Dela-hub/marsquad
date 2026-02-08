@@ -2311,4 +2311,10 @@ loadRecent().then(() => { renderMissionBoard(); connectSse(); });
 }
 }
 
+// Seed all known agents so they appear on canvas even without events
+for (const id of Object.keys(AGENT_DEFS)) {
+  if (id === 'visitor') continue;
+  if (!agents.has(id)) upsertAgent(id, { status: 'idle' });
+}
+
 window.__officeHandleEvent = handleEvent;
