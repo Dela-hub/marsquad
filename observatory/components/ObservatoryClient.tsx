@@ -3,9 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { initOffice } from '../lib/office-engine';
 import TerminalPane from './TerminalPane';
-import PromptBar from './PromptBar';
-
-const COOLDOWN_MS = 5 * 60 * 1000;
+// import PromptBar from './PromptBar';
 
 type EventPayload = {
   ts?: number;
@@ -14,7 +12,6 @@ type EventPayload = {
 
 export default function ObservatoryClient() {
   const [lines, setLines] = useState<string[]>([]);
-  const [lastSentAt, setLastSentAt] = useState<number | null>(null);
   const [since, setSince] = useState(0);
   const engineRef = useRef<ReturnType<typeof initOffice> | null>(null);
 
@@ -71,22 +68,10 @@ export default function ObservatoryClient() {
     };
   }, [since]);
 
-  const onSend = async (text: string) => {
-    const res = await fetch('/api/prompt', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text }),
-    });
-    if (res.ok) setLastSentAt(Date.now());
-  };
-
   return (
-    <>
-      <section className="obs-main">
-        <div className="obs-canvas" id={containerId} />
-        <TerminalPane lines={lines} />
-      </section>
-      <PromptBar onSend={onSend} cooldownMs={COOLDOWN_MS} lastSentAt={lastSentAt} />
-    </>
+    <section className="obs-main">
+      <div className="obs-canvas" id={containerId} />
+      <TerminalPane lines={lines} />
+    </section>
   );
 }
