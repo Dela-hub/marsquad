@@ -11,7 +11,8 @@ export async function GET(req: Request) {
   if (!hasKv) {
     const local = process.env.LOCAL_BRIDGE_URL || 'http://localhost:3010';
     try {
-      const res = await fetch(`${local}/api/events?since=${since}&limit=${limit}`, {
+      const officeKey = process.env.OFFICE_API_KEY || '';
+      const res = await fetch(`${local}/api/events?since=${since}&limit=${limit}&key=${officeKey}`, {
         cache: 'no-store',
       });
       if (!res.ok) return Response.json({ events: [], error: `upstream ${res.status}` });
