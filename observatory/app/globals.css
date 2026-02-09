@@ -845,6 +845,111 @@ body {
   position: relative;
 }
 
+.ms-cta-soon {
+  cursor: default;
+  opacity: .6;
+}
+
+/* ══════════════════════════
+   Visitor Flags
+   ══════════════════════════ */
+
+.ms-stat-flags {
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════
+   Services
+   ══════════════════════════ */
+
+.ms-services {
+  padding: 80px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ms-services-sub {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 40px;
+  margin-top: -32px;
+}
+
+.ms-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.ms-service-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+  animation: lp-fadeUp .5s ease both;
+  animation-delay: calc(var(--svc-i) * .07s);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ms-service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.ms-service-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.3);
+}
+
+.ms-service-card:hover::before { opacity: 1; }
+
+.ms-service-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.ms-service-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.ms-service-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.ms-service-price {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 4px 12px;
+  border-radius: 100px;
+  align-self: flex-start;
+}
+
 /* ── How it works ── */
 .lp-how {
   padding: 80px 40px 100px;
@@ -1176,6 +1281,7 @@ body {
   .lp-hero { grid-template-columns: 1.2fr 1fr; gap: 24px; }
   .lp-steps { grid-template-columns: repeat(2, 1fr); }
   .ms-agent-grid { grid-template-columns: repeat(2, 1fr); }
+  .ms-services-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -1201,6 +1307,8 @@ body {
   .ms-terminal-body { height: 300px; font-size: 11px; padding: 12px 14px; }
   .ms-activity { padding: 20px 20px 60px; }
   .ms-activity-grid { grid-template-columns: 1fr; }
+  .ms-services { padding: 40px 20px; }
+  .ms-services-grid { grid-template-columns: 1fr; }
   .ms-cta { padding: 20px 20px 40px; }
   .ms-cta-inner { padding: 36px 24px; }
 }

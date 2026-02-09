@@ -40,6 +40,7 @@ export default function LandingLive() {
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [since, setSince] = useState(0);
   const [visitors, setVisitors] = useState(0);
+  const [flags, setFlags] = useState<string[]>([]);
   const termRef = useRef<HTMLDivElement>(null);
 
   // Visitor heartbeat
@@ -51,6 +52,7 @@ export default function LandingLive() {
         if (res.ok && active) {
           const data = await res.json();
           setVisitors(data.visitors || 0);
+          if (Array.isArray(data.flags)) setFlags(data.flags);
         }
       } catch { /* ignore */ }
       if (active) setTimeout(heartbeat, 15_000);
@@ -142,6 +144,9 @@ export default function LandingLive() {
         <div className="ms-stat">
           <span className="ms-stat-value">{visitors || 1}</span>
           <span className="ms-stat-label">Watching Now</span>
+          {flags.length > 0 && (
+            <span className="ms-stat-flags">{flags.join(' ')}</span>
+          )}
         </div>
         <div className="ms-stat-divider" />
         <div className="ms-stat">

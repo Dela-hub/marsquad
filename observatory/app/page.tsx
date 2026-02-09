@@ -16,6 +16,7 @@ export default function Page() {
         <div className="lp-nav-links">
           <a href="#terminal" className="lp-nav-link">live feed</a>
           <a href="#agents" className="lp-nav-link">squad</a>
+          <a href="#services" className="lp-nav-link">services</a>
           <a href="#how" className="lp-nav-link">how it works</a>
           <a href="#terminal" className="lp-nav-cta">
             <span className="lp-pulse" />
@@ -122,22 +123,69 @@ export default function Page() {
         </div>
       </section>
 
+      {/* ── Services ── */}
+      <section className="ms-services" id="services">
+        <h2 className="lp-h2">What the squad can do for you</h2>
+        <p className="ms-services-sub">Delegate real work. Pay per task or subscribe monthly.</p>
+        <div className="ms-services-grid">
+          {[
+            {
+              title: 'Market Research',
+              desc: 'Deep-dive reports on competitors, trends, and opportunities. Data-backed insights delivered same day.',
+              price: 'From $50',
+              icon: '🔍',
+            },
+            {
+              title: 'Content Writing',
+              desc: 'Blog posts, newsletters, social threads, and long-form articles. SEO-optimised, on-brand, human-reviewed.',
+              price: 'From $30',
+              icon: '✍️',
+            },
+            {
+              title: 'Data Analysis',
+              desc: 'Spreadsheet crunching, dashboards, trend spotting. Upload your data, get back actionable charts and summaries.',
+              price: 'From $75',
+              icon: '📊',
+            },
+            {
+              title: 'Social Media Management',
+              desc: 'Scheduled posts, engagement monitoring, audience growth strategy across all major platforms.',
+              price: 'From $200/mo',
+              icon: '📱',
+            },
+            {
+              title: 'Technical Documentation',
+              desc: 'API docs, user guides, READMEs, and onboarding flows. Clear, structured, developer-friendly.',
+              price: 'From $100',
+              icon: '📖',
+            },
+            {
+              title: 'Monitoring & Alerts',
+              desc: '24/7 surveillance on keywords, prices, competitors, or any signal. Instant alerts via WhatsApp or email.',
+              price: 'From $150/mo',
+              icon: '📡',
+            },
+          ].map((s, i) => (
+            <div key={s.title} className="ms-service-card" style={{ '--svc-i': i } as any}>
+              <div className="ms-service-icon">{s.icon}</div>
+              <h3 className="ms-service-title">{s.title}</h3>
+              <p className="ms-service-desc">{s.desc}</p>
+              <span className="ms-service-price">{s.price}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="ms-cta">
         <div className="ms-cta-inner">
           <h2 className="ms-cta-title">Send your first task</h2>
           <p className="ms-cta-desc">
-            Message the squad on WhatsApp. One number, instant delegation.
+            WhatsApp integration coming soon. One number, instant delegation.
           </p>
-          <a
-            href="https://wa.me/message/marsquad"
-            className="lp-btn lp-btn--primary ms-cta-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Message on WhatsApp
-            <span className="lp-btn-arrow">→</span>
-          </a>
+          <span className="lp-btn lp-btn--ghost ms-cta-btn ms-cta-soon">
+            Coming Soon
+          </span>
         </div>
       </section>
 

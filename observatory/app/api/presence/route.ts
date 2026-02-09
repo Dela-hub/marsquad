@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-const TTL_SECONDS = 30; // visitor considered gone after 30s without heartbeat
+const TTL_SECONDS = 30;
 
 function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
@@ -8,49 +8,83 @@ function getClientIp(req: Request) {
   return 'unknown';
 }
 
+function getCountry(req: Request): string {
+  // Vercel provides geo headers automatically
+  return req.headers.get('x-vercel-ip-country') || 'UN';
+}
+
+// Convert country code to flag emoji (regional indicator symbols)
+function countryToFlag(code: string): string {
+  if (!code || code.length !== 2) return '\u{1F3F3}'; // white flag fallback
+  const upper = code.toUpperCase();
+  return String.fromCodePoint(
+    ...upper.split('').map(c => 0x1F1E6 + c.charCodeAt(0) - 65)
+  );
+}
+
 /** POST /api/presence — heartbeat from a visitor */
 export async function POST(req: Request) {
   const hasKv = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const country = getCountry(req);
+  const flag = countryToFlag(country);
 
   if (!hasKv) {
-    return Response.json({ ok: true, visitors: 1 });
+    return Response.json({ ok: true, visitors: 1, flags: [flag] });
   }
 
   const { kv } = await import('@vercel/kv');
   const ip = getClientIp(req);
-  const key = `observatory:visitor:${ip}`;
   const now = Date.now();
 
-  // Set this visitor's heartbeat with TTL
-  await kv.set(key, now, { ex: TTL_SECONDS });
+  // Store visitor with country as a hash field
+  await kv.set(`observatory:visitor:${ip}`, country, { ex: TTL_SECONDS });
 
-  // Add to sorted set for counting (score = expiry timestamp)
-  await (kv as any).zadd('observatory:visitors', { score: now + TTL_SECONDS * 1000, member: ip });
+  // Sorted set for counting active visitors (score = expiry time)
+  await (kv as any).zadd('observatory:visitors', {
+    score: now + TTL_SECONDS * 1000,
+    member: `${ip}:${country}`,
+  });
 
   // Remove expired entries
   await (kv as any).zremrangebyscore('observatory:visitors', 0, now);
 
-  // Count active visitors
-  const count: number = await (kv as any).zcard('observatory:visitors');
+  // Get all active visitors with their countries
+  const members: string[] = await (kv as any).zrange('observatory:visitors', 0, -1);
+  const count = members.length;
 
-  return Response.json({ ok: true, visitors: count });
+  // Extract unique country flags
+  const flags = [...new Set(
+    members.map(m => {
+      const cc = m.split(':').pop() || 'UN';
+      return countryToFlag(cc);
+    })
+  )];
+
+  return Response.json({ ok: true, visitors: count, flags });
 }
 
 /** GET /api/presence — get current visitor count */
-export async function GET() {
+export async function GET(req: Request) {
   const hasKv = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 
   if (!hasKv) {
-    return Response.json({ visitors: 1 });
+    return Response.json({ visitors: 1, flags: ['\u{1F3F3}'] });
   }
 
   const { kv } = await import('@vercel/kv');
   const now = Date.now();
 
-  // Remove expired entries
   await (kv as any).zremrangebyscore('observatory:visitors', 0, now);
 
-  const count: number = await (kv as any).zcard('observatory:visitors');
+  const members: string[] = await (kv as any).zrange('observatory:visitors', 0, -1);
+  const count = members.length;
 
-  return Response.json({ visitors: count });
+  const flags = [...new Set(
+    members.map(m => {
+      const cc = m.split(':').pop() || 'UN';
+      return countryToFlag(cc);
+    })
+  )];
+
+  return Response.json({ visitors: count, flags });
 }
