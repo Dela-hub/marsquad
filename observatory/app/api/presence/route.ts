@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   const flag = countryToFlag(country);
 
   if (!hasKv) {
-    return Response.json({ ok: true, visitors: 1, flags: [flag] });
+    return Response.json({ ok: true, visitors: 1, totalVisitors: 1, flags: [flag] });
   }
 
   const { kv } = await import('@vercel/kv');
@@ -45,7 +45,11 @@ export async function POST(req: Request) {
     member: `${ip}:${country}`,
   });
 
-  // Remove expired entries
+  // Track total unique visitors (persistent — no TTL)
+  await (kv as any).sadd('observatory:visitors:total', ip);
+  const totalVisitors: number = await (kv as any).scard('observatory:visitors:total') || 0;
+
+  // Remove expired active entries
   await (kv as any).zremrangebyscore('observatory:visitors', 0, now);
 
   // Get all active visitors with their countries
@@ -60,7 +64,7 @@ export async function POST(req: Request) {
     })
   ));
 
-  return Response.json({ ok: true, visitors: count, flags });
+  return Response.json({ ok: true, visitors: count, totalVisitors, flags });
 }
 
 /** GET /api/presence — get current visitor count */
@@ -68,11 +72,13 @@ export async function GET(req: Request) {
   const hasKv = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 
   if (!hasKv) {
-    return Response.json({ visitors: 1, flags: ['\u{1F3F3}'] });
+    return Response.json({ visitors: 1, totalVisitors: 1, flags: ['\u{1F3F3}'] });
   }
 
   const { kv } = await import('@vercel/kv');
   const now = Date.now();
+
+  const totalVisitors: number = await (kv as any).scard('observatory:visitors:total') || 0;
 
   await (kv as any).zremrangebyscore('observatory:visitors', 0, now);
 
@@ -86,5 +92,5 @@ export async function GET(req: Request) {
     })
   ));
 
-  return Response.json({ visitors: count, flags });
+  return Response.json({ visitors: count, totalVisitors, flags });
 }
