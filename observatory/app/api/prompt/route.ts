@@ -57,7 +57,12 @@ export async function POST(req: Request) {
         'content-type': 'application/json',
         authorization: `Bearer ${auth}`,
       },
-      body: JSON.stringify({ text, ts: Date.now() }),
+      body: JSON.stringify({
+        text,
+        ts: Date.now(),
+        source: 'observatory',
+        needsReview: true,
+      }),
     });
 
     if (!res.ok) {

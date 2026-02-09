@@ -476,6 +476,44 @@ body {
 }
 
 /* ══════════════════════════
+   Live Stage (canvas iframe)
+   ══════════════════════════ */
+
+.ms-stage {
+  padding: 20px 40px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ms-stage-chrome {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.03),
+    0 20px 80px rgba(0,0,0,.5),
+    0 0 80px rgba(34,197,94,.03);
+}
+
+.ms-stage-frame {
+  background: #080c12;
+  min-height: 600px;
+  position: relative;
+}
+
+.ms-stage-frame iframe {
+  display: block;
+  width: 100%;
+  height: 80vh;
+  min-height: 600px;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ══════════════════════════
    Agent Cards
    ══════════════════════════ */
 
@@ -1154,6 +1192,9 @@ body {
   .ms-stats { flex-wrap: wrap; gap: 12px; padding: 30px 20px 16px; }
   .ms-stat { padding: 0 16px; }
   .ms-stat-divider { display: none; }
+  .ms-stage { padding: 12px 20px 30px; }
+  .ms-stage-frame { min-height: 400px; }
+  .ms-stage-frame iframe { height: 55vh; min-height: 400px; }
   .ms-agents { padding: 40px 20px; }
   .ms-agent-grid { grid-template-columns: 1fr; }
   .ms-terminal-section { padding: 20px 20px 40px; }

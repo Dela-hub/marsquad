@@ -39,8 +39,27 @@ export default function LandingLive() {
   const [events, setEvents] = useState<EventPayload[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [since, setSince] = useState(0);
+  const [visitors, setVisitors] = useState(0);
   const termRef = useRef<HTMLDivElement>(null);
 
+  // Visitor heartbeat
+  useEffect(() => {
+    let active = true;
+    const heartbeat = async () => {
+      try {
+        const res = await fetch('/api/presence', { method: 'POST' });
+        if (res.ok && active) {
+          const data = await res.json();
+          setVisitors(data.visitors || 0);
+        }
+      } catch { /* ignore */ }
+      if (active) setTimeout(heartbeat, 15_000);
+    };
+    heartbeat();
+    return () => { active = false; };
+  }, []);
+
+  // Event polling
   useEffect(() => {
     let active = true;
     const poll = async () => {
@@ -121,6 +140,11 @@ export default function LandingLive() {
       {/* ── Stats Bar ── */}
       <section className="ms-stats">
         <div className="ms-stat">
+          <span className="ms-stat-value">{visitors || 1}</span>
+          <span className="ms-stat-label">Watching Now</span>
+        </div>
+        <div className="ms-stat-divider" />
+        <div className="ms-stat">
           <span className="ms-stat-value">{agentsSeen.size || 7}</span>
           <span className="ms-stat-label">Agents Active</span>
         </div>
@@ -134,10 +158,24 @@ export default function LandingLive() {
           <span className="ms-stat-value">{recentEvents.length || '—'}</span>
           <span className="ms-stat-label">Last 24h</span>
         </div>
-        <div className="ms-stat-divider" />
-        <div className="ms-stat">
-          <span className="ms-stat-value">24/7</span>
-          <span className="ms-stat-label">Uptime</span>
+      </section>
+
+      {/* ── Live Stage (canvas iframe) ── */}
+      <section className="ms-stage" id="stage">
+        <div className="ms-stage-chrome">
+          <div className="ms-terminal-bar">
+            <div className="ms-terminal-dots">
+              <span /><span /><span />
+            </div>
+            <span className="ms-terminal-title">marsquad — office</span>
+            <div className="ms-terminal-live">
+              <span className="lp-pulse lp-pulse--red" />
+              <span>LIVE</span>
+            </div>
+          </div>
+          <div className="ms-stage-frame">
+            <iframe title="Marsquad Live" src="/live" loading="lazy" />
+          </div>
         </div>
       </section>
 
