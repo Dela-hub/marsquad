@@ -1,5 +1,6 @@
 import AgentIllustration from '../components/AgentIllustration';
 import LandingLive from '../components/LandingLive';
+import ServiceForm from '../components/ServiceForm';
 
 export default function Page() {
   return (
@@ -171,15 +172,13 @@ export default function Page() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="ms-cta">
+      <section className="ms-cta" id="submit">
         <div className="ms-cta-inner">
-          <h2 className="ms-cta-title">Send your first task</h2>
+          <h2 className="ms-cta-title">Send a task to the squad</h2>
           <p className="ms-cta-desc">
-            WhatsApp integration coming soon. One number, instant delegation.
+            Pick a service, describe what you need, and Dilo will dispatch the right agents.
           </p>
-          <span className="lp-btn lp-btn--ghost ms-cta-btn ms-cta-soon">
-            Coming Soon
-          </span>
+          <ServiceForm />
         </div>
       </section>
 

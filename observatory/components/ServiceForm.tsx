@@ -1,0 +1,151 @@
+'use client';
+
+import { useState } from 'react';
+
+const SERVICES = [
+  { value: 'market-research', label: 'Market Research', icon: '\uD83D\uDD0D' },
+  { value: 'content-writing', label: 'Content Writing', icon: '\u270D\uFE0F' },
+  { value: 'data-analysis', label: 'Data Analysis', icon: '\uD83D\uDCCA' },
+  { value: 'social-media', label: 'Social Media Management', icon: '\uD83D\uDCF1' },
+  { value: 'tech-docs', label: 'Technical Documentation', icon: '\uD83D\uDCD6' },
+  { value: 'monitoring', label: 'Monitoring & Alerts', icon: '\uD83D\uDCE1' },
+] as const;
+
+type Status = 'idle' | 'sending' | 'sent' | 'error';
+
+export default function ServiceForm() {
+  const [service, setService] = useState('');
+  const [description, setDescription] = useState('');
+  const [contact, setContact] = useState('');
+  const [status, setStatus] = useState<Status>('idle');
+  const [jobId, setJobId] = useState('');
+
+  const canSubmit = service && description.trim().length > 0 && status !== 'sending';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          serviceType: service,
+          description: description.trim(),
+          contact: contact.trim() || undefined,
+        }),
+      });
+
+      if (res.status === 429) {
+        setStatus('error');
+        return;
+      }
+
+      if (!res.ok) {
+        setStatus('error');
+        return;
+      }
+
+      const data = await res.json();
+      setJobId(data.jobId || '');
+      setStatus('sent');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'sent') {
+    return (
+      <div className="sf-success">
+        <div className="sf-success-icon">&#x2713;</div>
+        <h3 className="sf-success-title">Task submitted</h3>
+        <p className="sf-success-desc">
+          Dilo will review your request and dispatch the squad.
+          Watch the live feed above to follow progress.
+        </p>
+        {jobId && <p className="sf-success-id">Ref: {jobId}</p>}
+        <button
+          className="sf-btn sf-btn--ghost"
+          onClick={() => {
+            setStatus('idle');
+            setService('');
+            setDescription('');
+            setContact('');
+            setJobId('');
+          }}
+        >
+          Submit another
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form className="sf-form" onSubmit={handleSubmit}>
+      <div className="sf-field">
+        <label className="sf-label">Service</label>
+        <div className="sf-chips">
+          {SERVICES.map((s) => (
+            <button
+              key={s.value}
+              type="button"
+              className={`sf-chip ${service === s.value ? 'sf-chip--active' : ''}`}
+              onClick={() => setService(s.value)}
+            >
+              <span className="sf-chip-icon">{s.icon}</span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="sf-field">
+        <label className="sf-label" htmlFor="sf-desc">
+          What do you need?
+        </label>
+        <textarea
+          id="sf-desc"
+          className="sf-textarea"
+          rows={3}
+          maxLength={500}
+          placeholder="Describe the task in detail..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <span className="sf-charcount">{description.length}/500</span>
+      </div>
+
+      <div className="sf-field">
+        <label className="sf-label" htmlFor="sf-contact">
+          Contact <span className="sf-optional">(optional)</span>
+        </label>
+        <input
+          id="sf-contact"
+          className="sf-input"
+          type="text"
+          maxLength={200}
+          placeholder="Email or WhatsApp number for delivery"
+          value={contact}
+          onChange={(e) => setContact(e.target.value)}
+        />
+      </div>
+
+      <button
+        type="submit"
+        className={`sf-btn sf-btn--primary ${!canSubmit ? 'sf-btn--disabled' : ''}`}
+        disabled={!canSubmit}
+      >
+        {status === 'sending' ? 'Sending...' : 'Send to squad'}
+        {status !== 'sending' && <span className="sf-btn-arrow">&rarr;</span>}
+      </button>
+
+      {status === 'error' && (
+        <p className="sf-error">
+          Could not submit. Please try again in a few minutes.
+        </p>
+      )}
+    </form>
+  );
+}
