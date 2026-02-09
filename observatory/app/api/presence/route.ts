@@ -53,12 +53,12 @@ export async function POST(req: Request) {
   const count = members.length;
 
   // Extract unique country flags
-  const flags = [...new Set(
+  const flags = Array.from(new Set(
     members.map(m => {
       const cc = m.split(':').pop() || 'UN';
       return countryToFlag(cc);
     })
-  )];
+  ));
 
   return Response.json({ ok: true, visitors: count, flags });
 }
@@ -79,12 +79,12 @@ export async function GET(req: Request) {
   const members: string[] = await (kv as any).zrange('observatory:visitors', 0, -1);
   const count = members.length;
 
-  const flags = [...new Set(
+  const flags = Array.from(new Set(
     members.map(m => {
       const cc = m.split(':').pop() || 'UN';
       return countryToFlag(cc);
     })
-  )];
+  ));
 
   return Response.json({ visitors: count, flags });
 }
