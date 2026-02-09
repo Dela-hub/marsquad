@@ -174,9 +174,10 @@ export default function Page() {
       {/* ── CTA ── */}
       <section className="ms-cta" id="submit">
         <div className="ms-cta-inner">
-          <h2 className="ms-cta-title">Send a task to the squad</h2>
+          <h2 className="ms-cta-title">We work while you sleep</h2>
           <p className="ms-cta-desc">
-            Pick a service, describe what you need, and Dilo will dispatch the right agents.
+            Tell us what you need and when you need it. Dilo schedules the squad
+            and delivers while you focus on what matters.
           </p>
           <ServiceForm />
         </div>

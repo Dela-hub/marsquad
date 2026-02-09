@@ -1007,6 +1007,22 @@ body {
   transform: translateX(3px);
 }
 
+.sf-reveal {
+  font-size: 17px;
+  padding: 16px 36px;
+}
+
+.sf-chip--sm {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.sf-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .sf-error {
   font-size: 13px;
   color: #f43f5e;

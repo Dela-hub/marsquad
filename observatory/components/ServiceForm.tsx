@@ -11,16 +11,26 @@ const SERVICES = [
   { value: 'monitoring', label: 'Monitoring & Alerts', icon: '\uD83D\uDCE1' },
 ] as const;
 
-type Status = 'idle' | 'sending' | 'sent' | 'error';
+const DEADLINES = [
+  { value: 'asap', label: 'ASAP' },
+  { value: '6h', label: '6 hours' },
+  { value: '12h', label: '12 hours' },
+  { value: '24h', label: '24 hours' },
+  { value: '3d', label: '3 days' },
+  { value: 'recurring', label: 'Recurring' },
+] as const;
+
+type Status = 'hidden' | 'idle' | 'sending' | 'sent' | 'error';
 
 export default function ServiceForm() {
+  const [status, setStatus] = useState<Status>('hidden');
   const [service, setService] = useState('');
   const [description, setDescription] = useState('');
+  const [deadline, setDeadline] = useState('');
   const [contact, setContact] = useState('');
-  const [status, setStatus] = useState<Status>('idle');
   const [jobId, setJobId] = useState('');
 
-  const canSubmit = service && description.trim().length > 0 && status !== 'sending';
+  const canSubmit = service && description.trim().length > 0 && deadline && status !== 'sending';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +44,7 @@ export default function ServiceForm() {
         body: JSON.stringify({
           serviceType: service,
           description: description.trim(),
+          deadline,
           contact: contact.trim() || undefined,
         }),
       });
@@ -56,6 +67,20 @@ export default function ServiceForm() {
     }
   };
 
+  // Reveal button
+  if (status === 'hidden') {
+    return (
+      <button
+        className="sf-btn sf-btn--primary sf-reveal"
+        onClick={() => setStatus('idle')}
+      >
+        Hire an agent
+        <span className="sf-btn-arrow">&rarr;</span>
+      </button>
+    );
+  }
+
+  // Success state
   if (status === 'sent') {
     return (
       <div className="sf-success">
@@ -72,6 +97,7 @@ export default function ServiceForm() {
             setStatus('idle');
             setService('');
             setDescription('');
+            setDeadline('');
             setContact('');
             setJobId('');
           }}
@@ -82,6 +108,7 @@ export default function ServiceForm() {
     );
   }
 
+  // Form
   return (
     <form className="sf-form" onSubmit={handleSubmit}>
       <div className="sf-field">
@@ -118,6 +145,22 @@ export default function ServiceForm() {
       </div>
 
       <div className="sf-field">
+        <label className="sf-label">Deliver by</label>
+        <div className="sf-chips">
+          {DEADLINES.map((d) => (
+            <button
+              key={d.value}
+              type="button"
+              className={`sf-chip sf-chip--sm ${deadline === d.value ? 'sf-chip--active' : ''}`}
+              onClick={() => setDeadline(d.value)}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="sf-field">
         <label className="sf-label" htmlFor="sf-contact">
           Contact <span className="sf-optional">(optional)</span>
         </label>
@@ -132,14 +175,23 @@ export default function ServiceForm() {
         />
       </div>
 
-      <button
-        type="submit"
-        className={`sf-btn sf-btn--primary ${!canSubmit ? 'sf-btn--disabled' : ''}`}
-        disabled={!canSubmit}
-      >
-        {status === 'sending' ? 'Sending...' : 'Send to squad'}
-        {status !== 'sending' && <span className="sf-btn-arrow">&rarr;</span>}
-      </button>
+      <div className="sf-actions">
+        <button
+          type="button"
+          className="sf-btn sf-btn--ghost"
+          onClick={() => setStatus('hidden')}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className={`sf-btn sf-btn--primary ${!canSubmit ? 'sf-btn--disabled' : ''}`}
+          disabled={!canSubmit}
+        >
+          {status === 'sending' ? 'Sending...' : 'Send to squad'}
+          {status !== 'sending' && <span className="sf-btn-arrow">&rarr;</span>}
+        </button>
+      </div>
 
       {status === 'error' && (
         <p className="sf-error">

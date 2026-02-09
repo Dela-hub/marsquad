@@ -12,7 +12,10 @@ const VALID_SERVICES = [
   'monitoring',
 ] as const;
 
+const VALID_DEADLINES = ['asap', '6h', '12h', '24h', '3d', 'recurring'] as const;
+
 type ServiceType = (typeof VALID_SERVICES)[number];
+type Deadline = (typeof VALID_DEADLINES)[number];
 
 function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
@@ -51,6 +54,11 @@ export async function POST(req: Request) {
     return new Response('invalid description', { status: 400 });
   }
 
+  const deadline = body?.deadline as Deadline;
+  if (!VALID_DEADLINES.includes(deadline)) {
+    return new Response('invalid deadline', { status: 400 });
+  }
+
   const contact = String(body?.contact || '').trim().slice(0, 200);
 
   const local = process.env.LOCAL_BRIDGE_URL;
@@ -71,6 +79,7 @@ export async function POST(req: Request) {
       jobId,
       serviceType,
       description,
+      deadline,
       contact,
       status: 'pending',
       ts,
@@ -79,7 +88,7 @@ export async function POST(req: Request) {
 
   // Forward to bridge as enriched prompt
   const label = serviceType.replace(/-/g, ' ');
-  const text = `[Service Request: ${label}] ${description}`;
+  const text = `[Service Request: ${label}] [Deliver by: ${deadline}] ${description}`;
 
   try {
     const res = await fetch(`${local}/api/prompt`, {
@@ -95,6 +104,7 @@ export async function POST(req: Request) {
         needsReview: true,
         jobId,
         serviceType,
+        deadline,
         contact: contact || undefined,
       }),
     });
