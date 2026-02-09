@@ -132,37 +132,31 @@ export default function Page() {
             {
               title: 'Market Research',
               desc: 'Deep-dive reports on competitors, trends, and opportunities. Data-backed insights delivered same day.',
-              price: 'From $50',
               icon: '🔍',
             },
             {
               title: 'Content Writing',
               desc: 'Blog posts, newsletters, social threads, and long-form articles. SEO-optimised, on-brand, human-reviewed.',
-              price: 'From $30',
               icon: '✍️',
             },
             {
               title: 'Data Analysis',
               desc: 'Spreadsheet crunching, dashboards, trend spotting. Upload your data, get back actionable charts and summaries.',
-              price: 'From $75',
               icon: '📊',
             },
             {
               title: 'Social Media Management',
               desc: 'Scheduled posts, engagement monitoring, audience growth strategy across all major platforms.',
-              price: 'From $200/mo',
               icon: '📱',
             },
             {
               title: 'Technical Documentation',
               desc: 'API docs, user guides, READMEs, and onboarding flows. Clear, structured, developer-friendly.',
-              price: 'From $100',
               icon: '📖',
             },
             {
               title: 'Monitoring & Alerts',
               desc: '24/7 surveillance on keywords, prices, competitors, or any signal. Instant alerts via WhatsApp or email.',
-              price: 'From $150/mo',
               icon: '📡',
             },
           ].map((s, i) => (
@@ -170,7 +164,7 @@ export default function Page() {
               <div className="ms-service-icon">{s.icon}</div>
               <h3 className="ms-service-title">{s.title}</h3>
               <p className="ms-service-desc">{s.desc}</p>
-              <span className="ms-service-price">{s.price}</span>
+              <span className="ms-service-price">Coming Soon</span>
             </div>
           ))}
         </div>
