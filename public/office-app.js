@@ -49,7 +49,7 @@ function computeDeskPositions() {
   // Slots 1-3: Row 1 (3 worker desks)
   // Slots 4-6: Row 2 (3 worker desks)
   const isMobile = w < 500;
-  const marginX = isMobile ? Math.max(30, w * 0.08) : 120;
+  const marginX = isMobile ? Math.max(30, w * 0.08) : Math.max(60, w * 0.06);
   const bossY = h * 0.14;
   const row1Y = h * 0.44;
   const row2Y = h * 0.72;
@@ -58,7 +58,7 @@ function computeDeskPositions() {
   DESK_POSITIONS = [];
 
   // Boss desk — center top
-  DESK_POSITIONS.push({ x: w * 0.42, y: bossY, boss: true });
+  DESK_POSITIONS.push({ x: w * 0.5, y: bossY, boss: true });
 
   // Worker rows: 3 + 3
   for (const rowY of [row1Y, row2Y]) {
