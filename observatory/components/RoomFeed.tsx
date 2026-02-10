@@ -33,6 +33,7 @@ type Props = {
   agents: AgentConfig[];
   roomName: string;
   variant?: 'full' | 'embed';
+  showAgents?: boolean;
 };
 
 // ── Utilities ──
@@ -97,7 +98,7 @@ function inferSource(e: EventPayload): string {
 
 // ── Component ──
 
-export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }: Props) {
+export default function RoomFeed({ roomId, agents, roomName, variant = 'full', showAgents = true }: Props) {
   const [events, setEvents] = useState<EventPayload[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [since, setSince] = useState(0);
@@ -355,31 +356,33 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }:
           )}
 
           {/* ── Agent Cards ── */}
-          <section className="ms-agents" id="agents">
-            <h2 className="ms-section-title">The Squad</h2>
-            <div className="ms-agent-grid">
-              {allAgents.map((agent, i) => {
-                const isActive = agentsSeen.has(agent.id);
-                return (
-                  <div
-                    key={agent.id}
-                    className="ms-agent-card"
-                    style={{ '--agent-color': agent.color, '--agent-i': i } as any}
-                  >
-                    <div className="ms-agent-header">
-                      <span className="ms-agent-avatar">{agent.avatar}</span>
-                      <div className="ms-agent-meta">
-                        <span className="ms-agent-name">{agent.name}</span>
-                        {agent.role && <span className="ms-agent-role">{agent.role}</span>}
+          {showAgents !== false && (
+            <section className="ms-agents" id="agents">
+              <h2 className="ms-section-title">Agents</h2>
+              <div className="ms-agent-grid">
+                {allAgents.map((agent, i) => {
+                  const isActive = agentsSeen.has(agent.id);
+                  return (
+                    <div
+                      key={agent.id}
+                      className="ms-agent-card"
+                      style={{ '--agent-color': agent.color, '--agent-i': i } as any}
+                    >
+                      <div className="ms-agent-header">
+                        <span className="ms-agent-avatar">{agent.avatar}</span>
+                        <div className="ms-agent-meta">
+                          <span className="ms-agent-name">{agent.name}</span>
+                          {agent.role && <span className="ms-agent-role">{agent.role}</span>}
+                        </div>
+                        <span className={`ms-agent-status ${isActive ? 'ms-agent-status--active' : ''}`} />
                       </div>
-                      <span className={`ms-agent-status ${isActive ? 'ms-agent-status--active' : ''}`} />
+                      {agent.desc && <p className="ms-agent-desc">{agent.desc}</p>}
                     </div>
-                    {agent.desc && <p className="ms-agent-desc">{agent.desc}</p>}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  );
+                })}
+              </div>
+            </section>
+          )}
         </>
       )}
 

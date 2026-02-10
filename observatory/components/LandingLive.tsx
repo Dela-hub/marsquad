@@ -14,5 +14,5 @@ const MARSQUAD_AGENTS: AgentConfig[] = [
 ];
 
 export default function LandingLive() {
-  return <RoomFeed roomId="marsquad" agents={MARSQUAD_AGENTS} roomName="Marsquad" variant="full" />;
+  return <RoomFeed roomId="marsquad" agents={MARSQUAD_AGENTS} roomName="Marsquad" variant="full" showAgents={false} />;
 }
