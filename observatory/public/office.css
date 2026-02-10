@@ -51,7 +51,8 @@ h2{font-size:13px;font-weight:600}
 
 /* ── Main layout ── */
 main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr 340px;gap:0;min-height:0;overflow:hidden;padding:0 20px 12px 20px;transition:grid-template-columns .3s ease}
-main.feed-collapsed{grid-template-columns:1fr 48px}
+/* When collapsed, do not reserve a right column; render the feed rail as an overlay. */
+main.feed-collapsed{grid-template-columns:1fr 0px}
 
 /* ── Office canvas ── */
 .office-pane{display:flex;flex-direction:column;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:rgba(30,41,59,.5);backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
@@ -326,7 +327,16 @@ main.feed-collapsed{grid-template-columns:1fr 48px}
 
 /* ── Feed pane ── */
 .feed-pane{display:flex;flex-direction:column;margin-left:12px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:rgba(15,23,42,.5);backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,.3);transition:width .3s ease,min-width .3s ease,opacity .3s ease}
-.feed-pane.collapsed{width:48px;min-width:48px;border-radius:20px}
+.feed-pane.collapsed{
+  position:absolute;
+  top:0;
+  right:20px;
+  bottom:12px;
+  width:48px;
+  min-width:48px;
+  margin-left:0;
+  border-radius:20px;
+}
 .feed-pane.collapsed .feed-list{display:none}
 .feed-pane.collapsed .feed-header{padding:14px 10px;border-bottom:none;flex-direction:column;align-items:center;gap:12px}
 .feed-pane.collapsed .feed-header-left{display:none}
