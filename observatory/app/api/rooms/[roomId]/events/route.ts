@@ -33,5 +33,18 @@ export async function GET(
   if (!config) return new Response('room not found', { status: 404 });
 
   const events = await getEvents(roomId, since, limit);
+
+  // Marsquad: fall back to bridge if KV has no events yet
+  if (events.length === 0 && roomId === 'marsquad') {
+    const local = process.env.LOCAL_BRIDGE_URL || 'http://76.13.255.23:3010';
+    try {
+      const res = await fetch(`${local}/api/events?since=${since}&limit=${limit}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        return Response.json({ events: data.events || [] });
+      }
+    } catch { /* fall through */ }
+  }
+
   return Response.json({ events });
 }

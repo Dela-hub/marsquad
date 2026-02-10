@@ -23,5 +23,18 @@ export async function GET(req: Request) {
   }
 
   const events = await getEvents('marsquad', since, limit);
+
+  // Fall back to bridge if KV has no events yet
+  if (events.length === 0) {
+    const local = process.env.LOCAL_BRIDGE_URL || 'http://76.13.255.23:3010';
+    try {
+      const res = await fetch(`${local}/api/events?since=${since}&limit=${limit}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        return Response.json({ events: data.events || [] });
+      }
+    } catch { /* fall through */ }
+  }
+
   return Response.json({ events });
 }
