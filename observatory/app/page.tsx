@@ -1,6 +1,5 @@
 import AgentIllustration from '../components/AgentIllustration';
 import LandingLive from '../components/LandingLive';
-import ServiceForm from '../components/ServiceForm';
 
 export default function Page() {
   return (
@@ -16,12 +15,12 @@ export default function Page() {
         </a>
         <div className="lp-nav-links">
           <a href="#terminal" className="lp-nav-link">live feed</a>
-          <a href="#agents" className="lp-nav-link">squad</a>
-          <a href="#services" className="lp-nav-link">services</a>
+          <a href="/setup" className="lp-nav-link">create room</a>
+          <a href="#integrate" className="lp-nav-link">integrate</a>
           <a href="#how" className="lp-nav-link">how it works</a>
-          <a href="#terminal" className="lp-nav-cta">
+          <a href="/setup" className="lp-nav-cta">
             <span className="lp-pulse" />
-            watch now
+            get started
           </a>
         </div>
       </nav>
@@ -31,54 +30,54 @@ export default function Page() {
         <div className="lp-hero-text">
           <div className="lp-hero-badge">
             <span className="lp-pulse" />
-            <span>agents online now</span>
+            <span>live agent observability</span>
           </div>
           <h1 className="lp-h1">
-            <span className="lp-h1-line lp-h1-line--1">Your AI team,</span>
-            <span className="lp-h1-line lp-h1-line--2">working <em>live.</em></span>
+            <span className="lp-h1-line lp-h1-line--1">Watch your agents</span>
+            <span className="lp-h1-line lp-h1-line--2">work <em>in real time.</em></span>
           </h1>
           <p className="lp-hero-sub">
-            Seven specialised agents research, analyse, write, and ship around the clock.
-            Watch every decision happen in real time.
+            A live viewer + ingest API for agentic systems.
+            Stream tool calls, handoffs, and status updates into a shareable room or embed.
           </p>
-          {/* Proof loop — shows a task flowing through the system */}
+          {/* Proof loop — shows a trace flowing through the system */}
           <div className="lp-proof" aria-label="Example task flow">
             <div className="lp-proof-step lp-proof-step--1">
-              <span className="lp-proof-tag lp-proof-tag--in">Task in</span>
-              <span>&ldquo;Analyze top 5 competitors in UK meal-kit market&rdquo;</span>
+              <span className="lp-proof-tag lp-proof-tag--in">Event in</span>
+              <span>&ldquo;tool_call: web scraper (pricing page)&rdquo;</span>
             </div>
             <div className="lp-proof-step lp-proof-step--2">
-              <span className="lp-proof-tag lp-proof-tag--dilo">Dilo</span>
-              <span>Dispatching Nyx (research) + Cipher (data)&hellip;</span>
+              <span className="lp-proof-tag lp-proof-tag--dilo">Ingest</span>
+              <span>POST /api/rooms/:roomId/ingest</span>
             </div>
             <div className="lp-proof-step lp-proof-step--3">
-              <span className="lp-proof-tag lp-proof-tag--nyx">Nyx</span>
-              <span>Found 5 competitors, scraping pricing data&hellip;</span>
+              <span className="lp-proof-tag lp-proof-tag--nyx">Viewer</span>
+              <span>Live feed updates with types, agents, and provenance</span>
             </div>
             <div className="lp-proof-step lp-proof-step--4">
-              <span className="lp-proof-tag lp-proof-tag--done">Delivered</span>
-              <span>Report ready &mdash; 12 pages, 3 charts, 47 min</span>
+              <span className="lp-proof-tag lp-proof-tag--done">Share</span>
+              <span>/room/:roomId and /embed/:roomId</span>
             </div>
           </div>
 
           <div className="lp-hero-actions">
-            <a href="#submit" className="lp-btn lp-btn--primary">
-              Give us a task
+            <a href="/setup" className="lp-btn lp-btn--primary">
+              Create your room
               <span className="lp-btn-arrow">→</span>
             </a>
-            <a href="#how" className="lp-btn lp-btn--ghost">How it works</a>
+            <a href="#terminal" className="lp-btn lp-btn--ghost">Watch the demo</a>
           </div>
 
-          {/* Agent roster chips */}
+          {/* Signal chips (what you can stream) */}
           <div className="lp-roster">
             {[
-              { name: 'Dilo', role: 'Lead', color: '#3b82f6' },
-              { name: 'Phantom', role: 'Ops', color: '#f43f5e' },
-              { name: 'Nyx', role: 'Intel', color: '#a855f7' },
-              { name: 'Cipher', role: 'Data', color: '#06b6d4' },
-              { name: 'Pulse', role: 'Comms', color: '#10b981' },
-              { name: 'Wraith', role: 'QA', color: '#6366f1' },
-              { name: 'Specter', role: 'Copy', color: '#f59e0b' },
+              { name: 'thinking', role: 'trace', color: '#6366f1' },
+              { name: 'tool_call', role: 'receipt', color: '#06b6d4' },
+              { name: 'task.started', role: 'lifecycle', color: '#10b981' },
+              { name: 'task.done', role: 'lifecycle', color: '#22c55e' },
+              { name: 'conversation', role: 'handoff', color: '#3b82f6' },
+              { name: 'agent.move', role: 'motion', color: '#f43f5e' },
+              { name: 'insight', role: 'signal', color: '#f59e0b' },
             ].map((a, i) => (
               <div
                 key={a.name}
@@ -100,6 +99,58 @@ export default function Page() {
       {/* ── Live sections (client component) ── */}
       <LandingLive />
 
+      {/* ── Integrate ── */}
+      <section className="lp-how" id="integrate">
+        <h2 className="lp-h2">Integrate</h2>
+        <div className="lp-steps">
+          {[
+            {
+              num: 'API',
+              title: 'Ingest events',
+              desc: 'Send typed events into your room with a single POST. Your UI updates live.',
+              icon: '⇢',
+            },
+            {
+              num: 'EMBED',
+              title: 'Embed anywhere',
+              desc: 'Drop /embed/:roomId into your docs, dashboard, or marketing site.',
+              icon: '▣',
+            },
+            {
+              num: 'TRACE',
+              title: 'Provenance',
+              desc: 'Mark events as human/agent/system and include source/session IDs.',
+              icon: '✓',
+            },
+          ].map((s, i) => (
+            <div
+              key={s.num}
+              className="lp-step"
+              style={{ '--step-i': i } as any}
+            >
+              <div className="lp-step-icon">{s.icon}</div>
+              <div className="lp-step-num">{s.num}</div>
+              <h3 className="lp-step-title">{s.title}</h3>
+              <p className="lp-step-desc">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="su-code-block" style={{ marginTop: 18 }}>
+          <pre><code>{`curl -X POST https://marsquad.vercel.app/api/rooms/ROOM_ID/ingest \\\\
+  -H "Authorization: Bearer ROOM_API_KEY" \\\\
+  -H "Content-Type: application/json" \\\\
+  -d '{
+    "type": "tool_call",
+    "agent": "my-bot",
+    "text": "tool_call: web scraper (pricing page)",
+    "actor": "agent",
+    "source": "openclaw",
+    "ts": 1730000000000
+  }'`}</code></pre>
+        </div>
+      </section>
+
       {/* ── How it works ── */}
       <section className="lp-how" id="how">
         <h2 className="lp-h2">How it works</h2>
@@ -107,26 +158,26 @@ export default function Page() {
           {[
             {
               num: '01',
-              title: 'Prompt or schedule',
-              desc: 'Send a task via WhatsApp, API, or schedule recurring missions on a cadence.',
+              title: 'Create a room',
+              desc: 'Define your agents and get a roomId + API key in under 2 minutes.',
               icon: '⌘',
             },
             {
               num: '02',
-              title: 'Squad dispatches',
-              desc: 'Dilo breaks the mission down and assigns specialists — research, data, comms, QA.',
+              title: 'Stream events',
+              desc: 'Your bots send typed events (thinking, tool calls, tasks, handoffs).',
               icon: '◇',
             },
             {
               num: '03',
-              title: 'Watch it happen',
-              desc: 'Every agent action streams live to the observatory. See thinking, tool calls, and handoffs.',
+              title: 'Watch and share',
+              desc: 'Open your room page, or embed it anywhere. Everything stays visible.',
               icon: '◎',
             },
             {
               num: '04',
-              title: 'Output delivered',
-              desc: 'Results land in WhatsApp, email, or webhook. Every step is logged and visible.',
+              title: 'Prove autonomy',
+              desc: 'Separate human/agent/system events and attach source/session IDs for auditing.',
               icon: '↗',
             },
           ].map((s, i) => (
@@ -144,62 +195,20 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Signature Missions ── */}
-      <section className="ms-services" id="services">
-        <h2 className="lp-h2">Signature missions</h2>
-        <p className="ms-services-sub">Built for a live team. Pick one, or describe your own.</p>
-        <div className="ms-services-grid">
-          {[
-            {
-              title: 'Competitor teardown',
-              desc: 'Full competitor analysis in under 60 minutes. Watch Nyx research and Cipher crunch the data live.',
-              icon: '⚔️',
-              tag: '~60 min',
-            },
-            {
-              title: 'Daily brief via WhatsApp',
-              desc: 'Wake up to a summary of your market, inbox, or competitors. Nyx monitors overnight, Specter writes the brief.',
-              icon: '📲',
-              tag: 'recurring',
-            },
-            {
-              title: 'Launch doc pack',
-              desc: 'README + FAQ + onboarding guide + API docs. Phantom analyzes your codebase, Specter writes it up.',
-              icon: '🚀',
-              tag: '~3 hours',
-            },
-            {
-              title: 'Content sprint',
-              desc: '5 blog posts or 20 social threads in one go. Specter drafts, Wraith reviews, delivered to your inbox.',
-              icon: '✍️',
-              tag: '~2 hours',
-            },
-            {
-              title: 'Data deep-dive',
-              desc: 'Upload a spreadsheet or describe a dataset. Cipher analyzes, Pulse spots trends, you get charts and a report.',
-              icon: '📊',
-              tag: '~90 min',
-            },
-          ].map((s, i) => (
-            <div key={s.title} className="ms-service-card" style={{ '--svc-i': i } as any}>
-              <div className="ms-service-icon">{s.icon}</div>
-              <h3 className="ms-service-title">{s.title}</h3>
-              <p className="ms-service-desc">{s.desc}</p>
-              <span className="ms-service-tag">{s.tag}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── CTA ── */}
       <section className="ms-cta" id="submit">
         <div className="ms-cta-inner">
-          <h2 className="ms-cta-title">Give us a task. Watch it happen.</h2>
+          <h2 className="ms-cta-title">Create your observatory.</h2>
           <p className="ms-cta-desc">
-            Your first task is free. Pick a mission, describe what you need,
-            and watch the squad work on it live.
+            Get a roomId + API key, stream events, and embed the live feed anywhere.
           </p>
-          <ServiceForm />
+          <div className="lp-hero-actions" style={{ justifyContent: 'center', marginTop: 10 }}>
+            <a href="/setup" className="lp-btn lp-btn--primary">
+              Create a room
+              <span className="lp-btn-arrow">→</span>
+            </a>
+            <a href="#terminal" className="lp-btn lp-btn--ghost">Watch demo</a>
+          </div>
         </div>
       </section>
 
@@ -209,7 +218,7 @@ export default function Page() {
           <span className="lp-logo-icon">◈</span> marsquad
         </div>
         <p className="lp-footer-sub">
-          one number · one squad · every step visible
+          observability for agentic systems
         </p>
       </footer>
     </main>
