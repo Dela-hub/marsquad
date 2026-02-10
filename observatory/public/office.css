@@ -11,6 +11,13 @@ body{background:var(--bg);color:var(--text);font-family:'SF Pro Text','Inter',ui
 .sub{font-size:10px;color:var(--muted)}
 #app{height:100vh;display:flex;flex-direction:column;position:relative}
 
+/* Low power mode: reduce animations and particle effects for mobile stability */
+.office-low-power .ambient{display:none}
+.office-low-power #particles{display:none}
+.office-low-power .agent-ping{display:none}
+.office-low-power .agent-char.working:not(.walking) .agent-body{animation:none}
+.office-low-power .agent-char.working:not(.walking) .agent-face{animation:none}
+
 /* ── Ambient background ── */
 .ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
 .blob{position:absolute;border-radius:50%;filter:blur(120px)}

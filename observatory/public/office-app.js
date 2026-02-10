@@ -20,6 +20,21 @@ const modalCardEl = document.getElementById('modalCard');
 const canvas = document.getElementById('world');
 const ctx = canvas.getContext('2d');
 
+// Mobile/reduced-motion browsers can struggle with the full office scene.
+// Use a low-power mode to cap DPR and disable expensive visual effects.
+const __officeLowPower = (() => {
+  try {
+    const mmMobile = window.matchMedia('(max-width: 768px)');
+    const mmReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return mmMobile.matches || mmReduced.matches;
+  } catch {
+    return false;
+  }
+})();
+if (__officeLowPower) {
+  document.documentElement.classList.add('office-low-power');
+}
+
 /* ── Agent definitions ── */
 const AGENT_DEFS = {
   dilo:    { name: 'Dilo',    avatar: 'face-dilo',    role: 'Primary Agent',           accent: 'linear-gradient(135deg,#3b82f6,#6366f1)', glow: 'rgba(59,130,246,.4)', boss: true },
@@ -160,6 +175,7 @@ function getAgentDef(id) {
 
 /* ── Floating particles ── */
 function spawnParticles() {
+  if (__officeLowPower) return;
   for (let i = 0; i < 20; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
@@ -172,7 +188,8 @@ function spawnParticles() {
 /* ── Canvas: draw desks & decorations ── */
 function resizeCanvas() {
   const wrap = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
+  const dprRaw = window.devicePixelRatio || 1;
+  const dpr = __officeLowPower ? Math.min(1.25, dprRaw) : dprRaw;
   canvas.width = wrap.clientWidth * dpr;
   canvas.height = wrap.clientHeight * dpr;
   canvas.style.width = wrap.clientWidth + 'px';
@@ -738,13 +755,13 @@ function walkAgentTo(id, targetX, targetY, onDone, opts) {
     a.el.style.top = a.pos.y + 'px';
 
     // Spawn footsteps every ~12% of walk progress
-    if (t - lastFootstepT > 0.12 && t < 0.95) {
+    if (!__officeLowPower && t - lastFootstepT > 0.12 && t < 0.95) {
       lastFootstepT = t;
       spawnFootstep(a.pos.x, a.pos.y, id);
     }
 
     // Ghost trail mode: spawn afterimage every ~8%
-    if (ghostMode && t - lastGhostT > 0.08 && t < 0.9) {
+    if (!__officeLowPower && ghostMode && t - lastGhostT > 0.08 && t < 0.9) {
       lastGhostT = t;
       spawnGhostTrail(a.el, a.pos.x, a.pos.y);
     }
@@ -754,7 +771,7 @@ function walkAgentTo(id, targetX, targetY, onDone, opts) {
     } else {
       a.el.classList.remove('walking');
       // Small dust puff on arrival
-      spawnDustPuff(a.pos.x, a.pos.y, id);
+      if (!__officeLowPower) spawnDustPuff(a.pos.x, a.pos.y, id);
       if (onDone) onDone();
     }
   }
@@ -1104,12 +1121,12 @@ function checkSleepStates() {
     }
   }
 }
-setInterval(checkSleepStates, 5000);
+setInterval(checkSleepStates, __officeLowPower ? 12000 : 5000);
 
 // Periodic mood refresh — lets moods decay as workload window slides
 setInterval(() => {
   for (const [id] of agents) applyMood(id);
-}, 5000);
+}, __officeLowPower ? 12000 : 5000);
 
 /* ── Coffee break: idle agents wander to break area ── */
 const _coffeeTimers = new Map();
@@ -2023,7 +2040,7 @@ function renderMissionBoard() {
 }
 
 // Periodic cleanup of faded missions
-setInterval(renderMissionBoard, 10000);
+setInterval(renderMissionBoard, __officeLowPower ? 20000 : 10000);
 
 /* ── SSE + data loading ── */
 async function loadRecent() {
@@ -2139,7 +2156,7 @@ document.getElementById('btnTest').addEventListener('click', async () => {
 });
 
 /* ── Clock ── */
-setInterval(() => { clockEl.textContent = nowStr(); }, 250);
+setInterval(() => { clockEl.textContent = nowStr(); }, __officeLowPower ? 1000 : 250);
 
 /* ── Periodic screen content refresh for active agents ── */
 setInterval(() => {
@@ -2148,7 +2165,7 @@ setInterval(() => {
     const isActive = a.status === 'working' || a.status === 'active';
     if (isActive) a.screenEl.innerHTML = getScreenContent(id);
   }
-}, 3000);
+}, __officeLowPower ? 7000 : 3000);
 
 /* ── Init ── */
 window.addEventListener('resize', resizeCanvas);
