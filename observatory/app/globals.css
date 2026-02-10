@@ -1710,3 +1710,25 @@ body {
   cursor: not-allowed;
 }
 
+/* ── Embed mode ── */
+.embed-body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.embed-body .ms-terminal-section {
+  margin: 0;
+  padding: 8px;
+}
+
+.embed-body .ms-terminal-chrome {
+  border-radius: 0;
+  border: none;
+}
+
+.embed-body .ms-ticker {
+  border-radius: 0;
+}
+
