@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic';
 
+import nodemailer from 'nodemailer';
+
 const COOLDOWN_MS = 5 * 60 * 1000;
 const MAX_DESC = 500;
 
@@ -14,6 +16,15 @@ const VALID_SERVICES = [
 
 const VALID_DEADLINES = ['asap', '6h', '12h', '24h', '3d', 'recurring'] as const;
 
+const SERVICE_LABELS: Record<string, string> = {
+  'market-research': 'Competitor teardown',
+  'content-writing': 'Content sprint',
+  'data-analysis': 'Data deep-dive',
+  'tech-docs': 'Launch doc pack',
+  'monitoring': 'Daily brief',
+  'social-media': 'Social media',
+};
+
 type ServiceType = (typeof VALID_SERVICES)[number];
 type Deadline = (typeof VALID_DEADLINES)[number];
 
@@ -21,6 +32,39 @@ function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
   if (xf) return xf.split(',')[0].trim();
   return 'unknown';
+}
+
+async function notifyByEmail(job: {
+  jobId: string;
+  serviceType: string;
+  description: string;
+  deadline: string;
+  contact: string;
+}) {
+  const user = process.env.AGENT_EMAIL;
+  const pass = process.env.AGENT_EMAIL_APP_PASSWORD;
+  if (!user || !pass) return;
+
+  const transport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user, pass },
+  });
+
+  const label = SERVICE_LABELS[job.serviceType] || job.serviceType;
+
+  await transport.sendMail({
+    from: `Marsquad <${user}>`,
+    to: user,
+    subject: `New task: ${label} [${job.deadline}]`,
+    text: [
+      `Job ID: ${job.jobId}`,
+      `Service: ${label}`,
+      `Deadline: ${job.deadline}`,
+      `Contact: ${job.contact || 'none'}`,
+      '',
+      job.description,
+    ].join('\n'),
+  });
 }
 
 export async function POST(req: Request) {
@@ -61,12 +105,6 @@ export async function POST(req: Request) {
 
   const contact = String(body?.contact || '').trim().slice(0, 200);
 
-  const local = process.env.LOCAL_BRIDGE_URL;
-  const auth = process.env.OBSERVATORY_API_KEY;
-  if (!local || !auth) {
-    return new Response('misconfigured', { status: 500 });
-  }
-
   const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const ts = Date.now();
 
@@ -86,34 +124,11 @@ export async function POST(req: Request) {
     }, { ex: 7 * 24 * 3600 }); // 7-day TTL
   }
 
-  // Forward to bridge as enriched prompt
-  const label = serviceType.replace(/-/g, ' ');
-  const text = `[Service Request: ${label}] [Deliver by: ${deadline}] ${description}`;
-
+  // Notify Dilo via email
   try {
-    const res = await fetch(`${local}/api/prompt`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${auth}`,
-      },
-      body: JSON.stringify({
-        text,
-        ts,
-        source: 'observatory',
-        needsReview: true,
-        jobId,
-        serviceType,
-        deadline,
-        contact: contact || undefined,
-      }),
-    });
-
-    if (!res.ok) {
-      return new Response('upstream error', { status: 502 });
-    }
-  } catch (e: any) {
-    return new Response(e.message || 'bridge unreachable', { status: 502 });
+    await notifyByEmail({ jobId, serviceType, description, deadline, contact });
+  } catch {
+    // Email failed — job is still stored in KV, don't block the user
   }
 
   return Response.json({ ok: true, jobId });
