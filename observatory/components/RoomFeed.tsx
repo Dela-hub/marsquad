@@ -8,6 +8,24 @@ type EventPayload = {
   text?: string;
   agent?: string;
   type?: string;
+  task?: string; // target agent for conversations, or task name
+  // Provenance (optional; inferred for legacy events)
+  actor?: 'human' | 'agent' | 'system';
+  source?: string; // e.g. 'openclaw' | 'autonomy' | 'api' | 'manual'
+  runId?: string;
+  sessionId?: string;
+  parentEventId?: string;
+};
+
+type RichLine = {
+  text: string;
+  kind: string; // CSS modifier: chat, think, task, tool, system, default
+  agentName?: string;
+  agentColor?: string;
+  targetName?: string;
+  targetColor?: string;
+  actor?: 'human' | 'agent' | 'system';
+  source?: string;
 };
 
 type Props = {
@@ -57,6 +75,25 @@ function tagEvent(text: string): string | null {
 }
 
 const DEFAULT_COLOR = '#94a3b8';
+
+function inferActor(e: EventPayload): 'human' | 'agent' | 'system' {
+  if (e.actor) return e.actor;
+  const t = (e.text || '').trim();
+  if (t.toLowerCase().startsWith('system:')) return 'system';
+  if (t.toLowerCase().startsWith('user:')) return 'human';
+  // Common system-ish event types
+  if (e.type === 'threat') return 'system';
+  return 'agent';
+}
+
+function inferSource(e: EventPayload): string {
+  if (e.source) return e.source;
+  const t = (e.text || '').toLowerCase();
+  if (t.includes('[whatsapp ') || t.includes('whatsapp gateway')) return 'openclaw';
+  // Heuristic: autonomy tends to emit "insight"/delegation/task lifecycle frequently
+  if (e.type === 'insight' || e.type === 'task.delegated') return 'autonomy';
+  return 'api';
+}
 
 // ── Component ──
 
@@ -194,6 +231,51 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }:
   // All known agents (configured + discovered)
   const allAgents = Array.from(agentsMap.values());
 
+  // Build rich lines from events (type-aware rendering)
+  const richLines: RichLine[] = useMemo(() => {
+    return events
+      .filter(e => e.text && !isNoise(e.text))
+      .slice(-150)
+      .map(e => {
+        const agent = resolveAgent(e);
+        const agentName = agent?.name;
+        const agentColor = agent?.color;
+
+        // Resolve target agent for conversations
+        let targetName: string | undefined;
+        let targetColor: string | undefined;
+        if (e.type === 'conversation' && e.task) {
+          const target = agentsMap.get(e.task.toLowerCase());
+          targetName = target?.name || e.task;
+          targetColor = target?.color;
+        }
+
+        // Classify event into rendering kind
+        let kind = 'default';
+        switch (e.type) {
+          case 'conversation': kind = 'chat'; break;
+          case 'thinking': kind = 'think'; break;
+          case 'task.started': kind = 'task-start'; break;
+          case 'task.done': kind = 'task-done'; break;
+          case 'task.error': kind = 'task-error'; break;
+          case 'task.delegated': kind = 'delegated'; break;
+          case 'tool_call': kind = 'tool'; break;
+          case 'mission.created': kind = 'mission'; break;
+          case 'mission.completed': kind = 'mission-done'; break;
+          case 'insight': kind = 'insight'; break;
+          case 'file.shared': kind = 'file'; break;
+          case 'coffee': case 'smoke': kind = 'break'; break;
+          case 'standup': kind = 'standup'; break;
+          case 'celebrate': kind = 'celebrate'; break;
+          case 'agent.status': kind = 'status'; break;
+        }
+
+        const actor = inferActor(e);
+        const source = inferSource(e);
+        return { text: e.text || '', kind, agentName, agentColor, targetName, targetColor, actor, source };
+      });
+  }, [events, agentsMap]);
+
   return (
     <>
       {/* ── Live Ticker ── */}
@@ -316,18 +398,30 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }:
             </div>
           </div>
           <div className="ms-terminal-body" ref={termRef}>
-            {terminalLines.length === 0 && (
+            {richLines.length === 0 && (
               <div className="ms-terminal-empty">
                 <span className="ms-terminal-cursor" />
                 Connecting to live feed...
               </div>
             )}
-            {terminalLines.map((line, idx) => {
-              const tag = tagEvent(line);
+            {richLines.map((rl, idx) => {
+              const tag = tagEvent(rl.text);
               return (
-                <div className="ms-terminal-line" key={`${idx}-${line.slice(0, 20)}`}>
+                <div className={`ms-terminal-line ms-evt-${rl.kind}`} key={`${idx}-${rl.text.slice(0, 20)}`}>
+                  {rl.agentName && <span className="ms-evt-agent" style={{ color: rl.agentColor || 'var(--muted)' }}>{rl.agentName}</span>}
+                  {rl.targetName && <span className="ms-evt-arrow">{'>'}</span>}
+                  {rl.targetName && <span className="ms-evt-target" style={{ color: rl.targetColor || 'var(--muted)' }}>{rl.targetName}</span>}
                   {tag && <span className="ms-tag" style={{ background: TAG_COLORS[tag] || '#666' }}>{tag}</span>}
-                  {line}
+                  {(rl.actor || rl.source) && (
+                    <span className={`ms-prov ms-prov-${rl.actor || 'agent'}`} title={[
+                      rl.actor ? `actor: ${rl.actor}` : '',
+                      rl.source ? `source: ${rl.source}` : '',
+                      // keep tooltip small but useful
+                    ].filter(Boolean).join(' · ')}>
+                      {rl.actor || 'agent'}{rl.source ? `:${rl.source}` : ''}
+                    </span>
+                  )}
+                  <span className="ms-evt-text">{rl.text}</span>
                 </div>
               );
             })}
@@ -345,6 +439,8 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }:
               ts: Date.now() - i * 60_000,
             }))).map((item, i) => {
               const agentData = resolveAgent(item);
+              const actor = inferActor(item);
+              const source = inferSource(item);
               return (
                 <div
                   key={i}
@@ -358,6 +454,9 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full' }:
                       </span>
                     )}
                     {(() => { const t = tagEvent(item.text || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
+                    <span className={`ms-prov ms-prov-${actor}`} title={`actor: ${actor} · source: ${source}`}>
+                      {actor}:{source}
+                    </span>
                     {item.ts && <span className="ms-activity-time">{timeAgo(item.ts)}</span>}
                   </div>
                   <p className="ms-activity-text">{(item.text || '').slice(0, 140)}</p>

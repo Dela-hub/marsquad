@@ -783,6 +783,152 @@ body {
   color: var(--text);
 }
 
+/* ── Provenance pills (actor/source) ── */
+.ms-prov {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  letter-spacing: .02em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.72);
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.ms-prov-human {
+  border-color: rgba(16,185,129,.35);
+  background: rgba(16,185,129,.10);
+  color: rgba(16,185,129,.95);
+}
+
+.ms-prov-agent {
+  border-color: rgba(99,102,241,.35);
+  background: rgba(99,102,241,.10);
+  color: rgba(165,180,252,.95);
+}
+
+.ms-prov-system {
+  border-color: rgba(244,63,94,.35);
+  background: rgba(244,63,94,.10);
+  color: rgba(251,113,133,.95);
+}
+
+/* ── Rich event type styles ── */
+.ms-evt-agent {
+  font-weight: 600;
+  font-size: 11px;
+  margin-right: 6px;
+}
+.ms-evt-arrow {
+  color: var(--muted);
+  margin-right: 6px;
+  font-size: 10px;
+}
+.ms-evt-target {
+  font-weight: 600;
+  font-size: 11px;
+  margin-right: 8px;
+}
+.ms-evt-text { opacity: .92; }
+
+/* Conversation: chat bubble feel */
+.ms-evt-chat {
+  border-left-color: #3b82f6;
+  padding: 4px 0 4px 10px;
+}
+.ms-evt-chat .ms-evt-text { color: #dbeafe; }
+
+/* Thinking: dim, italic */
+.ms-evt-think {
+  border-left-color: rgba(148,163,184,.25);
+  opacity: .65;
+}
+.ms-evt-think .ms-evt-text { font-style: italic; }
+
+/* Task started: green accent */
+.ms-evt-task-start {
+  border-left-color: var(--accent);
+}
+.ms-evt-task-start .ms-evt-text { color: var(--accent); font-weight: 500; }
+
+/* Task done: bright green */
+.ms-evt-task-done {
+  border-left-color: #4ade80;
+}
+.ms-evt-task-done .ms-evt-text { color: #4ade80; }
+
+/* Task error: red */
+.ms-evt-task-error {
+  border-left-color: #ef4444;
+}
+.ms-evt-task-error .ms-evt-text { color: #ef4444; }
+
+/* Delegated: amber, leadership feel */
+.ms-evt-delegated {
+  border-left-color: var(--amber);
+}
+.ms-evt-delegated .ms-evt-text { color: var(--amber); }
+
+/* Tool call: cyan technical */
+.ms-evt-tool {
+  border-left-color: var(--cyan);
+  opacity: .7;
+}
+.ms-evt-tool .ms-evt-text { color: var(--cyan); font-size: 11px; }
+
+/* Mission: purple glow */
+.ms-evt-mission {
+  border-left-color: #a855f7;
+}
+.ms-evt-mission .ms-evt-text { color: #c084fc; font-weight: 500; }
+
+.ms-evt-mission-done {
+  border-left-color: #a855f7;
+}
+.ms-evt-mission-done .ms-evt-text { color: #a855f7; }
+
+/* Insight: sparkle */
+.ms-evt-insight {
+  border-left-color: #fbbf24;
+  background: rgba(251,191,36,.04);
+}
+.ms-evt-insight .ms-evt-text { color: #fde68a; font-weight: 500; }
+
+/* File shared */
+.ms-evt-file {
+  border-left-color: #6366f1;
+}
+.ms-evt-file .ms-evt-text { color: #a5b4fc; }
+
+/* Break (coffee/smoke) */
+.ms-evt-break {
+  border-left-color: rgba(148,163,184,.15);
+  opacity: .5;
+}
+.ms-evt-break .ms-evt-text { font-style: italic; color: var(--muted); }
+
+/* Standup */
+.ms-evt-standup {
+  border-left-color: var(--amber);
+  background: rgba(251,191,36,.03);
+}
+
+/* Celebrate */
+.ms-evt-celebrate {
+  border-left-color: #f97316;
+  background: rgba(249,115,22,.04);
+}
+
+/* Status change */
+.ms-evt-status {
+  opacity: .45;
+  font-size: 11px;
+}
+
 .ms-terminal-empty {
   display: flex;
   align-items: center;
@@ -2354,4 +2500,3 @@ body {
   .su-step-label { display: none; }
   .su-title { font-size: 22px; }
 }
-
