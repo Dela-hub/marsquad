@@ -34,6 +34,31 @@ function getClientIp(req: Request) {
   return 'unknown';
 }
 
+const OFFICE_URL = process.env.OFFICE_URL || 'http://76.13.255.23:3010';
+
+async function notifyOffice(job: {
+  jobId: string;
+  serviceType: string;
+  description: string;
+  deadline: string;
+  contact: string;
+}) {
+  const label = SERVICE_LABELS[job.serviceType] || job.serviceType;
+  await fetch(`${OFFICE_URL}/api/event`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      type: 'mission.created',
+      agent: 'dilo',
+      missionId: job.jobId,
+      task: `${label} [${job.deadline}]`,
+      text: `New job from website: ${label} — ${job.description.slice(0, 140)}`,
+      ts: Date.now(),
+    }),
+    signal: AbortSignal.timeout(5000),
+  });
+}
+
 async function notifyByEmail(job: {
   jobId: string;
   serviceType: string;
@@ -124,12 +149,12 @@ export async function POST(req: Request) {
     }, { ex: 7 * 24 * 3600 }); // 7-day TTL
   }
 
-  // Notify Dilo via email
-  try {
-    await notifyByEmail({ jobId, serviceType, description, deadline, contact });
-  } catch {
-    // Email failed — job is still stored in KV, don't block the user
-  }
+  // Notify Dilo via office server + email (non-blocking)
+  const jobPayload = { jobId, serviceType, description, deadline, contact };
+  await Promise.allSettled([
+    notifyOffice(jobPayload),
+    notifyByEmail(jobPayload),
+  ]);
 
   return Response.json({ ok: true, jobId });
 }
