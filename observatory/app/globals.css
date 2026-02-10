@@ -548,15 +548,15 @@ body {
 
 .ms-stage-frame {
   background: #080c12;
-  min-height: 780px;
+  min-height: 560px;
+  aspect-ratio: 16 / 10;
   position: relative;
 }
 
 .ms-stage-frame iframe {
   display: block;
   width: 100%;
-  height: 85vh;
-  min-height: 780px;
+  height: 100%;
   border: none;
   position: absolute;
   top: 0;
@@ -1730,8 +1730,8 @@ body {
   .ms-stat { padding: 0 16px; }
   .ms-stat-divider { display: none; }
   .ms-stage { padding: 12px 20px 30px; }
-  .ms-stage-frame { min-height: 520px; }
-  .ms-stage-frame iframe { height: 65vh; min-height: 520px; }
+  .ms-stage-frame { min-height: 420px; aspect-ratio: 16 / 12; }
+  .ms-stage-frame iframe { height: 100%; min-height: 0; }
   .ms-agents { padding: 40px 20px; }
   .ms-agent-grid { grid-template-columns: 1fr; }
   .ms-terminal-section { padding: 20px 20px 40px; }
@@ -1745,6 +1745,11 @@ body {
   .sf-form { max-width: 100%; }
   .sf-chips { gap: 6px; }
   .sf-chip { font-size: 12px; padding: 6px 10px; }
+}
+
+@media (max-width: 520px) {
+  .ms-stage { padding: 10px 12px 22px; }
+  .ms-stage-frame { min-height: 320px; aspect-ratio: 16 / 13; }
 }
 
 /* ══════════════════════════

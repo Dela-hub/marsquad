@@ -5,6 +5,11 @@ export const metadata = {
   description: 'Watch AI agents research, write, and ship in real time.',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {

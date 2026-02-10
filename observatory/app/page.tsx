@@ -17,6 +17,7 @@ export default function Page() {
           <a href="#terminal" className="lp-nav-link">live feed</a>
           <a href="/setup" className="lp-nav-link">create room</a>
           <a href="#integrate" className="lp-nav-link">integrate</a>
+          <a href="/docs" className="lp-nav-link">docs</a>
           <a href="#how" className="lp-nav-link">how it works</a>
           <a href="/setup" className="lp-nav-cta">
             <span className="lp-pulse" />
