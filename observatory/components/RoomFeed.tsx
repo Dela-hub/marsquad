@@ -107,6 +107,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   const [flags, setFlags] = useState<string[]>([]);
   const [discoveredAgents, setDiscoveredAgents] = useState<Map<string, AgentConfig>>(new Map());
   const [showStage, setShowStage] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const termRef = useRef<HTMLDivElement>(null);
 
   // Build agent lookup from props + discovered
@@ -188,6 +189,16 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
       mmMobile.removeEventListener?.('change', update);
       mmReduced.removeEventListener?.('change', update);
     };
+  }, [variant]);
+
+  useEffect(() => {
+    if (variant === 'embed') return;
+    if (typeof window === 'undefined') return;
+    const mm = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(mm.matches);
+    update();
+    mm.addEventListener?.('change', update);
+    return () => mm.removeEventListener?.('change', update);
   }, [variant]);
 
   // Event polling
@@ -321,36 +332,38 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
 
       {variant === 'full' && (
         <>
-          {/* ── Stats Bar ── */}
-          <section className="ms-stats">
-            <div className="ms-stat">
-              <span className="ms-stat-value">{visitors || 1}</span>
-              <span className="ms-stat-label">Watching Now</span>
-              {flags.length > 0 && (
-                <span className="ms-stat-flags">{flags.join(' ')}</span>
-              )}
-            </div>
-            <div className="ms-stat-divider" />
-            <div className="ms-stat">
-              <span className="ms-stat-value">{totalVisitors || '—'}</span>
-              <span className="ms-stat-label">Total Visitors</span>
-            </div>
-            <div className="ms-stat-divider" />
-            <div className="ms-stat">
-              <span className="ms-stat-value">{agentsSeen.size || allAgents.length}</span>
-              <span className="ms-stat-label">Agents Active</span>
-            </div>
-            <div className="ms-stat-divider" />
-            <div className="ms-stat">
-              <span className="ms-stat-value">{totalEvents || '—'}</span>
-              <span className="ms-stat-label">Events Captured</span>
-            </div>
-            <div className="ms-stat-divider" />
-            <div className="ms-stat">
-              <span className="ms-stat-value">{recentEvents.length || '—'}</span>
-              <span className="ms-stat-label">Last 24h</span>
-            </div>
-          </section>
+          {/* ── Stats Bar (hidden on mobile) ── */}
+          {!isMobile && (
+            <section className="ms-stats">
+              <div className="ms-stat">
+                <span className="ms-stat-value">{visitors || 1}</span>
+                <span className="ms-stat-label">Watching Now</span>
+                {flags.length > 0 && (
+                  <span className="ms-stat-flags">{flags.join(' ')}</span>
+                )}
+              </div>
+              <div className="ms-stat-divider" />
+              <div className="ms-stat">
+                <span className="ms-stat-value">{totalVisitors || '—'}</span>
+                <span className="ms-stat-label">Total Visitors</span>
+              </div>
+              <div className="ms-stat-divider" />
+              <div className="ms-stat">
+                <span className="ms-stat-value">{agentsSeen.size || allAgents.length}</span>
+                <span className="ms-stat-label">Agents Active</span>
+              </div>
+              <div className="ms-stat-divider" />
+              <div className="ms-stat">
+                <span className="ms-stat-value">{totalEvents || '—'}</span>
+                <span className="ms-stat-label">Events Captured</span>
+              </div>
+              <div className="ms-stat-divider" />
+              <div className="ms-stat">
+                <span className="ms-stat-value">{recentEvents.length || '—'}</span>
+                <span className="ms-stat-label">Last 24h</span>
+              </div>
+            </section>
+          )}
 
           {/* ── Live Stage (marsquad only) ── */}
           {roomId === 'marsquad' && showStage && (
@@ -373,8 +386,26 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
             </section>
           )}
 
+          {/* Mobile: provide a link to the office view instead of embedding it */}
+          {roomId === 'marsquad' && !showStage && (
+            <section className="ms-stage" id="stage">
+              <div className="ms-stage-chrome" style={{ padding: 14 }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontWeight: 700 }}>Office view</div>
+                    <div className="sub">Disabled on mobile for stability. Open it in a new tab.</div>
+                  </div>
+                  <a className="lp-btn lp-btn--primary" href="/live" target="_blank" rel="noreferrer">
+                    Open /live
+                    <span className="lp-btn-arrow">→</span>
+                  </a>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* ── Agent Cards ── */}
-          {showAgents !== false && (
+          {showAgents !== false && !isMobile && (
             <section className="ms-agents" id="agents">
               <h2 className="ms-section-title">Agents</h2>
               <div className="ms-agent-grid">
@@ -452,40 +483,42 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
 
       {variant === 'full' && (
         /* ── Recent Activity Grid ── */
-        <section className="ms-activity" id="activity">
-          <h2 className="ms-section-title">Recent Activity</h2>
-          <div className="ms-activity-grid">
-            {(activityItems.length > 0 ? activityItems : Array.from({ length: 6 }, (_, i) => ({
-              text: 'Awaiting agent output...',
-              ts: Date.now() - i * 60_000,
-            }))).map((item, i) => {
-              const agentData = resolveAgent(item);
-              const actor = inferActor(item);
-              const source = inferSource(item);
-              return (
-                <div
-                  key={i}
-                  className="ms-activity-card"
-                  style={{ '--card-color': agentData?.color || 'var(--muted)', '--card-i': i } as any}
-                >
-                  <div className="ms-activity-card-header">
-                    {agentData && (
-                      <span className="ms-activity-agent" style={{ color: agentData.color }}>
-                        {agentData.avatar} {agentData.name}
+        !isMobile && (
+          <section className="ms-activity" id="activity">
+            <h2 className="ms-section-title">Recent Activity</h2>
+            <div className="ms-activity-grid">
+              {(activityItems.length > 0 ? activityItems : Array.from({ length: 6 }, (_, i) => ({
+                text: 'Awaiting agent output...',
+                ts: Date.now() - i * 60_000,
+              }))).map((item, i) => {
+                const agentData = resolveAgent(item);
+                const actor = inferActor(item);
+                const source = inferSource(item);
+                return (
+                  <div
+                    key={i}
+                    className="ms-activity-card"
+                    style={{ '--card-color': agentData?.color || 'var(--muted)', '--card-i': i } as any}
+                  >
+                    <div className="ms-activity-card-header">
+                      {agentData && (
+                        <span className="ms-activity-agent" style={{ color: agentData.color }}>
+                          {agentData.avatar} {agentData.name}
+                        </span>
+                      )}
+                      {(() => { const t = tagEvent(item.text || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
+                      <span className={`ms-prov ms-prov-${actor}`} title={`actor: ${actor} · source: ${source}`}>
+                        {actor}:{source}
                       </span>
-                    )}
-                    {(() => { const t = tagEvent(item.text || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
-                    <span className={`ms-prov ms-prov-${actor}`} title={`actor: ${actor} · source: ${source}`}>
-                      {actor}:{source}
-                    </span>
-                    {item.ts && <span className="ms-activity-time">{timeAgo(item.ts)}</span>}
+                      {item.ts && <span className="ms-activity-time">{timeAgo(item.ts)}</span>}
+                    </div>
+                    <p className="ms-activity-text">{(item.text || '').slice(0, 140)}</p>
                   </div>
-                  <p className="ms-activity-text">{(item.text || '').slice(0, 140)}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                );
+              })}
+            </div>
+          </section>
+        )
       )}
     </>
   );
