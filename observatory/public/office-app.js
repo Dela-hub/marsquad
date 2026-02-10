@@ -2064,6 +2064,15 @@ document.getElementById('btnToggleFeed').addEventListener('click', () => {
   setTimeout(resizeCanvas, 320);
 });
 
+// Default: collapse the feed so the office canvas uses full width.
+// Users can expand it with the toggle button.
+try {
+  const pane = document.getElementById('feedPane');
+  const mainEl = document.querySelector('main');
+  pane.classList.add('collapsed');
+  mainEl.classList.add('feed-collapsed');
+} catch {}
+
 /* ── Pause ── */
 document.getElementById('btnPause').addEventListener('click', () => {
   isPaused = !isPaused;
