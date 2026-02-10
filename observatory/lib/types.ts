@@ -5,6 +5,8 @@ export type AgentConfig = {
   color: string;
   role?: string;
   desc?: string;
+  soul?: string;
+  capabilities?: string[];
 };
 
 export type RoomConfig = {
