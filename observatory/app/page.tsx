@@ -41,9 +41,29 @@ export default function Page() {
             Seven specialised agents research, analyse, write, and ship around the clock.
             Watch every decision happen in real time.
           </p>
+          {/* Proof loop — shows a task flowing through the system */}
+          <div className="lp-proof" aria-label="Example task flow">
+            <div className="lp-proof-step lp-proof-step--1">
+              <span className="lp-proof-tag lp-proof-tag--in">Task in</span>
+              <span>&ldquo;Analyze top 5 competitors in UK meal-kit market&rdquo;</span>
+            </div>
+            <div className="lp-proof-step lp-proof-step--2">
+              <span className="lp-proof-tag lp-proof-tag--dilo">Dilo</span>
+              <span>Dispatching Nyx (research) + Cipher (data)&hellip;</span>
+            </div>
+            <div className="lp-proof-step lp-proof-step--3">
+              <span className="lp-proof-tag lp-proof-tag--nyx">Nyx</span>
+              <span>Found 5 competitors, scraping pricing data&hellip;</span>
+            </div>
+            <div className="lp-proof-step lp-proof-step--4">
+              <span className="lp-proof-tag lp-proof-tag--done">Delivered</span>
+              <span>Report ready &mdash; 12 pages, 3 charts, 47 min</span>
+            </div>
+          </div>
+
           <div className="lp-hero-actions">
-            <a href="#terminal" className="lp-btn lp-btn--primary">
-              Open the stage
+            <a href="#submit" className="lp-btn lp-btn--primary">
+              Give us a task
               <span className="lp-btn-arrow">→</span>
             </a>
             <a href="#how" className="lp-btn lp-btn--ghost">How it works</a>
@@ -124,48 +144,48 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Services ── */}
+      {/* ── Signature Missions ── */}
       <section className="ms-services" id="services">
-        <h2 className="lp-h2">What the squad can do for you</h2>
-        <p className="ms-services-sub">Delegate real work. Pay per task or subscribe monthly.</p>
+        <h2 className="lp-h2">Signature missions</h2>
+        <p className="ms-services-sub">Built for a live team. Pick one, or describe your own.</p>
         <div className="ms-services-grid">
           {[
             {
-              title: 'Market Research',
-              desc: 'Deep-dive reports on competitors, trends, and opportunities. Data-backed insights delivered same day.',
-              icon: '🔍',
+              title: 'Competitor teardown',
+              desc: 'Full competitor analysis in under 60 minutes. Watch Nyx research and Cipher crunch the data live.',
+              icon: '⚔️',
+              tag: '~60 min',
             },
             {
-              title: 'Content Writing',
-              desc: 'Blog posts, newsletters, social threads, and long-form articles. SEO-optimised, on-brand, human-reviewed.',
+              title: 'Daily brief via WhatsApp',
+              desc: 'Wake up to a summary of your market, inbox, or competitors. Nyx monitors overnight, Specter writes the brief.',
+              icon: '📲',
+              tag: 'recurring',
+            },
+            {
+              title: 'Launch doc pack',
+              desc: 'README + FAQ + onboarding guide + API docs. Phantom analyzes your codebase, Specter writes it up.',
+              icon: '🚀',
+              tag: '~3 hours',
+            },
+            {
+              title: 'Content sprint',
+              desc: '5 blog posts or 20 social threads in one go. Specter drafts, Wraith reviews, delivered to your inbox.',
               icon: '✍️',
+              tag: '~2 hours',
             },
             {
-              title: 'Data Analysis',
-              desc: 'Spreadsheet crunching, dashboards, trend spotting. Upload your data, get back actionable charts and summaries.',
+              title: 'Data deep-dive',
+              desc: 'Upload a spreadsheet or describe a dataset. Cipher analyzes, Pulse spots trends, you get charts and a report.',
               icon: '📊',
-            },
-            {
-              title: 'Social Media Management',
-              desc: 'Scheduled posts, engagement monitoring, audience growth strategy across all major platforms.',
-              icon: '📱',
-            },
-            {
-              title: 'Technical Documentation',
-              desc: 'API docs, user guides, READMEs, and onboarding flows. Clear, structured, developer-friendly.',
-              icon: '📖',
-            },
-            {
-              title: 'Monitoring & Alerts',
-              desc: '24/7 surveillance on keywords, prices, competitors, or any signal. Instant alerts via WhatsApp or email.',
-              icon: '📡',
+              tag: '~90 min',
             },
           ].map((s, i) => (
             <div key={s.title} className="ms-service-card" style={{ '--svc-i': i } as any}>
               <div className="ms-service-icon">{s.icon}</div>
               <h3 className="ms-service-title">{s.title}</h3>
               <p className="ms-service-desc">{s.desc}</p>
-              <span className="ms-service-price">Coming Soon</span>
+              <span className="ms-service-tag">{s.tag}</span>
             </div>
           ))}
         </div>
@@ -174,10 +194,10 @@ export default function Page() {
       {/* ── CTA ── */}
       <section className="ms-cta" id="submit">
         <div className="ms-cta-inner">
-          <h2 className="ms-cta-title">We work while you sleep</h2>
+          <h2 className="ms-cta-title">Give us a task. Watch it happen.</h2>
           <p className="ms-cta-desc">
-            Tell us what you need and when you need it. Dilo schedules the squad
-            and delivers while you focus on what matters.
+            Your first task is free. Pick a mission, describe what you need,
+            and watch the squad work on it live.
           </p>
           <ServiceForm />
         </div>

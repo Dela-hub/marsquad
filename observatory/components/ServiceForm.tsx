@@ -3,12 +3,11 @@
 import { useState } from 'react';
 
 const SERVICES = [
-  { value: 'market-research', label: 'Market Research', icon: '\uD83D\uDD0D' },
-  { value: 'content-writing', label: 'Content Writing', icon: '\u270D\uFE0F' },
-  { value: 'data-analysis', label: 'Data Analysis', icon: '\uD83D\uDCCA' },
-  { value: 'social-media', label: 'Social Media Management', icon: '\uD83D\uDCF1' },
-  { value: 'tech-docs', label: 'Technical Documentation', icon: '\uD83D\uDCD6' },
-  { value: 'monitoring', label: 'Monitoring & Alerts', icon: '\uD83D\uDCE1' },
+  { value: 'market-research', label: 'Competitor teardown', icon: '\u2694\uFE0F' },
+  { value: 'monitoring', label: 'Daily brief', icon: '\uD83D\uDCF2' },
+  { value: 'tech-docs', label: 'Launch doc pack', icon: '\uD83D\uDE80' },
+  { value: 'content-writing', label: 'Content sprint', icon: '\u270D\uFE0F' },
+  { value: 'data-analysis', label: 'Data deep-dive', icon: '\uD83D\uDCCA' },
 ] as const;
 
 const DEADLINES = [
@@ -74,7 +73,7 @@ export default function ServiceForm() {
         className="sf-btn sf-btn--primary sf-reveal"
         onClick={() => setStatus('idle')}
       >
-        Hire an agent
+        Give us a task
         <span className="sf-btn-arrow">&rarr;</span>
       </button>
     );

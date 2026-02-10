@@ -35,6 +35,36 @@ function extractAgent(text: string): string | null {
   return null;
 }
 
+// ── Public feed filter: hide system noise ──
+const NOISE = ['HEARTBEAT_OK', 'heartbeat', 'Nothing urgent', 'Monitoring.', 'tool: browser', 'tool: bash', 'tool: Read', 'tool: Write', 'tool: Glob', 'tool: Grep'];
+
+function isNoise(line: string): boolean {
+  if (NOISE.some(n => line.includes(n))) return true;
+  if (/^tool: \w+$/.test(line.trim())) return true;
+  if (line.trim().length < 5) return true;
+  return false;
+}
+
+const TAG_COLORS: Record<string, string> = {
+  Research: '#a855f7',
+  Copy: '#f59e0b',
+  Ops: '#f43f5e',
+  Alerts: '#10b981',
+  QA: '#6366f1',
+  Data: '#06b6d4',
+};
+
+function tagEvent(text: string): string | null {
+  const lower = text.toLowerCase();
+  if (lower.includes('research') || lower.includes('competitor') || lower.includes('market')) return 'Research';
+  if (lower.includes('draft') || lower.includes('write') || lower.includes('copy') || lower.includes('content')) return 'Copy';
+  if (lower.includes('deploy') || lower.includes('build') || lower.includes('server') || lower.includes('infra')) return 'Ops';
+  if (lower.includes('alert') || lower.includes('monitor') || lower.includes('watch') || lower.includes('signal')) return 'Alerts';
+  if (lower.includes('review') || lower.includes('qa') || lower.includes('test') || lower.includes('check')) return 'QA';
+  if (lower.includes('data') || lower.includes('analys') || lower.includes('chart') || lower.includes('trend')) return 'Data';
+  return null;
+}
+
 export default function LandingLive() {
   const [events, setEvents] = useState<EventPayload[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
@@ -79,7 +109,7 @@ export default function LandingLive() {
           setTerminalLines((prev) => {
             const next = [...prev];
             for (const e of evts) {
-              if (e.text) next.push(e.text);
+              if (e.text && !isNoise(e.text)) next.push(e.text);
             }
             return next.slice(-150);
           });
@@ -104,15 +134,15 @@ export default function LandingLive() {
   const agentsSeen = new Set(events.map(e => extractAgent(e.text || '')).filter(Boolean));
   const recentEvents = events.filter(e => e.ts && Date.now() - e.ts < 86_400_000);
 
-  // Ticker items (last 30 events with text)
+  // Ticker items (last 30 events with text, filtered)
   const tickerItems = events
-    .filter(e => e.text && e.ts)
+    .filter(e => e.text && e.ts && !isNoise(e.text))
     .slice(-30)
     .reverse();
 
-  // Activity items for grid (last 12 with text)
+  // Activity items for grid (last 12 with text, filtered)
   const activityItems = events
-    .filter(e => e.text && e.ts)
+    .filter(e => e.text && e.ts && !isNoise(e.text))
     .slice(-12)
     .reverse();
 
@@ -239,9 +269,15 @@ export default function LandingLive() {
                 Connecting to live feed...
               </div>
             )}
-            {terminalLines.map((line, idx) => (
-              <div className="ms-terminal-line" key={`${idx}-${line.slice(0, 20)}`}>{line}</div>
-            ))}
+            {terminalLines.map((line, idx) => {
+              const tag = tagEvent(line);
+              return (
+                <div className="ms-terminal-line" key={`${idx}-${line.slice(0, 20)}`}>
+                  {tag && <span className="ms-tag" style={{ background: TAG_COLORS[tag] || '#666' }}>{tag}</span>}
+                  {line}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -268,6 +304,7 @@ export default function LandingLive() {
                       {agentData.avatar} {agentData.name}
                     </span>
                   )}
+                  {(() => { const t = tagEvent(item.text || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
                   {item.ts && <span className="ms-activity-time">{timeAgo(item.ts)}</span>}
                 </div>
                 <p className="ms-activity-text">{(item.text || '').slice(0, 140)}</p>
