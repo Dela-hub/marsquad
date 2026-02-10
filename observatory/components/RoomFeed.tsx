@@ -106,6 +106,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   const [totalVisitors, setTotalVisitors] = useState(0);
   const [flags, setFlags] = useState<string[]>([]);
   const [discoveredAgents, setDiscoveredAgents] = useState<Map<string, AgentConfig>>(new Map());
+  const [showStage, setShowStage] = useState(true);
   const termRef = useRef<HTMLDivElement>(null);
 
   // Build agent lookup from props + discovered
@@ -170,6 +171,23 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     };
     heartbeat();
     return () => { active = false; };
+  }, [variant]);
+
+  // Mobile safety: the /live office canvas can be heavy in mobile browsers.
+  // Avoid loading it on small screens and for reduced-motion users.
+  useEffect(() => {
+    if (variant === 'embed') return;
+    if (typeof window === 'undefined') return;
+    const mmMobile = window.matchMedia('(max-width: 768px)');
+    const mmReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setShowStage(!(mmMobile.matches || mmReduced.matches));
+    update();
+    mmMobile.addEventListener?.('change', update);
+    mmReduced.addEventListener?.('change', update);
+    return () => {
+      mmMobile.removeEventListener?.('change', update);
+      mmReduced.removeEventListener?.('change', update);
+    };
   }, [variant]);
 
   // Event polling
@@ -335,7 +353,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
           </section>
 
           {/* ── Live Stage (marsquad only) ── */}
-          {roomId === 'marsquad' && (
+          {roomId === 'marsquad' && showStage && (
             <section className="ms-stage" id="stage">
               <div className="ms-stage-chrome">
                 <div className="ms-terminal-bar">
