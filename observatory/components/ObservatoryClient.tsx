@@ -3,7 +3,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { initOffice } from '../lib/office-engine';
 import TerminalPane from './TerminalPane';
-// import PromptBar from './PromptBar';
 
 type EventPayload = {
   ts?: number;
@@ -17,11 +16,23 @@ export default function ObservatoryClient() {
 
   const containerId = `office-${useId()}`;
 
+  // Detect mobile once
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mm = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(mm.matches);
+    update();
+    mm.addEventListener?.('change', update);
+    return () => mm.removeEventListener?.('change', update);
+  }, []);
+
   useEffect(() => {
     const el = document.getElementById(containerId);
     if (!el) return;
+    const maxLines = isMobile ? 80 : 200;
     const engine = initOffice(el, {
-      onTerminalLine: (line) => setLines((prev) => [...prev, line].slice(-200)),
+      onTerminalLine: (line) => setLines((prev) => [...prev, line].slice(-maxLines)),
     });
     engineRef.current = engine;
 
@@ -29,14 +40,23 @@ export default function ObservatoryClient() {
       engine.destroy();
       engineRef.current = null;
     };
-  }, [containerId]);
+  }, [containerId, isMobile]);
+
+  // Event polling — use ref for `since` to avoid re-creating effect on every poll
+  const sinceRef = useRef(since);
+  sinceRef.current = since;
 
   useEffect(() => {
     let active = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const maxLines = isMobile ? 80 : 200;
+    const interval = () => isMobile ? 6000 : (document.hidden ? 5000 : 2000);
+    const fetchLimit = isMobile ? 50 : 200;
+
     const poll = async () => {
       try {
-        const res = await fetch(`/api/events?since=${since}&limit=200`);
-        if (!res.ok) return;
+        const res = await fetch(`/api/events?since=${sinceRef.current}&limit=${fetchLimit}`);
+        if (!res.ok || !active) return;
         const data = await res.json();
         if (!active || !Array.isArray(data.events)) return;
         const events = data.events as EventPayload[];
@@ -47,7 +67,7 @@ export default function ObservatoryClient() {
             for (const event of events) {
               if (event.text) next.push(event.text);
             }
-            return next.slice(-200);
+            return next.slice(-maxLines);
           });
           const engine = engineRef.current;
           if (engine) {
@@ -59,14 +79,12 @@ export default function ObservatoryClient() {
       } catch {
         // ignore polling errors
       }
-      if (active) setTimeout(poll, document.hidden ? 5000 : 2000);
+      if (active) timer = setTimeout(poll, interval());
     };
 
     poll();
-    return () => {
-      active = false;
-    };
-  }, [since]);
+    return () => { active = false; if (timer) clearTimeout(timer); };
+  }, [isMobile]); // stable deps — sinceRef avoids `since` dep
 
   return (
     <section className="obs-main">
