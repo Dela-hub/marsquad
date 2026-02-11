@@ -1765,13 +1765,25 @@ function handleEvent(evt) {
     recordWorkload(agent);
   }
 
-  if (evt.type === 'agent.move' && evt.pos) {
-    // Convert grid pos to pixel pos
-    const deskIdx = agents.has(agent) ? Array.from(agents.keys()).indexOf(agent) : agents.size;
-    const desk = DESK_POSITIONS[deskIdx % DESK_POSITIONS.length];
-    const px = desk.x + (evt.pos.x % 3 - 1) * 30;
-    const py = desk.y + 30 + (evt.pos.y % 3 - 1) * 8;
-    upsertAgent(agent, { pos: { x: px, y: py } });
+  if (evt.type === 'agent.move' && evt.pos && !_standupInProgress) {
+    const wrap = canvas.parentElement;
+    const w = wrap?.clientWidth || 800;
+    const h = wrap?.clientHeight || 500;
+    let px, py;
+    if (evt.pos.x <= 1 && evt.pos.y <= 1 && evt.pos.x >= 0 && evt.pos.y >= 0) {
+      // Normalized 0-1 coordinates → pixel position on canvas
+      px = Math.max(40, Math.min(w - 40, evt.pos.x * w));
+      py = Math.max(70, Math.min(h - 90, evt.pos.y * h));
+    } else {
+      // Grid coordinates → offset from desk
+      const deskIdx = agents.has(agent) ? Array.from(agents.keys()).indexOf(agent) : agents.size;
+      const desk = DESK_POSITIONS[deskIdx % DESK_POSITIONS.length];
+      px = desk.x + (evt.pos.x % 3 - 1) * 30;
+      py = desk.y + 30 + (evt.pos.y % 3 - 1) * 8;
+    }
+    // Animate walk instead of teleporting
+    if (!agents.has(agent)) upsertAgent(agent, { status: 'idle' });
+    walkAgentTo(agent, px, py);
   }
 
   if (evt.type === 'agent.status' && evt.status) {
@@ -2277,10 +2289,13 @@ spawnParticles();
 computeDeskPositions();
 resizeCanvas();
 
-// Create Dilo — the only real agent
-createAgentEl('dilo');
-markActivity('dilo');
-scheduleCoffeeBreak('dilo');
+// Pre-create all known agents so standup/huddle can find them immediately
+for (const id of Object.keys(AGENT_DEFS)) {
+  createAgentEl(id);
+  markActivity(id);
+  if (id === 'wraith') scheduleWraithSmoke();
+  else scheduleCoffeeBreak(id);
+}
 
 function repositionAgents() {
   if (DESK_POSITIONS.length === 0) return;
