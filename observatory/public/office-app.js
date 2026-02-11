@@ -61,10 +61,9 @@ function computeDeskPositions() {
   const h = wrap.clientHeight;
 
   // Slot 0: Boss desk (Dilo) centered at top
-  // Slots 1-3: Row 1 (3 worker desks)
-  // Slots 4-6: Row 2 (3 worker desks)
+  // Worker desks spread across the full width on desktop, tighter on mobile.
   const isMobile = w < 500;
-  const marginX = isMobile ? Math.max(30, w * 0.08) : Math.max(60, w * 0.06);
+  const marginX = isMobile ? Math.max(18, w * 0.06) : Math.max(28, w * 0.035);
   const bossY = h * 0.14;
   const row1Y = h * 0.44;
   const row2Y = h * 0.72;
@@ -75,9 +74,11 @@ function computeDeskPositions() {
   // Boss desk — center top
   DESK_POSITIONS.push({ x: w * 0.5, y: bossY, boss: true });
 
-  // Worker rows: 3 + 3
+  // Worker rows: 4 + 3 on wide screens, 3 + 3 otherwise.
+  const row1Count = w > 980 ? 4 : 3;
+  const row2Count = 3;
   for (const rowY of [row1Y, row2Y]) {
-    const count = 3;
+    const count = (rowY === row1Y) ? row1Count : row2Count;
     const cellW = usableW / count;
     for (let i = 0; i < count; i++) {
       DESK_POSITIONS.push({ x: marginX + cellW * i + cellW / 2, y: rowY });
@@ -953,16 +954,24 @@ function getMeetingChairPositions() {
   const wrap = canvas.parentElement;
   const w = wrap?.clientWidth || 800;
   const h = wrap?.clientHeight || 500;
-  const mrx = w * 0.62, mry = h * 0.35;
+  // Center the standup area so the whole office participates (prevents "huddle off to the side").
+  const cx = w * 0.58;
+  const cy = h * 0.44;
+  const rx = Math.min(170, w * 0.18);
+  const ry = Math.min(120, h * 0.16);
+
   return [
-    { x: mrx + 110, y: mry + 5 },    // head of table (Dilo)
-    { x: mrx + 55,  y: mry + 15 },   // top-left
-    { x: mrx + 165, y: mry + 15 },   // top-right
-    { x: mrx + 15,  y: mry + 65 },   // mid-left
-    { x: mrx + 205, y: mry + 65 },   // mid-right
-    { x: mrx + 55,  y: mry + 125 },  // bottom-left
-    { x: mrx + 165, y: mry + 125 },  // bottom-right
-  ];
+    { x: cx,         y: cy - ry },          // leader (Dilo) top
+    { x: cx - rx,    y: cy - ry * 0.35 },
+    { x: cx + rx,    y: cy - ry * 0.35 },
+    { x: cx - rx,    y: cy + ry * 0.35 },
+    { x: cx + rx,    y: cy + ry * 0.35 },
+    { x: cx - rx * .55, y: cy + ry },
+    { x: cx + rx * .55, y: cy + ry },
+  ].map(p => ({
+    x: Math.max(40, Math.min(w - 40, p.x)),
+    y: Math.max(70, Math.min(h - 90, p.y)),
+  }));
 }
 
 let _standupSeq = 0; // sequence token — incremented on cancel to invalidate pending timeouts
