@@ -1730,7 +1730,7 @@ body {
   .ms-stat { padding: 0 16px; }
   .ms-stat-divider { display: none; }
   .ms-stage { padding: 12px 20px 30px; }
-  .ms-stage-frame { min-height: 420px; aspect-ratio: 16 / 12; }
+  .ms-stage-frame { min-height: 480px; aspect-ratio: 4 / 3; }
   .ms-stage-frame iframe { height: 100%; min-height: 0; }
   .ms-agents { padding: 40px 20px; }
   .ms-agent-grid { grid-template-columns: 1fr; }
@@ -1748,8 +1748,8 @@ body {
 }
 
 @media (max-width: 520px) {
-  .ms-stage { padding: 10px 12px 22px; }
-  .ms-stage-frame { min-height: 320px; aspect-ratio: 16 / 13; }
+  .ms-stage { padding: 8px 8px 18px; }
+  .ms-stage-frame { min-height: 400px; aspect-ratio: 3 / 4; }
 }
 
 /* ══════════════════════════

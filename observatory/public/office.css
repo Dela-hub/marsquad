@@ -662,7 +662,7 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 ::-webkit-scrollbar-thumb{background:rgba(148,163,184,.2);border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.3)}
 
-@media(max-width:900px){main{grid-template-columns:1fr}.feed-pane{display:none}.stats-row{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:0 8px 8px}.feed-pane{display:none}.stats-row{grid-template-columns:repeat(2,1fr)}.office-pane{border-radius:12px}
   .meeting-screen{max-width:calc(100% - 16px)!important;left:8px!important}
   .meeting-screen-agenda{font-size:12px;padding:8px 12px}
   .meeting-screen-body{max-height:200px;padding:6px 10px}
