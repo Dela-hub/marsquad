@@ -123,24 +123,35 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     return map;
   }, [agents, discoveredAgents]);
 
+  // Discover unknown agents from events (batched, outside render path)
+  const pendingDiscoveries = useRef<Map<string, AgentConfig>>(new Map());
+
+  useEffect(() => {
+    if (pendingDiscoveries.current.size === 0) return;
+    setDiscoveredAgents(prev => {
+      let changed = false;
+      const next = new Map(prev);
+      pendingDiscoveries.current.forEach((v, k) => {
+        if (!next.has(k)) { next.set(k, v); changed = true; }
+      });
+      pendingDiscoveries.current.clear();
+      return changed ? next : prev;
+    });
+  }, [events]); // runs after events update, not during render
+
   function resolveAgent(event: EventPayload): AgentConfig | null {
     // Prefer explicit agent field
     if (event.agent) {
       const key = event.agent.toLowerCase();
       if (agentsMap.has(key)) return agentsMap.get(key)!;
-      // Auto-discover
+      // Queue discovery for next effect (never setState during render)
       const discovered: AgentConfig = {
         id: key,
         name: key.charAt(0).toUpperCase() + key.slice(1),
         avatar: '🤖',
         color: DEFAULT_COLOR,
       };
-      setDiscoveredAgents(prev => {
-        if (prev.has(key)) return prev;
-        const next = new Map(prev);
-        next.set(key, discovered);
-        return next;
-      });
+      pendingDiscoveries.current.set(key, discovered);
       return discovered;
     }
     // Fall back to text scanning
@@ -202,35 +213,44 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     return () => mm.removeEventListener?.('change', update);
   }, [variant]);
 
-  // Event polling
+  // Event polling — use ref for `since` to avoid re-creating the effect on every poll
+  const sinceRef = useRef(since);
+  sinceRef.current = since;
+
   useEffect(() => {
     let active = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const maxEvents = isMobile ? 150 : 500;
+    const maxLines = isMobile ? 60 : 150;
+    const interval = () => isMobile ? 6000 : (document.hidden ? 8000 : 3000);
+
     const poll = async () => {
       try {
-        const res = await fetch(`${eventsUrl}?since=${since}&limit=200`);
+        const res = await fetch(`${eventsUrl}?since=${sinceRef.current}&limit=100`);
         if (!res.ok || !active) return;
         const data = await res.json();
         if (!active || !Array.isArray(data.events)) return;
         const evts = data.events as EventPayload[];
         if (evts.length) {
-          setSince(evts[evts.length - 1].ts || Date.now());
-          setEvents((prev) => [...prev, ...evts].slice(-500));
+          const newSince = evts[evts.length - 1].ts || Date.now();
+          setSince(newSince);
+          setEvents((prev) => [...prev, ...evts].slice(-maxEvents));
           setTerminalLines((prev) => {
             const next = [...prev];
             for (const e of evts) {
               if (e.text && !isNoise(e.text)) next.push(e.text);
             }
-            return next.slice(-150);
+            return next.slice(-maxLines);
           });
         }
       } catch {
         // ignore
       }
-      if (active) setTimeout(poll, document.hidden ? 8000 : 3000);
+      if (active) timer = setTimeout(poll, interval());
     };
     poll();
-    return () => { active = false; };
-  }, [since, eventsUrl]);
+    return () => { active = false; if (timer) clearTimeout(timer); };
+  }, [eventsUrl, isMobile]); // stable deps — no `since`
 
   // Auto-scroll terminal
   useEffect(() => {
@@ -239,34 +259,34 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     }
   }, [terminalLines]);
 
-  // Derived stats
+  // Derived stats (memoized to avoid calling resolveAgent during render)
   const totalEvents = events.length;
-  const agentsSeen = new Set(
-    events.map(e => {
-      const a = resolveAgent(e);
-      return a?.id || null;
-    }).filter(Boolean),
-  );
-  const recentEvents = events.filter(e => e.ts && Date.now() - e.ts < 86_400_000);
+  const agentsSeen = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of events) {
+      if (e.agent) s.add(e.agent.toLowerCase());
+    }
+    return s;
+  }, [events]);
+  const recentEvents = useMemo(() => events.filter(e => e.ts && Date.now() - e.ts < 86_400_000), [events]);
 
-  const tickerItems = events
-    .filter(e => e.text && e.ts && !isNoise(e.text))
-    .slice(-30)
-    .reverse();
+  const tickerItems = useMemo(() =>
+    events.filter(e => e.text && e.ts && !isNoise(e.text)).slice(-15).reverse(),
+  [events]);
 
-  const activityItems = events
-    .filter(e => e.text && e.ts && !isNoise(e.text))
-    .slice(-12)
-    .reverse();
+  const activityItems = useMemo(() =>
+    events.filter(e => e.text && e.ts && !isNoise(e.text)).slice(-12).reverse(),
+  [events]);
 
   // All known agents (configured + discovered)
   const allAgents = Array.from(agentsMap.values());
 
   // Build rich lines from events (type-aware rendering)
+  const richLinesCap = isMobile ? 40 : 150;
   const richLines: RichLine[] = useMemo(() => {
     return events
       .filter(e => e.text && !isNoise(e.text))
-      .slice(-150)
+      .slice(-richLinesCap)
       .map(e => {
         const agent = resolveAgent(e);
         const agentName = agent?.name;
@@ -305,7 +325,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
         const source = inferSource(e);
         return { text: e.text || '', kind, agentName, agentColor, targetName, targetColor, actor, source };
       });
-  }, [events, agentsMap]);
+  }, [events, agentsMap, richLinesCap]);
 
   return (
     <>
@@ -314,14 +334,14 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
         <div className="ms-ticker-track">
           {(tickerItems.length > 0 ? tickerItems : [
             { text: 'Waiting for live data...', ts: Date.now() },
-          ]).map((item, i) => (
+          ]).slice(0, isMobile ? 8 : 15).map((item, i) => (
             <span key={i} className="ms-ticker-item">
               <span className="ms-ticker-dot" />
               <span className="ms-ticker-text">{(item.text || '').slice(0, 80)}</span>
               {item.ts && <span className="ms-ticker-time">{timeAgo(item.ts)}</span>}
             </span>
           ))}
-          {tickerItems.map((item, i) => (
+          {!isMobile && tickerItems.slice(0, 15).map((item, i) => (
             <span key={`d-${i}`} className="ms-ticker-item" aria-hidden>
               <span className="ms-ticker-dot" />
               <span className="ms-ticker-text">{(item.text || '').slice(0, 80)}</span>
