@@ -144,15 +144,21 @@ function applyMood(id) {
 
 /* ── Normalize agent IDs ── */
 const agentAliases = new Map();
-let aliasCounter = 0;
-const ALIAS_NAMES = ['phantom', 'nyx', 'cipher', 'pulse', 'wraith', 'specter', 'echo', 'flux'];
+function stableHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i);
+  return Math.abs(h);
+}
 function normalizeAgentId(raw) {
   if (!raw) return 'unknown';
-  if (raw.length <= 16 && !raw.includes('-')) return raw;
-  if (agentAliases.has(raw)) return agentAliases.get(raw);
-  const alias = ALIAS_NAMES[aliasCounter % ALIAS_NAMES.length] + (aliasCounter >= ALIAS_NAMES.length ? `-${Math.floor(aliasCounter / ALIAS_NAMES.length)}` : '');
-  aliasCounter++;
-  agentAliases.set(raw, alias);
+  const id = String(raw).trim().toLowerCase();
+  if (!id) return 'unknown';
+  if (Object.prototype.hasOwnProperty.call(AGENT_DEFS, id)) return id;
+  if (/^[a-f0-9]{8}$/i.test(id) || /^[a-f0-9-]{24,}$/i.test(id)) return `session-${id.slice(0, 6)}`;
+  if (id.length <= 16 && !id.includes('-')) return id;
+  if (agentAliases.has(id)) return agentAliases.get(id);
+  const alias = `agent-${stableHash(id).toString(36).slice(0, 4)}`;
+  agentAliases.set(id, alias);
   return alias;
 }
 
@@ -1699,14 +1705,22 @@ function feedTypeClass(type) {
   return 'type-task';
 }
 
-function addFeedItem(evt) {
-  const agentId = normalizeAgentId(evt.agent);
-  const def = getAgentDef(agentId);
+function buildFeedContent(evt) {
   const parts = [];
   if (evt.task) parts.push(evt.task);
   if (typeof evt.progress === 'number') parts.push(`${Math.round(evt.progress * 100)}%`);
-  if (evt.text) parts.push(evt.text.slice(0, 120));
-  const content = parts.join(' · ') || '—';
+  if (evt.kind) parts.push(`kind:${evt.kind}`);
+  if (evt.target) parts.push(`target:${evt.target}`);
+  if (Array.isArray(evt.attendees) && evt.attendees.length) parts.push(`attendees:${evt.attendees.join(',')}`);
+  if (Array.isArray(evt.points) && evt.points.length) parts.push(`points:${evt.points.length}`);
+  if (evt.text) parts.push(String(evt.text).slice(0, 140));
+  return parts.join(' · ') || '—';
+}
+
+function addFeedItem(evt) {
+  const agentId = normalizeAgentId(evt.agent);
+  const def = getAgentDef(agentId);
+  const content = buildFeedContent(evt);
 
   const div = document.createElement('div');
   div.className = 'feed-item';
@@ -1757,8 +1771,43 @@ async function postEvent(evt) {
   if (!res.ok) throw new Error(`POST /api/event failed: ${res.status}`);
 }
 
-/* ── Event handling ── */
+/* ── Event handling (batched for burst stability) ── */
+const eventQueue = [];
+let flushQueued = false;
+const MAX_EVENT_QUEUE = __officeLowPower ? 120 : 400;
+
+function scheduleEventFlush() {
+  if (flushQueued) return;
+  flushQueued = true;
+  requestAnimationFrame(() => {
+    flushQueued = false;
+    const budget = __officeLowPower ? 8 : 18;
+    let n = 0;
+    while (eventQueue.length > 0 && n < budget) {
+      const item = eventQueue.shift();
+      handleEventCore(item.evt, item.replay);
+      n++;
+    }
+    if (eventQueue.length > 0) scheduleEventFlush();
+  });
+}
+
+function enqueueEvent(evt, replay = false) {
+  if (eventQueue.length >= MAX_EVENT_QUEUE) eventQueue.splice(0, eventQueue.length - MAX_EVENT_QUEUE + 1);
+  eventQueue.push({ evt, replay });
+  scheduleEventFlush();
+}
+
 function handleEvent(evt) {
+  enqueueEvent(evt, false);
+}
+
+function handleEventCore(evt, replay = false) {
+  const evtAge = Date.now() - (evt.ts || Date.now());
+
+  // During history replays, skip old movement to avoid huge animation load.
+  if (replay && evt.type === 'agent.move' && evtAge > 30_000) return;
+
   signalCount++;
   statsEl.textContent = `${signalCount} signals`;
   updateStatCards();
@@ -1769,7 +1818,7 @@ function handleEvent(evt) {
   // ── Visitor messages: show at door, don't create a desk agent ──
   if (agent === 'visitor' && evt.type === 'message' && evt.text) {
     messageCount++;
-    showVisitorMessage(evt.text);
+    if (!replay || evtAge < 30_000) showVisitorMessage(evt.text);
     missionTextEl.textContent = `Visitor: ${evt.text.slice(0, 60)}`;
     updateStatCards();
     return;
@@ -1779,6 +1828,45 @@ function handleEvent(evt) {
   markActivity(agent);
   if (['tool_call', 'thinking', 'task.started', 'task.done', 'task.error', 'message'].includes(evt.type)) {
     recordWorkload(agent);
+  }
+
+  const evtKind = String(evt.kind || '').toLowerCase();
+  const normalizedTarget = evt.target ? normalizeAgentId(evt.target) : null;
+
+  // Rich emote handlers: follow / gather / patrol
+  if ((evt.type === 'follow' || evtKind === 'follow') && normalizedTarget && normalizedTarget !== agent) {
+    if (!agents.has(agent)) upsertAgent(agent, { status: 'idle' });
+    if (!agents.has(normalizedTarget)) upsertAgent(normalizedTarget, { status: 'idle' });
+    const targetAgent = agents.get(normalizedTarget);
+    if (targetAgent && targetAgent.hasDesk && !_standupInProgress) {
+      drawConversationLine(agent, normalizedTarget);
+      walkAgentToAndBack(agent, targetAgent.pos.x, targetAgent.pos.y);
+      if (evt.text && (!replay || evtAge < 30_000)) showSpeechBubble(agent, evt.text);
+    }
+  }
+
+  if (evt.type === 'gather' || evtKind === 'gather') {
+    const attendees = Array.isArray(evt.attendees)
+      ? evt.attendees.map(normalizeAgentId).filter((id) => id && agents.has(id))
+      : [];
+    const list = attendees.length ? attendees : Array.from(agents.keys()).filter((id) => id !== 'visitor');
+    if (list.length > 1 && !_standupInProgress) {
+      startStandup(list, evt.text || evt.task || 'Team gather');
+    }
+  }
+
+  if (evt.type === 'patrol' || evtKind === 'patrol') {
+    if (!agents.has(agent)) upsertAgent(agent, { status: 'idle' });
+    const pts = Array.isArray(evt.points) ? evt.points : [];
+    const wrap = canvas.parentElement;
+    const w = wrap?.clientWidth || 800;
+    const h = wrap?.clientHeight || 500;
+    if (pts.length > 0 && !_standupInProgress) {
+      const p = pts[Math.floor(Math.random() * pts.length)] || {};
+      const px = Math.max(40, Math.min(w - 40, Number(p.x || 0.5) <= 1 ? Number(p.x || 0.5) * w : Number(p.x || w * 0.5)));
+      const py = Math.max(70, Math.min(h - 90, Number(p.y || 0.5) <= 1 ? Number(p.y || 0.5) * h : Number(p.y || h * 0.5)));
+      walkAgentTo(agent, px, py);
+    }
   }
 
   if (evt.type === 'agent.move' && evt.pos && !_standupInProgress) {
@@ -1859,12 +1947,12 @@ function handleEvent(evt) {
     messageCount++;
     const a = agents.get(agent);
     if (a) a.msgs++;
-    showSpeechBubble(agent, evt.text);
+    if (!replay || evtAge < 30_000) showSpeechBubble(agent, evt.text);
     missionTextEl.textContent = `${getAgentDef(agent).name}: ${evt.text.slice(0, 60)}`;
     updateStatCards();
   }
   if (evt.type === 'thinking' && evt.text) {
-    showSpeechBubble(agent, evt.text);
+    if (!replay || evtAge < 30_000) showSpeechBubble(agent, evt.text);
     upsertAgent(agent, { status: 'working' });
     // Start thinking pace (small wander near desk)
     startThinkingPace(agent);
@@ -1926,7 +2014,7 @@ function handleEvent(evt) {
   }
 
   if (evt.type === 'conversation' && evt.text) {
-    showSpeechBubble(agent, evt.text);
+    if (!replay || evtAge < 30_000) showSpeechBubble(agent, evt.text);
     const targetId = evt.task && agents.has(normalizeAgentId(evt.task)) ? normalizeAgentId(evt.task) : null;
     let target;
     if (targetId && targetId !== agent) {
@@ -2000,29 +2088,52 @@ function handleMissionEvent(evt) {
   }
 
   if (evt.type === 'mission.completed') {
-    const m = missions.get(evt.missionId);
-    if (m) {
-      m.progress = 1;
-      m.status = 'completed';
-      m.fadeAt = (evt.ts || Date.now()) + 30000;
-      // High-five celebration for all involved agents
-      const involved = m.involvedAgents ? [...m.involvedAgents] : [normalizeAgentId(evt.agent)];
-      highfiveBurst(involved);
-      // Golden aura for all involved agents (5s)
-      for (const aid of involved) {
-        const ag = agents.get(aid);
-        if (ag) { ag._goldenUntil = Date.now() + 5000; applyMood(aid); }
-      }
+    let m = missions.get(evt.missionId);
+    if (!m) {
+      // Normalize broken lifecycles: synthesize a minimal mission if completion arrives first.
+      m = {
+        agent: normalizeAgentId(evt.agent),
+        task: evt.task || 'Mission',
+        progress: 0,
+        latestStep: '',
+        status: 'active',
+        ts: (evt.ts || Date.now()) - 1,
+        fadeAt: null,
+        involvedAgents: new Set([normalizeAgentId(evt.agent)]),
+      };
+      missions.set(evt.missionId, m);
+    }
+    m.progress = 1;
+    m.status = 'completed';
+    m.fadeAt = (evt.ts || Date.now()) + 30000;
+    // High-five celebration for all involved agents
+    const involved = m.involvedAgents ? [...m.involvedAgents] : [normalizeAgentId(evt.agent)];
+    highfiveBurst(involved);
+    // Golden aura for all involved agents (5s)
+    for (const aid of involved) {
+      const ag = agents.get(aid);
+      if (ag) { ag._goldenUntil = Date.now() + 5000; applyMood(aid); }
     }
   }
 
   if (evt.type === 'mission.failed') {
-    const m = missions.get(evt.missionId);
-    if (m) {
-      m.status = 'failed';
-      m.latestStep = evt.text || 'Failed';
-      m.fadeAt = (evt.ts || Date.now()) + 30000;
+    let m = missions.get(evt.missionId);
+    if (!m) {
+      m = {
+        agent: normalizeAgentId(evt.agent),
+        task: evt.task || 'Mission',
+        progress: 0,
+        latestStep: '',
+        status: 'active',
+        ts: (evt.ts || Date.now()) - 1,
+        fadeAt: null,
+        involvedAgents: new Set([normalizeAgentId(evt.agent)]),
+      };
+      missions.set(evt.missionId, m);
     }
+    m.status = 'failed';
+    m.latestStep = evt.text || 'Failed';
+    m.fadeAt = (evt.ts || Date.now()) + 30000;
     const mAge = Date.now() - (evt.ts || Date.now());
     if (mAge < 30000) triggerThreatMode(evt.text || evt.task || 'Mission failed');
   }
@@ -2081,7 +2192,7 @@ async function loadRecent() {
     const data = await res.json();
     if (data?.events?.length) {
       const ordered = [...data.events].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-      for (const evt of ordered) handleEvent(evt);
+      for (const evt of ordered) enqueueEvent(evt, true);
     }
   } catch {}
 }

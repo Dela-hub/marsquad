@@ -9,6 +9,10 @@ type EventPayload = {
   agent?: string;
   type?: string;
   task?: string; // target agent for conversations, or task name
+  kind?: string;
+  target?: string;
+  points?: Array<{ x?: number; y?: number }>;
+  attendees?: string[];
   // Provenance (optional; inferred for legacy events)
   actor?: 'human' | 'agent' | 'system';
   source?: string; // e.g. 'openclaw' | 'autonomy' | 'api' | 'manual'
@@ -80,6 +84,16 @@ function tagEvent(text: string): string | null {
 }
 
 const DEFAULT_COLOR = '#94a3b8';
+const KNOWN_AGENT_IDS = new Set(['dilo', 'phantom', 'nyx', 'cipher', 'pulse', 'wraith', 'specter', 'visitor']);
+
+function normalizeAgentKey(raw?: string): string {
+  const v = (raw || '').toString().trim().toLowerCase();
+  if (!v) return 'unknown';
+  if (KNOWN_AGENT_IDS.has(v)) return v;
+  if (/^[a-f0-9]{8}$/i.test(v) || /^[a-f0-9-]{24,}$/i.test(v)) return `session-${v.slice(0, 6)}`;
+  if (v.length > 24) return `agent-${v.slice(0, 6)}`;
+  return v;
+}
 
 function inferActor(e: EventPayload): 'human' | 'agent' | 'system' {
   if (e.actor) return e.actor;
@@ -110,7 +124,19 @@ function fallbackEventText(e: EventPayload): string {
   if (text) return text;
 
   const task = (e.task || '').trim();
+  const target = (e.target || '').trim();
+  const kind = (e.kind || '').trim();
+  const attendees = Array.isArray(e.attendees) ? e.attendees.filter(Boolean) : [];
+  const points = Array.isArray(e.points) ? e.points.length : 0;
   switch (e.type) {
+    case 'emote':
+      if (kind === 'follow') return target ? `Following ${target}` : 'Following target';
+      if (kind === 'gather') return attendees.length ? `Gathering: ${attendees.join(', ')}` : 'Gathering team';
+      if (kind === 'patrol') return points ? `Patrolling ${points} points` : 'Patrolling area';
+      return kind ? `Emote: ${kind}` : 'Emote';
+    case 'follow': return target ? `Following ${target}` : 'Following target';
+    case 'gather': return attendees.length ? `Gathering: ${attendees.join(', ')}` : 'Gathering team';
+    case 'patrol': return points ? `Patrolling ${points} points` : 'Patrolling area';
     case 'standup': return task ? `Standup: ${task}` : 'Standup called';
     case 'conversation': return task ? `Conversation -> ${task}` : 'Conversation';
     case 'task.started': return task ? `Started ${task}` : 'Task started';
@@ -151,7 +177,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   const agentsMap = useMemo(() => {
     const map = new Map<string, AgentConfig>();
     for (const a of agents) {
-      map.set(a.id.toLowerCase(), a);
+      map.set(normalizeAgentKey(a.id), a);
     }
     discoveredAgents.forEach((v, k) => {
       if (!map.has(k)) map.set(k, v);
@@ -178,7 +204,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   function resolveAgent(event: EventPayload): AgentConfig | null {
     // Prefer explicit agent field
     if (event.agent) {
-      const key = event.agent.toLowerCase();
+      const key = normalizeAgentKey(event.agent);
       if (agentsMap.has(key)) return agentsMap.get(key)!;
       // Queue discovery for next effect (never setState during render)
       const discovered: AgentConfig = {
@@ -292,7 +318,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   const agentsSeen = useMemo(() => {
     const s = new Set<string>();
     for (const e of events) {
-      if (e.agent) s.add(e.agent.toLowerCase());
+      if (e.agent) s.add(normalizeAgentKey(e.agent));
     }
     return s;
   }, [events]);
@@ -329,7 +355,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
         let targetName: string | undefined;
         let targetColor: string | undefined;
         if (e.type === 'conversation' && e.task) {
-          const target = agentsMap.get(e.task.toLowerCase());
+          const target = agentsMap.get(normalizeAgentKey(e.task));
           targetName = target?.name || e.task;
           targetColor = target?.color;
         }
@@ -337,6 +363,15 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
         // Classify event into rendering kind
         let kind = 'default';
         switch (e.type) {
+          case 'emote':
+            if (e.kind === 'gather') kind = 'standup';
+            else if (e.kind === 'follow') kind = 'chat';
+            else if (e.kind === 'patrol') kind = 'status';
+            else kind = 'default';
+            break;
+          case 'follow': kind = 'chat'; break;
+          case 'gather': kind = 'standup'; break;
+          case 'patrol': kind = 'status'; break;
           case 'conversation': kind = 'chat'; break;
           case 'thinking': kind = 'think'; break;
           case 'task.started': kind = 'task-start'; break;

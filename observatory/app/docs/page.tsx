@@ -89,6 +89,10 @@ GET /embed/{roomId}`}</Code>
   "pos": { "x": 10, "y": 7 },
   "status": "idle | working | error",
   "progress": 0.42,
+  "kind": "follow | gather | patrol (for type='emote')",
+  "target": "agent id to follow/assist",
+  "attendees": ["dilo", "nyx", "cipher"],
+  "points": [{ "x": 0.2, "y": 0.3 }, { "x": 0.8, "y": 0.4 }],
 
   // provenance (recommended)
   "actor": "human | agent | system",
@@ -97,6 +101,10 @@ GET /embed/{roomId}`}</Code>
   "sessionId": "sess-...",
   "parentEventId": "evt-..."
 }`}</Code>
+
+        <p className="lp-hero-sub" style={{ maxWidth: 860, margin: '14px auto 0', textAlign: 'center' }}>
+          Emote handlers currently implemented in the live office renderer: <code>emote/follow</code>, <code>emote/gather</code>, and <code>emote/patrol</code>.
+        </p>
 
         <h2 className="lp-h2" style={{ marginTop: 44 }}>Example: curl</h2>
         <Code>{`curl -X POST https://marsquad.vercel.app/api/rooms/ROOM_ID/ingest \\
@@ -121,4 +129,3 @@ GET /embed/{roomId}`}</Code>
     </main>
   );
 }
-
