@@ -100,9 +100,134 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 .agent-work-dots{position:absolute;top:-20px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
 .agent-work-dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(to top,rgba(255,255,255,.6),#fff);animation:float 1s ease-in-out infinite}
 
+/* ═══════════════════════════════════════
+   ── DILO 3D BOSS MODE ──
+   Perspective + rotateX/Y + floating idle
+   ═══════════════════════════════════════ */
+.agent-char.boss{
+  perspective:600px;
+  z-index:20;
+  transform-style:preserve-3d;
+}
+.agent-char.boss .agent-body{
+  width:66px!important;height:66px!important;
+  transform:rotateX(8deg) rotateY(-4deg) scale(1.0);
+  transform-style:preserve-3d;
+  animation:boss-float 4s ease-in-out infinite;
+  border:2px solid rgba(99,102,241,.35);
+  box-shadow:
+    0 0 40px rgba(59,130,246,.5),
+    0 0 80px rgba(99,102,241,.25),
+    0 8px 32px rgba(0,0,0,.4),
+    inset 0 0 24px rgba(255,255,255,.12);
+}
+.agent-char.boss:hover .agent-body{
+  transform:rotateX(2deg) rotateY(6deg) scale(1.15);
+  box-shadow:
+    0 0 60px rgba(59,130,246,.7),
+    0 0 100px rgba(99,102,241,.35),
+    0 12px 40px rgba(0,0,0,.5),
+    inset 0 0 30px rgba(255,255,255,.15);
+}
+.agent-char.boss .agent-body-inner{
+  background:linear-gradient(135deg,#3b82f6,#6366f1,#8b5cf6)!important;
+  opacity:.85;
+}
+/* Holographic platform ring under boss */
+.agent-char.boss .agent-shadow{
+  width:72px!important;height:18px!important;
+  bottom:-26px;
+  background:radial-gradient(ellipse,rgba(59,130,246,.5) 0%,rgba(99,102,241,.2) 40%,transparent 70%)!important;
+  filter:blur(6px);
+  animation:boss-ring-pulse 3s ease-in-out infinite;
+}
+/* Boss holographic ground ring */
+.agent-char.boss::before{
+  content:'';
+  position:absolute;
+  bottom:-30px;left:50%;
+  width:80px;height:80px;
+  transform:translateX(-50%) rotateX(70deg);
+  border-radius:50%;
+  border:1.5px solid rgba(99,102,241,.3);
+  box-shadow:0 0 20px rgba(59,130,246,.2),inset 0 0 20px rgba(99,102,241,.1);
+  animation:boss-ring-spin 8s linear infinite;
+  pointer-events:none;
+}
+/* Second ring (offset) */
+.agent-char.boss::after{
+  content:'';
+  position:absolute;
+  bottom:-30px;left:50%;
+  width:90px;height:90px;
+  transform:translateX(-50%) rotateX(70deg);
+  border-radius:50%;
+  border:1px dashed rgba(59,130,246,.15);
+  animation:boss-ring-spin 12s linear infinite reverse;
+  pointer-events:none;
+}
+/* Boss name badge — upgraded */
+.agent-char.boss .agent-name{
+  font-size:11px;
+  padding:3px 14px;
+  background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(99,102,241,.3))!important;
+  border:1px solid rgba(99,102,241,.3);
+  box-shadow:0 0 16px rgba(59,130,246,.25),0 4px 12px rgba(0,0,0,.4);
+  letter-spacing:.5px;
+}
+/* Boss energy bar — blue accent */
+.agent-char.boss .agent-energy-bar{
+  background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);
+}
+/* Boss face slightly larger */
+.agent-char.boss .agent-face{width:32px;height:32px}
+/* Boss chair — upgraded */
+.agent-char.boss .agent-chair{
+  width:44px;height:22px;
+  background:rgba(59,130,246,.15);
+  border:1px solid rgba(99,102,241,.15);
+  box-shadow:0 2px 8px rgba(59,130,246,.15);
+}
+/* Boss ping ring — bigger */
+.agent-char.boss .agent-ping{inset:-12px;border-width:2.5px}
+
+/* ── Boss keyframes ── */
+@keyframes boss-float{
+  0%,100%{transform:rotateX(8deg) rotateY(-4deg) translateY(0) scale(1)}
+  25%{transform:rotateX(6deg) rotateY(-2deg) translateY(-5px) scale(1.02)}
+  50%{transform:rotateX(10deg) rotateY(-6deg) translateY(-3px) scale(1)}
+  75%{transform:rotateX(7deg) rotateY(-3deg) translateY(-6px) scale(1.01)}
+}
+@keyframes boss-ring-pulse{
+  0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}
+  50%{opacity:1;transform:translateX(-50%) scale(1.15)}
+}
+@keyframes boss-ring-spin{
+  from{transform:translateX(-50%) rotateX(70deg) rotateZ(0deg)}
+  to{transform:translateX(-50%) rotateX(70deg) rotateZ(360deg)}
+}
+/* When working — more intense 3D tilt + glow */
+.agent-char.boss.working .agent-body{
+  animation:boss-float-working 2.5s ease-in-out infinite;
+  box-shadow:
+    0 0 50px rgba(59,130,246,.6),
+    0 0 100px rgba(99,102,241,.3),
+    0 10px 40px rgba(0,0,0,.5),
+    inset 0 0 30px rgba(255,255,255,.15);
+}
+@keyframes boss-float-working{
+  0%,100%{transform:rotateX(12deg) rotateY(-6deg) translateY(0) scale(1.02)}
+  25%{transform:rotateX(8deg) rotateY(-2deg) translateY(-4px) scale(1.04)}
+  50%{transform:rotateX(14deg) rotateY(-8deg) translateY(-2px) scale(1.02)}
+  75%{transform:rotateX(10deg) rotateY(-4deg) translateY(-5px) scale(1.03)}
+}
+
+/* Low-power: disable 3D animations for mobile */
+.office-low-power .agent-char.boss .agent-body{animation:none;transform:scale(1.08)}
+.office-low-power .agent-char.boss::before,.office-low-power .agent-char.boss::after{display:none}
+
 /* ── Agent chair ── */
 .agent-chair{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);width:34px;height:18px;border-radius:6px 6px 4px 4px;background:var(--chair-color,rgba(100,116,139,.2));border:1px solid rgba(255,255,255,.06);z-index:0}
-.agent-char.boss .agent-chair{width:40px;height:20px}
 .agent-char.walking .agent-chair{display:none}
 
 /* ── Agent legs ── */
