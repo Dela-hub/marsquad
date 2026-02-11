@@ -108,6 +108,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   const [discoveredAgents, setDiscoveredAgents] = useState<Map<string, AgentConfig>>(new Map());
   const [showStage, setShowStage] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [stageOptIn, setStageOptIn] = useState(false);
   const termRef = useRef<HTMLDivElement>(null);
 
   // Build agent lookup from props + discovered
@@ -366,7 +367,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
           )}
 
           {/* ── Live Stage (marsquad only) ── */}
-          {roomId === 'marsquad' && showStage && (
+          {roomId === 'marsquad' && (showStage || stageOptIn) && (
             <section className="ms-stage" id="stage">
               <div className="ms-stage-chrome">
                 <div className="ms-terminal-bar">
@@ -387,18 +388,27 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
           )}
 
           {/* Mobile: provide a link to the office view instead of embedding it */}
-          {roomId === 'marsquad' && !showStage && (
+          {roomId === 'marsquad' && !showStage && !stageOptIn && (
             <section className="ms-stage" id="stage">
               <div className="ms-stage-chrome" style={{ padding: 14 }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontWeight: 700 }}>Office view</div>
-                    <div className="sub">Disabled on mobile for stability. Open it in a new tab.</div>
+                    <div className="sub">Tap to load (may use more battery). Or open in a new tab.</div>
                   </div>
-                  <a className="lp-btn lp-btn--primary" href="/live" target="_blank" rel="noreferrer">
-                    Open /live
-                    <span className="lp-btn-arrow">→</span>
-                  </a>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="lp-btn lp-btn--primary"
+                      onClick={() => setStageOptIn(true)}
+                    >
+                      Load office
+                      <span className="lp-btn-arrow">→</span>
+                    </button>
+                    <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
+                      Open /live
+                    </a>
+                  </div>
                 </div>
               </div>
             </section>

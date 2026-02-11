@@ -2074,9 +2074,7 @@ function connectSse() {
 /* ── Toggle feed ── */
 document.getElementById('btnToggleFeed').addEventListener('click', () => {
   const pane = document.getElementById('feedPane');
-  const mainEl = document.querySelector('main');
   pane.classList.toggle('collapsed');
-  mainEl.classList.toggle('feed-collapsed');
   // Re-layout office after transition
   setTimeout(resizeCanvas, 320);
 });
@@ -2085,9 +2083,7 @@ document.getElementById('btnToggleFeed').addEventListener('click', () => {
 // Users can expand it with the toggle button.
 try {
   const pane = document.getElementById('feedPane');
-  const mainEl = document.querySelector('main');
   pane.classList.add('collapsed');
-  mainEl.classList.add('feed-collapsed');
 } catch {}
 
 /* ── Pause ── */
