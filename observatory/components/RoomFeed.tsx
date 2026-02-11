@@ -17,6 +17,10 @@ type EventPayload = {
   parentEventId?: string;
 };
 
+type DisplayEvent = EventPayload & {
+  displayText: string;
+};
+
 type RichLine = {
   text: string;
   kind: string; // CSS modifier: chat, think, task, tool, system, default
@@ -96,11 +100,43 @@ function inferSource(e: EventPayload): string {
   return 'api';
 }
 
+function prettifyType(type?: string): string {
+  if (!type) return 'event';
+  return type.replace(/[._]/g, ' ');
+}
+
+function fallbackEventText(e: EventPayload): string {
+  const text = (e.text || '').trim();
+  if (text) return text;
+
+  const task = (e.task || '').trim();
+  switch (e.type) {
+    case 'standup': return task ? `Standup: ${task}` : 'Standup called';
+    case 'conversation': return task ? `Conversation -> ${task}` : 'Conversation';
+    case 'task.started': return task ? `Started ${task}` : 'Task started';
+    case 'task.progress': return task ? `Working on ${task}` : 'Task progress';
+    case 'task.done': return task ? `Completed ${task}` : 'Task done';
+    case 'task.error': return task ? `Error in ${task}` : 'Task error';
+    case 'task.delegated': return task ? `Delegated ${task}` : 'Task delegated';
+    case 'mission.created': return task ? `Mission started: ${task}` : 'Mission started';
+    case 'mission.step': return task ? `Mission step: ${task}` : 'Mission step';
+    case 'mission.completed': return task ? `Mission completed: ${task}` : 'Mission completed';
+    case 'mission.failed': return task ? `Mission failed: ${task}` : 'Mission failed';
+    case 'agent.move': return 'Repositioning';
+    case 'agent.status': return task ? `Status: ${task}` : 'Status updated';
+    case 'tool_call': return task ? `Tool: ${task}` : 'Tool call';
+    case 'coffee': return 'Coffee break';
+    case 'smoke': return 'Smoke break';
+    case 'celebrate': return 'Celebration';
+    case 'threat': return task ? `Threat: ${task}` : 'Threat detected';
+    default: return task || prettifyType(e.type);
+  }
+}
+
 // ── Component ──
 
 export default function RoomFeed({ roomId, agents, roomName, variant = 'full', showAgents = true }: Props) {
   const [events, setEvents] = useState<EventPayload[]>([]);
-  const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [since, setSince] = useState(0);
   const [visitors, setVisitors] = useState(0);
   const [totalVisitors, setTotalVisitors] = useState(0);
@@ -221,7 +257,6 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     let active = true;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const maxEvents = isMobile ? 150 : 500;
-    const maxLines = isMobile ? 60 : 150;
     const interval = () => isMobile ? 6000 : (document.hidden ? 8000 : 3000);
 
     const poll = async () => {
@@ -235,13 +270,6 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
           const newSince = evts[evts.length - 1].ts || Date.now();
           setSince(newSince);
           setEvents((prev) => [...prev, ...evts].slice(-maxEvents));
-          setTerminalLines((prev) => {
-            const next = [...prev];
-            for (const e of evts) {
-              if (e.text && !isNoise(e.text)) next.push(e.text);
-            }
-            return next.slice(-maxLines);
-          });
         }
       } catch {
         // ignore
@@ -257,7 +285,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
     if (termRef.current) {
       termRef.current.scrollTop = termRef.current.scrollHeight;
     }
-  }, [terminalLines]);
+  }, [events]);
 
   // Derived stats (memoized to avoid calling resolveAgent during render)
   const totalEvents = events.length;
@@ -270,13 +298,19 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   }, [events]);
   const recentEvents = useMemo(() => events.filter(e => e.ts && Date.now() - e.ts < 86_400_000), [events]);
 
+  const displayEvents: DisplayEvent[] = useMemo(() => {
+    return events
+      .map((e) => ({ ...e, displayText: fallbackEventText(e) }))
+      .filter((e) => e.displayText && !isNoise(e.displayText));
+  }, [events]);
+
   const tickerItems = useMemo(() =>
-    events.filter(e => e.text && e.ts && !isNoise(e.text)).slice(-15).reverse(),
-  [events]);
+    displayEvents.filter(e => e.ts).slice(-15).reverse(),
+  [displayEvents]);
 
   const activityItems = useMemo(() =>
-    events.filter(e => e.text && e.ts && !isNoise(e.text)).slice(-12).reverse(),
-  [events]);
+    displayEvents.filter(e => e.ts).slice(-12).reverse(),
+  [displayEvents]);
 
   // All known agents (configured + discovered)
   const allAgents = Array.from(agentsMap.values());
@@ -284,8 +318,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   // Build rich lines from events (type-aware rendering)
   const richLinesCap = isMobile ? 40 : 150;
   const richLines: RichLine[] = useMemo(() => {
-    return events
-      .filter(e => e.text && !isNoise(e.text))
+    return displayEvents
       .slice(-richLinesCap)
       .map(e => {
         const agent = resolveAgent(e);
@@ -323,9 +356,9 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
 
         const actor = inferActor(e);
         const source = inferSource(e);
-        return { text: e.text || '', kind, agentName, agentColor, targetName, targetColor, actor, source };
+        return { text: e.displayText, kind, agentName, agentColor, targetName, targetColor, actor, source };
       });
-  }, [events, agentsMap, richLinesCap]);
+  }, [displayEvents, agentsMap, richLinesCap]);
 
   return (
     <>
@@ -333,18 +366,18 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
       <div className="ms-ticker">
         <div className="ms-ticker-track">
           {(tickerItems.length > 0 ? tickerItems : [
-            { text: 'Waiting for live data...', ts: Date.now() },
+            { displayText: 'Waiting for live data...', ts: Date.now() },
           ]).slice(0, isMobile ? 8 : 15).map((item, i) => (
             <span key={i} className="ms-ticker-item">
               <span className="ms-ticker-dot" />
-              <span className="ms-ticker-text">{(item.text || '').slice(0, 80)}</span>
+              <span className="ms-ticker-text">{(item.displayText || '').slice(0, 80)}</span>
               {item.ts && <span className="ms-ticker-time">{timeAgo(item.ts)}</span>}
             </span>
           ))}
           {!isMobile && tickerItems.slice(0, 15).map((item, i) => (
             <span key={`d-${i}`} className="ms-ticker-item" aria-hidden>
               <span className="ms-ticker-dot" />
-              <span className="ms-ticker-text">{(item.text || '').slice(0, 80)}</span>
+              <span className="ms-ticker-text">{(item.displayText || '').slice(0, 80)}</span>
               {item.ts && <span className="ms-ticker-time">{timeAgo(item.ts)}</span>}
             </span>
           ))}
@@ -518,7 +551,7 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
             <h2 className="ms-section-title">Recent Activity</h2>
             <div className="ms-activity-grid">
               {(activityItems.length > 0 ? activityItems : Array.from({ length: 6 }, (_, i) => ({
-                text: 'Awaiting agent output...',
+                displayText: 'Awaiting agent output...',
                 ts: Date.now() - i * 60_000,
               }))).map((item, i) => {
                 const agentData = resolveAgent(item);
@@ -536,13 +569,13 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
                           {agentData.avatar} {agentData.name}
                         </span>
                       )}
-                      {(() => { const t = tagEvent(item.text || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
+                      {(() => { const t = tagEvent(item.displayText || ''); return t ? <span className="ms-tag" style={{ background: TAG_COLORS[t] || '#666' }}>{t}</span> : null; })()}
                       <span className={`ms-prov ms-prov-${actor}`} title={`actor: ${actor} · source: ${source}`}>
                         {actor}:{source}
                       </span>
                       {item.ts && <span className="ms-activity-time">{timeAgo(item.ts)}</span>}
                     </div>
-                    <p className="ms-activity-text">{(item.text || '').slice(0, 140)}</p>
+                    <p className="ms-activity-text">{(item.displayText || '').slice(0, 140)}</p>
                   </div>
                 );
               })}
