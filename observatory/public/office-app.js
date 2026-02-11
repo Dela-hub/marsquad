@@ -1216,31 +1216,42 @@ function scheduleWraithSmoke() {
 function showSpeechBubble(agentId, text) {
   const a = agents.get(agentId);
   if (!a || !a.hasDesk) return;
+
+  const isUserMsg = text.startsWith('User:') || text.startsWith('user:');
+
+  // Don't overwrite a priority (user) bubble with a regular one
+  if (a._bubblePriority && !isUserMsg) return;
+
   // Remove existing
   if (a.bubbleEl && a.bubbleEl.parentNode) a.bubbleEl.parentNode.removeChild(a.bubbleEl);
+  if (a._bubbleTimer) { clearTimeout(a._bubbleTimer); a._bubbleTimer = null; }
 
   const canvasW = canvas.parentElement?.clientWidth || 800;
   const dir = a.pos.x > canvasW * 0.5 ? 'left' : 'right';
   const el = document.createElement('div');
-  el.className = `speech-bubble dir-${dir}`;
-  el.textContent = text.length > 70 ? text.slice(0, 67) + '...' : text;
+  el.className = `speech-bubble dir-${dir}${isUserMsg ? ' user-msg' : ''}`;
+  const displayText = isUserMsg ? text.replace(/^User:\s*/i, '') : text;
+  el.textContent = displayText.length > 70 ? displayText.slice(0, 67) + '...' : displayText;
   const offX = dir === 'right' ? 30 : -30;
   el.style.cssText = `left:${a.pos.x + offX}px;top:${a.pos.y - 40}px;${dir === 'left' ? 'transform:translateX(-100%)' : ''}`;
   agentLayerEl.appendChild(el);
   a.bubbleEl = el;
+  a._bubblePriority = isUserMsg;
 
   const dots = a.el.querySelector('.agent-work-dots');
   if (dots) dots.style.display = 'none';
 
-  setTimeout(() => {
+  const duration = isUserMsg ? 8000 : 4000;
+  a._bubbleTimer = setTimeout(() => {
     if (el.parentNode) {
       el.style.opacity = '0';
       el.style.transition = 'opacity .5s';
       setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 500);
     }
-    if (a.bubbleEl === el) a.bubbleEl = null;
+    if (a.bubbleEl === el) { a.bubbleEl = null; a._bubblePriority = false; }
+    a._bubbleTimer = null;
     updateAgentEl(agentId);
-  }, 4000);
+  }, duration);
 }
 
 /* ── Visitor message (temporary agent at door) ── */

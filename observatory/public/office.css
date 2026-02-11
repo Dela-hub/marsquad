@@ -222,9 +222,11 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
   75%{transform:rotateX(10deg) rotateY(-4deg) translateY(-5px) scale(1.03)}
 }
 
-/* Low-power: disable 3D animations for mobile */
-.office-low-power .agent-char.boss .agent-body{animation:none;transform:scale(1.08)}
-.office-low-power .agent-char.boss::before,.office-low-power .agent-char.boss::after{display:none}
+/* Low-power: simplified boss effects for mobile */
+.office-low-power .agent-char.boss .agent-body{animation:boss-float-lite 5s ease-in-out infinite;transform-origin:center}
+.office-low-power .agent-char.boss::before{animation:none;opacity:.4}
+.office-low-power .agent-char.boss::after{display:none}
+@keyframes boss-float-lite{0%,100%{transform:scale(1.06) translateY(0)}50%{transform:scale(1.08) translateY(-3px)}}
 
 /* ── Agent chair ── */
 .agent-chair{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);width:34px;height:18px;border-radius:6px 6px 4px 4px;background:var(--chair-color,rgba(100,116,139,.2));border:1px solid rgba(255,255,255,.06);z-index:0}
@@ -373,6 +375,8 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 .speech-bubble.dir-right::after{left:-5px;border-right:0;border-top:0;background:rgba(100,116,139,.2)}
 .speech-bubble.dir-left{background:linear-gradient(135deg,rgba(100,116,139,.2),rgba(71,85,105,.2))}
 .speech-bubble.dir-left::after{right:-5px;border-left:0;border-bottom:0;background:rgba(100,116,139,.2)}
+.speech-bubble.user-msg{background:linear-gradient(135deg,rgba(59,130,246,.35),rgba(99,102,241,.3));border-color:rgba(99,102,241,.5);box-shadow:0 8px 32px rgba(59,130,246,.25);font-size:12px;max-width:220px}
+.speech-bubble.user-msg::after{background:rgba(59,130,246,.3);border-color:rgba(99,102,241,.4)}
 
 /* ── Thought bubble (standup meeting) ── */
 .thought-bubble{position:absolute;padding:8px 14px;border-radius:20px;font-size:11px;font-weight:500;max-width:190px;line-height:1.4;color:rgba(255,255,255,.95);background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(99,102,241,.12));backdrop-filter:blur(16px);border:1px solid rgba(139,92,246,.25);box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 20px rgba(139,92,246,.08);animation:thought-in .4s ease-out;pointer-events:none;z-index:22}
