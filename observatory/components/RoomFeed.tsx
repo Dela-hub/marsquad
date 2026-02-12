@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AgentConfig } from '../lib/types';
 
 type EventPayload = {
+  id?: string;
   ts?: number;
   text?: string;
   agent?: string;
@@ -285,6 +286,8 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
   // Event polling — use ref for `since` to avoid re-creating the effect on every poll
   const sinceRef = useRef(since);
   sinceRef.current = since;
+  // Dedupe across polls (API can return overlapping windows depending on `since` semantics).
+  const seenEventIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
@@ -300,9 +303,32 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
         if (!active || !Array.isArray(data.events)) return;
         const evts = data.events as EventPayload[];
         if (evts.length) {
+          // Filter events we already appended.
+          const seen = seenEventIdsRef.current;
+          const filtered: EventPayload[] = [];
+          for (const e of evts) {
+            const id = (e.id || `${e.ts || 0}-${e.agent || ''}-${e.type || ''}-${(e.text || e.task || '').slice(0, 40)}`) as string;
+            if (seen.has(id)) continue;
+            seen.add(id);
+            filtered.push(e);
+          }
+
+          // Prevent unbounded growth (store enough to cover multiple polling windows).
+          if (seen.size > 5000) {
+            const keep = new Set<string>();
+            for (const e of evts.slice(-200)) {
+              const id = (e.id || `${e.ts || 0}-${e.agent || ''}-${e.type || ''}-${(e.text || e.task || '').slice(0, 40)}`) as string;
+              keep.add(id);
+            }
+            seenEventIdsRef.current = keep;
+          }
+
+          // Always advance since to the newest ts we *received* (even if duplicates).
           const newSince = evts[evts.length - 1].ts || Date.now();
           setSince(newSince);
-          setEvents((prev) => [...prev, ...evts].slice(-maxEvents));
+          if (filtered.length) {
+            setEvents((prev) => [...prev, ...filtered].slice(-maxEvents));
+          }
         }
       } catch {
         // ignore
