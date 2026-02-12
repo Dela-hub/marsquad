@@ -259,7 +259,7 @@ export default function BeautyIntakeForm() {
 
       {status === 'rate_limited' && (
         <p className="sf-error">
-          Too many requests. Try again in about a minute.
+          Already received—check your inbox/WhatsApp in a minute.
         </p>
       )}
       {status === 'error' && (
