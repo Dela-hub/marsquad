@@ -1,7 +1,5 @@
-import RoomFeed from '../components/RoomFeed';
 import BeautyIntakeForm from '../components/BeautyIntakeForm';
 import LastPacks from '../components/LastPacks';
-import type { AgentConfig } from '../lib/types';
 
 /* ── Agent SVG Icons ── */
 function IconDilo({ color }: { color: string }) {
@@ -128,27 +126,27 @@ const AGENTS = [
 
 const TIERS = [
   {
-    name: 'Starter',
+    name: 'Scout',
     price: '$2,000',
     interval: '/mo',
-    desc: 'Weekly intel pack. Enough to keep ads fresh without spinning your wheels.',
-    features: ['Weekly pack', 'Competitor ad board', '30 angles/hooks', '10 UGC scripts', '5 landing/copy tests', '1-page plan'],
+    desc: 'Competitor monitoring for focused teams.',
+    features: ['Up to 5 competitors', 'Weekly brief', 'Top creative shifts', 'What to run next recommendations'],
     accent: false,
   },
   {
-    name: 'Growth',
+    name: 'Ops',
     price: '$3,500',
     interval: '/mo',
-    desc: 'Weekly pack plus a midweek refresh. Delivered on WhatsApp so you actually use it.',
-    features: ['Everything in Starter', 'Midweek refresh', 'WhatsApp delivery', 'Priority turnaround', 'Creative angle backlog'],
+    desc: 'Most popular plan for active spenders.',
+    features: ['Up to 10 competitors', 'Weekly brief + midweek alert', 'WhatsApp delivery', 'Priority turnaround'],
     accent: true,
   },
   {
-    name: 'Scale',
+    name: 'Intel',
     price: '$5,000',
     interval: '/mo',
-    desc: 'More volume, multiple product lines, tighter iteration loops.',
-    features: ['Everything in Growth', 'More volume', 'Multiple lines/brands', 'Custom reporting', 'Team workflows'],
+    desc: 'High-volume monitoring with deeper creator coverage.',
+    features: ['Up to 15 competitors', 'Weekly + alerts', 'Creator shortlist', 'Higher volume output'],
     accent: false,
   },
 ];
@@ -156,25 +154,15 @@ const TIERS = [
 const SAMPLE_PACK = {
   name: 'Single sample pack',
   price: '$99',
-  desc: 'One-time sample to prove the quality before you choose a retainer.',
+  desc: 'Delivered in 48h. Includes: 5 competitor creatives + 10 hooks + 2 scripts + 3 tests.',
 };
 
 const BEAUTY_DELIVERABLES = [
-  { icon: '🧾', title: 'Competitor ad board (weekly)', desc: 'Snapshot of what top competitors are running: angles, formats, creators, and offers.' },
-  { icon: '🪝', title: '30 angles/hooks (weekly)', desc: 'Ready-to-test hooks and frames mapped to your category and price point.' },
-  { icon: '🎥', title: '10 UGC scripts (weekly)', desc: 'Creator-style scripts with beats, b‑roll notes, and CTA variants.' },
-  { icon: '🧪', title: '5 landing/copy tests (weekly)', desc: 'Specific tests to run: headline, offer, proof, FAQ, and layout variants.' },
-  { icon: '🗺️', title: '1‑page “what to run next” plan', desc: 'A single page that tells you exactly what to run next and why.' },
-];
-
-const MARSQUAD_AGENTS: AgentConfig[] = [
-  { id: 'dilo', name: 'Dilo', role: 'Lead', desc: 'Orchestrator. Turns your brief into weekly packs.', color: '#3b82f6', avatar: '🤖' },
-  { id: 'phantom', name: 'Phantom', role: 'Ops', desc: 'Packs, formatting, delivery.', color: '#f43f5e', avatar: '👻' },
-  { id: 'nyx', name: 'Nyx', role: 'Intel', desc: 'Competitor/creator scanning.', color: '#a855f7', avatar: '🔮' },
-  { id: 'cipher', name: 'Cipher', role: 'Data', desc: 'Validation and integrity.', color: '#06b6d4', avatar: '🔐' },
-  { id: 'pulse', name: 'Pulse', role: 'Trends', desc: 'Pattern detection, angle scoring.', color: '#10b981', avatar: '📡' },
-  { id: 'wraith', name: 'Wraith', role: 'QA', desc: 'Red-team the claims.', color: '#6366f1', avatar: '👁' },
-  { id: 'specter', name: 'Specter', role: 'Copy', desc: 'Scripts and landing variants.', color: '#f59e0b', avatar: '✍️' },
+  { icon: '🔄', title: 'What changed this week', desc: 'Offer shifts, angle changes, and creator moves across your competitor set.' },
+  { icon: '🎬', title: 'Top 20 competitor creatives', desc: 'Tagged by hook, format, and CTA so your team can spot patterns fast.' },
+  { icon: '🧷', title: 'Swipe file links + screenshots', desc: 'Direct references you can review with your media buyer and creative team.' },
+  { icon: '🚀', title: '3 concepts to run next week', desc: 'Actionable concepts with scripts + angles, based on recent market movement.' },
+  { icon: '🧪', title: 'Landing page test list', desc: '3–5 tests prioritized for likely impact next sprint.' },
 ];
 
 export default function Page() {
@@ -189,7 +177,8 @@ export default function Page() {
           <span className="lp-logo-text">marsquad</span>
         </a>
         <div className="lp-nav-links">
-          <a href="#deliverables" className="lp-nav-link">deliverables</a>
+          <a href="#deliverables" className="lp-nav-link">weekly brief</a>
+          <a href="#sources" className="lp-nav-link">sources</a>
           <a href="#packs" className="lp-nav-link">packs</a>
           <a href="#pricing" className="lp-nav-link">pricing</a>
           <a href="#deploy" className="lp-nav-cta">
@@ -204,22 +193,25 @@ export default function Page() {
         <div className="lp2-hero-inner">
           <div className="lp2-hero-badge">
             <span className="lp-pulse" />
-            <span className="lp2-hero-badge-text">WEEKLY PACKS — BEAUTY AD INTEL</span>
+            <span className="lp2-hero-badge-text">COMPETITOR MONITORING — BEAUTY</span>
           </div>
 
           <h1 className="lp2-h1">
-            <span className="lp2-h1-line">Weekly Ad Intel</span>
-            <span className="lp2-h1-line lp2-h1-line--accent">for Beauty Brands</span>
+            <span className="lp2-h1-line">Weekly competitor intel</span>
+            <span className="lp2-h1-line lp2-h1-line--accent">for beauty brands</span>
           </h1>
 
           <p className="lp2-hero-sub">
-            We track competitor ads + creator trends and deliver scripts, angles, and landing tests so you ship better ads every week.
+            You send us your brand + competitors. We monitor their ads, socials, offers, and landing pages and deliver a what-changed + what-to-run-next brief every week.
           </p>
 
           <div className="lp2-hero-actions">
             <a href="#deploy" className="lp-btn lp-btn--primary">Get a sample pack <span className="lp-btn-arrow">→</span></a>
-            <a href="#deploy" className="lp-btn lp-btn--ghost">Book a 15‑min fit call</a>
+            <a href="#deploy" className="lp-btn lp-btn--ghost">Book a 15-min fit call</a>
           </div>
+          <p className="lp2-deploy-sub" style={{ marginTop: 10 }}>
+            Best for brands spending $20k+/mo on Meta/TikTok.
+          </p>
 
           {/* Proof ticker */}
           <div className="lp2-proof">
@@ -278,11 +270,11 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Deliverables ── */}
+      {/* ── Weekly Brief ── */}
       <section id="deliverables" className="lp2-services">
         <div className="lp2-services-inner">
-          <div className="lp2-section-label">Deliverables</div>
-          <h2 className="lp2-h2">Beauty‑specific packs. Every week.</h2>
+          <div className="lp2-section-label">What’s inside the weekly brief</div>
+          <h2 className="lp2-h2">Everything your team needs to decide next week&apos;s creative bets.</h2>
           <div className="lp2-services-grid">
             {BEAUTY_DELIVERABLES.map((s, i) => (
               <div key={i} className="lp2-service-card" style={{ '--svc-i': i } as React.CSSProperties}>
@@ -295,37 +287,28 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Recent Packs (default) ── */}
-      <section id="packs" className="lp2-live-section">
-        <LastPacks />
-      </section>
-
-      {/* ── The Squad ── */}
-      <section id="squad" className="lp2-squad">
-        <div className="lp2-squad-inner">
-          <div className="lp2-section-label">The Squad</div>
-          <h2 className="lp2-h2">Seven specialists. One mission.</h2>
-          <div className="lp2-squad-grid">
-            {AGENTS.map((a, i) => (
-              <div
-                key={a.name}
-                className="lp2-agent-card"
-                style={{ '--agent-color': a.color, '--agent-i': i } as React.CSSProperties}
-              >
-                <div className="lp2-agent-header">
-                  <div className="lp2-agent-avatar">
-                    {AGENT_ICONS[a.name]?.({ color: a.color })}
-                  </div>
-                  <div className="lp2-agent-meta">
-                    <span className="lp2-agent-name">{a.name}</span>
-                    <span className="lp2-agent-role">{a.role}</span>
-                  </div>
-                </div>
-                <p className="lp2-agent-desc">{a.desc}</p>
+      <section id="sources" className="lp2-services">
+        <div className="lp2-services-inner">
+          <div className="lp2-section-label">Sources We Monitor</div>
+          <div className="lp2-services-grid">
+            {[
+              'Meta Ad Library',
+              'TikTok Creative Center',
+              'Instagram/TikTok organic',
+              'Landing pages + checkout offers',
+              'Comments/Q&A patterns',
+            ].map((s, i) => (
+              <div key={s} className="lp2-service-card" style={{ '--svc-i': i } as React.CSSProperties}>
+                <h3 className="lp2-service-title">{s}</h3>
               </div>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── Recent Packs (default) ── */}
+      <section id="packs" className="lp2-live-section">
+        <LastPacks />
       </section>
 
       {/* ── Pricing ── */}
@@ -390,19 +373,30 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Optional: live office for credibility (hidden behind explicit section, not default) */}
-      <section id="office" className="lp2-live-section">
-        <div className="lp2-section-label">Live</div>
-        <h2 className="lp2-h2">Want to watch the system run?</h2>
-        <p className="lp2-deploy-sub">This is heavy on mobile. Open in a new tab if it stutters.</p>
-        <div className="lp2-live-wrap">
-          <div className="lp2-live-actions">
-            <a className="lp-btn lp-btn--primary" href="/live" target="_blank" rel="noreferrer">
-              Open live office <span className="lp-btn-arrow">→</span>
-            </a>
-          </div>
-          <div style={{ marginTop: 18 }}>
-            <RoomFeed roomId="marsquad" agents={MARSQUAD_AGENTS} roomName="Marsquad" variant="full" showAgents={false} />
+      {/* ── The Squad (moved down) ── */}
+      <section id="squad" className="lp2-squad">
+        <div className="lp2-squad-inner">
+          <div className="lp2-section-label">How It Works</div>
+          <h2 className="lp2-h2">Analyst squad behind the weekly brief.</h2>
+          <div className="lp2-squad-grid">
+            {AGENTS.map((a, i) => (
+              <div
+                key={a.name}
+                className="lp2-agent-card"
+                style={{ '--agent-color': a.color, '--agent-i': i } as React.CSSProperties}
+              >
+                <div className="lp2-agent-header">
+                  <div className="lp2-agent-avatar">
+                    {AGENT_ICONS[a.name]?.({ color: a.color })}
+                  </div>
+                  <div className="lp2-agent-meta">
+                    <span className="lp2-agent-name">{a.name}</span>
+                    <span className="lp2-agent-role">{a.role}</span>
+                  </div>
+                </div>
+                <p className="lp2-agent-desc">{a.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -418,9 +412,11 @@ export default function Page() {
             autonomous agents, working live
           </p>
           <div className="lp2-footer-links">
-            <a href="#deliverables">Deliverables</a>
+            <a href="#deliverables">Weekly Brief</a>
+            <a href="#sources">Sources</a>
             <a href="#packs">Packs</a>
             <a href="#pricing">Pricing</a>
+            <a href="/live" target="_blank" rel="noreferrer">Live</a>
           </div>
           <p className="lp2-footer-copy">
             © 2026 marsquad. All systems operational.
