@@ -1326,6 +1326,7 @@ function showThoughtBubble(agentId, text) {
 
 /* ── Projected meeting screen ── */
 let _meetingScreenEl = null;
+const AUTO_STANDUP_ON_MISSION = false;
 
 function showMeetingScreen(missionTask, agentIds) {
   removeMeetingScreen();
@@ -1335,12 +1336,16 @@ function showMeetingScreen(missionTask, agentIds) {
 
   const el = document.createElement('div');
   el.className = 'meeting-screen';
-  // Position meeting screen — scale for mobile
-  const isMob = w < 500;
-  const scrW = isMob ? Math.min(w * 0.55, 180) : 320;
-  const scrLeft = isMob ? Math.max(8, (w - scrW) / 2) : mrx - scrW - 30;
-  const scrTop = isMob ? Math.max(8, mry - 10) : mry - 20;
-  el.style.cssText = `left:${scrLeft}px;top:${scrTop}px;width:${scrW}px`;
+  // Place projector next to huddle chairs on desktop; keep centered on small screens.
+  const isMob = w < 700;
+  const scrW = isMob ? Math.min(360, w * 0.72) : Math.min(360, w * 0.34);
+  const scrLeft = isMob
+    ? Math.max(8, Math.round((w - scrW) / 2))
+    : Math.max(8, Math.min(w - scrW - 8, Math.round(mrx + 190)));
+  const scrTop = isMob
+    ? Math.max(58, Math.round(h * 0.1))
+    : Math.max(56, Math.round(mry + 6));
+  el.style.cssText = `left:${scrLeft}px;top:${scrTop}px;width:${scrW}px;max-width:calc(100% - 16px)`;
 
   // Header
   const header = document.createElement('div');
@@ -1765,7 +1770,7 @@ function handleEvent(evt) {
     recordWorkload(agent);
   }
 
-  if (evt.type === 'agent.move' && evt.pos && !_standupInProgress) {
+  if (evt.type === 'agent.move' && evt.pos) {
     const wrap = canvas.parentElement;
     const w = wrap?.clientWidth || 800;
     const h = wrap?.clientHeight || 500;
@@ -1958,16 +1963,18 @@ function handleMissionEvent(evt) {
       fadeAt: null,
       involvedAgents: new Set([normalizeAgentId(evt.agent)]),
     });
-    // Standup meeting: agents walk to meeting room, give updates, then disperse
-    const leaderId = normalizeAgentId(evt.agent);
-    const leaderAgent = agents.get(leaderId);
-    if (leaderAgent && leaderAgent.hasDesk && !_standupInProgress) {
-      const attendees = [leaderId];
-      for (const [id, a] of agents) {
-        if (id !== leaderId && a.hasDesk) attendees.push(id);
-      }
-      if (attendees.length > 1) {
-        startStandup(attendees, evt.task || 'Mission briefing');
+    // No automatic huddle on mission creation unless explicitly enabled.
+    if (AUTO_STANDUP_ON_MISSION) {
+      const leaderId = normalizeAgentId(evt.agent);
+      const leaderAgent = agents.get(leaderId);
+      if (leaderAgent && leaderAgent.hasDesk && !_standupInProgress) {
+        const attendees = [leaderId];
+        for (const [id, a] of agents) {
+          if (id !== leaderId && a.hasDesk) attendees.push(id);
+        }
+        if (attendees.length > 1) {
+          startStandup(attendees, evt.task || 'Mission briefing');
+        }
       }
     }
   }
