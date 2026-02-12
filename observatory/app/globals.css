@@ -3027,10 +3027,15 @@ body {
   box-shadow: 0 18px 70px rgba(0,0,0,.35);
 }
 
-.lp2-agent-image {
+.lp2-agent-image-bg {
   width: 100%;
-  height: auto;
-  display: block;
+  min-height: 520px;
+  background-image:
+    linear-gradient(145deg, rgba(5,8,16,.82), rgba(11,18,30,.78)),
+    url('/images/analyst-squad.png');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
 }
 
 .lp2-agent-card {
@@ -3147,7 +3152,8 @@ body {
 
 .lp2-pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(300px, 460px);
+  justify-content: center;
   gap: 16px;
   text-align: left;
 }
@@ -3257,7 +3263,9 @@ body {
 .lp2-deploy {
   padding: 80px 40px 100px;
   position: relative;
+  display: none;
 }
+.lp2-deploy:target { display: block; }
 
 .lp2-deploy::before {
   content: '';
@@ -3370,6 +3378,7 @@ body {
   .lp2-pricing-grid { grid-template-columns: 1fr; }
   .lp2-tier-card--accent { order: -1; }
   .lp2-deploy { padding: 60px 20px 60px; }
+  .lp2-agent-image-bg { min-height: 280px; }
   .lp2-footer { padding: 36px 20px 40px; }
   .lp2-h2 { margin-bottom: 36px; }
   .lp-nav-link { display: none; }

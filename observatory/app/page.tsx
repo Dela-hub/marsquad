@@ -364,11 +364,10 @@ export default function Page() {
           <div className="lp2-section-label">How It Works</div>
           <h2 className="lp2-h2">Analyst squad behind the weekly brief.</h2>
           <div className="lp2-agent-image-wrap">
-            <img
-              className="lp2-agent-image"
-              src="/images/analyst-squad.png"
-              alt="Analyst squad behind the weekly brief"
-              loading="lazy"
+            <div
+              className="lp2-agent-image-bg"
+              role="img"
+              aria-label="Analyst squad behind the weekly brief"
             />
           </div>
         </div>
