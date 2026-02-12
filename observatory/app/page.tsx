@@ -1,6 +1,119 @@
 import LandingLive from '../components/LandingLive';
 import ServiceForm from '../components/ServiceForm';
 
+/* ── Agent SVG Icons ── */
+function IconDilo({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Command diamond — orchestrator, central authority */}
+      <rect x="24" y="4" width="20" height="20" rx="2" transform="rotate(45 24 4)" stroke={color} strokeWidth="2" fill={`${color}15`} />
+      <rect x="24" y="12" width="12" height="12" rx="1" transform="rotate(45 24 12)" stroke={color} strokeWidth="1.5" fill={`${color}25`} />
+      <circle cx="24" cy="24" r="3" fill={color} />
+      {/* Radiating lines — delegation */}
+      <line x1="24" y1="4" x2="24" y2="10" stroke={color} strokeWidth="1.5" opacity=".5" />
+      <line x1="24" y1="38" x2="24" y2="44" stroke={color} strokeWidth="1.5" opacity=".5" />
+      <line x1="4" y1="24" x2="10" y2="24" stroke={color} strokeWidth="1.5" opacity=".5" />
+      <line x1="38" y1="24" x2="44" y2="24" stroke={color} strokeWidth="1.5" opacity=".5" />
+    </svg>
+  );
+}
+
+function IconPhantom({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Terminal bracket — ops/deployment */}
+      <path d="M10 8 L4 24 L10 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M38 8 L44 24 L38 40" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Lightning bolt — execution speed */}
+      <path d="M26 12 L20 24 L28 24 L22 36" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill={`${color}20`} />
+    </svg>
+  );
+}
+
+function IconNyx({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Eye — surveillance, intelligence */}
+      <ellipse cx="24" cy="24" rx="18" ry="11" stroke={color} strokeWidth="2" fill={`${color}08`} />
+      <circle cx="24" cy="24" r="7" stroke={color} strokeWidth="1.5" fill={`${color}15`} />
+      <circle cx="24" cy="24" r="3" fill={color} />
+      {/* Signal arcs */}
+      <path d="M6 10 Q4 24 6 38" stroke={color} strokeWidth="1" opacity=".3" fill="none" />
+      <path d="M42 10 Q44 24 42 38" stroke={color} strokeWidth="1" opacity=".3" fill="none" />
+      {/* Highlight */}
+      <circle cx="22" cy="22" r="1.5" fill="white" opacity=".6" />
+    </svg>
+  );
+}
+
+function IconCipher({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Shield — security */}
+      <path d="M24 4 L40 12 L40 28 Q40 38 24 44 Q8 38 8 28 L8 12 Z" stroke={color} strokeWidth="2" fill={`${color}10`} />
+      {/* Lock */}
+      <rect x="18" y="22" width="12" height="10" rx="2" stroke={color} strokeWidth="1.5" fill={`${color}20`} />
+      <path d="M20 22 V18 Q20 14 24 14 Q28 14 28 18 V22" stroke={color} strokeWidth="1.5" fill="none" />
+      <circle cx="24" cy="28" r="1.5" fill={color} />
+    </svg>
+  );
+}
+
+function IconPulse({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Heartbeat/signal line — analytics pulse */}
+      <polyline points="2,24 10,24 14,10 20,38 26,16 30,30 34,20 38,24 46,24" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Data circles */}
+      <circle cx="14" cy="10" r="2.5" fill={color} opacity=".4" />
+      <circle cx="20" cy="38" r="2.5" fill={color} opacity=".4" />
+      <circle cx="26" cy="16" r="2.5" fill={color} opacity=".4" />
+      <circle cx="34" cy="20" r="2" fill={color} opacity=".3" />
+    </svg>
+  );
+}
+
+function IconWraith({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Crosshair — targeting, QA, red team */}
+      <circle cx="24" cy="24" r="16" stroke={color} strokeWidth="1.5" fill={`${color}06`} />
+      <circle cx="24" cy="24" r="9" stroke={color} strokeWidth="1.5" fill={`${color}10`} strokeDasharray="4 3" />
+      <circle cx="24" cy="24" r="2.5" fill={color} />
+      {/* Crosshair lines */}
+      <line x1="24" y1="4" x2="24" y2="14" stroke={color} strokeWidth="1.5" />
+      <line x1="24" y1="34" x2="24" y2="44" stroke={color} strokeWidth="1.5" />
+      <line x1="4" y1="24" x2="14" y2="24" stroke={color} strokeWidth="1.5" />
+      <line x1="34" y1="24" x2="44" y2="24" stroke={color} strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function IconSpecter({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Quill/pen nib — writing, comms */}
+      <path d="M34 6 L14 34 L12 40 L18 38 L38 10 Z" stroke={color} strokeWidth="2" fill={`${color}12`} strokeLinejoin="round" />
+      <path d="M30 10 L38 14" stroke={color} strokeWidth="1.5" />
+      {/* Writing lines */}
+      <line x1="8" y1="42" x2="24" y2="42" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity=".4" />
+      <line x1="10" y1="46" x2="20" y2="46" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity=".25" />
+      {/* Ink dot */}
+      <circle cx="13" cy="37" r="2" fill={color} opacity=".5" />
+    </svg>
+  );
+}
+
+const AGENT_ICONS: Record<string, (props: { color: string }) => React.ReactElement> = {
+  Dilo: IconDilo,
+  Phantom: IconPhantom,
+  Nyx: IconNyx,
+  Cipher: IconCipher,
+  Pulse: IconPulse,
+  Wraith: IconWraith,
+  Specter: IconSpecter,
+};
+
 const AGENTS = [
   { name: 'Dilo', role: 'Orchestrator', color: '#3b82f6', desc: 'Leads the squad. Screens tasks, delegates work, holds the line.' },
   { name: 'Phantom', role: 'Operations', color: '#f43f5e', desc: 'Deploys, configures, and keeps infrastructure alive.' },
@@ -189,7 +302,9 @@ export default function Page() {
                 style={{ '--agent-color': a.color, '--agent-i': i } as React.CSSProperties}
               >
                 <div className="lp2-agent-header">
-                  <div className="lp2-agent-indicator" />
+                  <div className="lp2-agent-avatar">
+                    {AGENT_ICONS[a.name]?.({ color: a.color })}
+                  </div>
                   <div className="lp2-agent-meta">
                     <span className="lp2-agent-name">{a.name}</span>
                     <span className="lp2-agent-role">{a.role}</span>

@@ -2977,13 +2977,28 @@ body {
   margin-bottom: 12px;
 }
 
-.lp2-agent-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--agent-color);
-  box-shadow: 0 0 8px var(--agent-color);
+.lp2-agent-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--agent-color) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--agent-color) 20%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: all .3s;
+}
+
+.lp2-agent-card:hover .lp2-agent-avatar {
+  background: color-mix(in srgb, var(--agent-color) 15%, transparent);
+  border-color: color-mix(in srgb, var(--agent-color) 35%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--agent-color) 15%, transparent);
+}
+
+.lp2-agent-avatar svg {
+  width: 28px;
+  height: 28px;
 }
 
 .lp2-agent-meta {
