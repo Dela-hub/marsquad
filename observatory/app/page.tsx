@@ -1,4 +1,5 @@
 import BeautyIntakeForm from '../components/BeautyIntakeForm';
+import AgentIllustration from '../components/AgentIllustration';
 
 /* ── Agent SVG Icons ── */
 function IconDilo({ color }: { color: string }) {
@@ -363,12 +364,8 @@ export default function Page() {
         <div className="lp2-squad-inner">
           <div className="lp2-section-label">How It Works</div>
           <h2 className="lp2-h2">Analyst squad behind the weekly brief.</h2>
-          <div className="lp2-agent-image-wrap">
-            <div
-              className="lp2-agent-image-bg"
-              role="img"
-              aria-label="Analyst squad behind the weekly brief"
-            />
+          <div className="lp2-agent-image-wrap lp2-agent-illustration">
+            <AgentIllustration />
           </div>
         </div>
       </section>
