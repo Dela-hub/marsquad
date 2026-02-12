@@ -801,6 +801,72 @@ function walkAgentToAndBack(id, targetX, targetY) {
   });
 }
 
+function runAgentAnim(id, kind, params = {}) {
+  const a = agents.get(id);
+  if (!a || !a.el || !a.hasDesk) return;
+  const mode = String(kind || '').toLowerCase();
+  const loops = Math.max(1, Number(params.loops || 1));
+  const spinMs = Math.max(500, Number(params.ms || params.duration || 900));
+
+  if (mode === 'swoop') {
+    const wrap = canvas.parentElement;
+    const w = wrap?.clientWidth || 800;
+    const h = wrap?.clientHeight || 500;
+    const fromX = Math.max(40, Math.min(w - 40, Number(params.fromX || 60)));
+    const fromY = Math.max(90, Math.min(h - 90, Number(params.fromY || (h - 100))));
+    const toX = Math.max(40, Math.min(w - 40, Number(params.toX || a.homePos?.x || a.pos.x)));
+    const toY = Math.max(90, Math.min(h - 90, Number(params.toY || a.homePos?.y || a.pos.y)));
+    a.pos.x = fromX;
+    a.pos.y = fromY;
+    a.el.style.left = `${fromX}px`;
+    a.el.style.top = `${fromY}px`;
+    walkAgentTo(id, toX, toY, null, { ghost: true });
+    return;
+  }
+
+  if (mode === 'spin') {
+    a.el.style.transition = `transform ${spinMs}ms ease`;
+    a.el.style.transform = `rotate(${360 * loops}deg)`;
+    setTimeout(() => {
+      a.el.style.transform = '';
+      a.el.style.transition = '';
+    }, spinMs + 80);
+    return;
+  }
+
+  if (mode === 'jump') {
+    a.el.classList.add('agent-anim-jump');
+    setTimeout(() => a.el.classList.remove('agent-anim-jump'), 750);
+  }
+}
+
+function applyStageCue(evt) {
+  const type = String(evt.type || '');
+  const text = (evt.text || '').trim();
+  if (text) missionTextEl.textContent = text.slice(0, 120);
+
+  if (type === 'stage.mode') {
+    document.body.classList.remove('stage-mode-calm', 'stage-mode-community', 'stage-mode-intense');
+    const mode = String(evt.mode || evt.task || '').toLowerCase();
+    if (mode === 'community') document.body.classList.add('stage-mode-community');
+    else if (mode === 'intense' || mode === 'incident') document.body.classList.add('stage-mode-intense');
+    else document.body.classList.add('stage-mode-calm');
+  }
+
+  if (type === 'stage.light') {
+    const level = String(evt.level || evt.task || '').toLowerCase();
+    if (level.includes('threat') || level.includes('alert')) triggerThreatMode(text || 'Alert lighting');
+    else if (level.includes('success') || level.includes('celebrate')) highfiveBurst(Array.from(agents.keys()).filter((k) => k !== 'visitor'));
+  }
+
+  if (type === 'stage.music') {
+    const target = evt.agent && agents.has(normalizeAgentId(evt.agent))
+      ? normalizeAgentId(evt.agent)
+      : 'dilo';
+    if (agents.has(target) && text) showSpeechBubble(target, `♪ ${text}`);
+  }
+}
+
 /* ── Thinking pace: small loop near desk ── */
 const _pacingAgents = new Set();
 function startThinkingPace(id) {
@@ -1895,6 +1961,19 @@ function handleEventCore(evt, replay = false) {
     // Animate walk instead of teleporting
     if (!agents.has(agent)) upsertAgent(agent, { status: 'idle' });
     walkAgentTo(agent, px, py);
+  }
+
+  if (evt.type === 'agent.anim' || evt.type === 'agent.swoop' || evt.type === 'agent.spin' || evt.type === 'agent.jump') {
+    if (!agents.has(agent)) upsertAgent(agent, { status: 'active' });
+    const animKind = evt.type === 'agent.anim' ? (evt.kind || evt.task || 'jump') : evt.type.replace('agent.', '');
+    runAgentAnim(agent, animKind, evt.params || {});
+    if (evt.text && (!replay || evtAge < 30_000)) showSpeechBubble(agent, evt.text);
+    return;
+  }
+
+  if (evt.type.startsWith('stage.')) {
+    applyStageCue(evt);
+    return;
   }
 
   if (evt.type === 'agent.status' && evt.status) {

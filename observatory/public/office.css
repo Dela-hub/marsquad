@@ -352,6 +352,7 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 
 /* ── Huddle indicator ── */
 .agent-char.huddling .agent-body{box-shadow:0 0 30px var(--agent-glow),0 0 60px var(--agent-glow),inset 0 0 20px rgba(255,255,255,.15)!important}
+.agent-char.agent-anim-jump{animation:agent-jump .7s cubic-bezier(.2,.85,.2,1)}
 
 /* ── High-five burst ── */
 .highfive-burst{position:absolute;pointer-events:none;z-index:25;font-size:20px;animation:highfive-pop .8s ease-out forwards}
@@ -593,6 +594,19 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 @keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
 @keyframes ping-slow{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.5);opacity:0}}
 @keyframes dash{to{stroke-dashoffset:-24}}
+@keyframes agent-jump{
+  0%{transform:translateY(0)}
+  30%{transform:translateY(-28px)}
+  60%{transform:translateY(-12px)}
+  100%{transform:translateY(0)}
+}
+
+body.stage-mode-community #world-wrap{
+  box-shadow:0 0 0 1px rgba(34,197,94,.25),0 0 70px rgba(16,185,129,.18) inset;
+}
+body.stage-mode-intense #world-wrap{
+  box-shadow:0 0 0 1px rgba(239,68,68,.25),0 0 70px rgba(239,68,68,.16) inset;
+}
 @keyframes leg-walk-l{0%,100%{transform:rotate(0)}25%{transform:rotate(20deg)}75%{transform:rotate(-20deg)}}
 @keyframes leg-walk-r{0%,100%{transform:rotate(0)}25%{transform:rotate(-20deg)}75%{transform:rotate(20deg)}}
 @keyframes dilo-look{0%,100%{transform:translateX(0)}30%{transform:translateX(1.5px)}60%{transform:translateX(-1.5px)}}

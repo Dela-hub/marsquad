@@ -1017,6 +1017,20 @@ body {
 }
 .ms-evt-file .ms-evt-text { color: #a5b4fc; }
 
+/* Agent animation cues */
+.ms-evt-anim {
+  border-left-color: #22d3ee;
+  background: rgba(34,211,238,.05);
+}
+.ms-evt-anim .ms-evt-text { color: #67e8f9; font-weight: 500; }
+
+/* Stage cues (lights/music/mode) */
+.ms-evt-stage {
+  border-left-color: #f472b6;
+  background: rgba(244,114,182,.05);
+}
+.ms-evt-stage .ms-evt-text { color: #f9a8d4; font-weight: 500; }
+
 /* Break (coffee/smoke) */
 .ms-evt-break {
   border-left-color: rgba(148,163,184,.15);

@@ -149,7 +149,14 @@ function fallbackEventText(e: EventPayload): string {
     case 'mission.completed': return task ? `Mission completed: ${task}` : 'Mission completed';
     case 'mission.failed': return task ? `Mission failed: ${task}` : 'Mission failed';
     case 'agent.move': return 'Repositioning';
+    case 'agent.anim': return kind ? `Animation: ${kind}` : 'Agent animation';
+    case 'agent.swoop': return 'Animation: swoop';
+    case 'agent.spin': return 'Animation: spin';
+    case 'agent.jump': return 'Animation: jump';
     case 'agent.status': return task ? `Status: ${task}` : 'Status updated';
+    case 'stage.mode': return text || task || 'Stage mode updated';
+    case 'stage.light': return text || task || 'Stage lighting cue';
+    case 'stage.music': return text || task || 'Stage music cue';
     case 'tool_call': return task ? `Tool: ${task}` : 'Tool call';
     case 'coffee': return 'Coffee break';
     case 'smoke': return 'Smoke break';
@@ -387,6 +394,15 @@ export default function RoomFeed({ roomId, agents, roomName, variant = 'full', s
           case 'standup': kind = 'standup'; break;
           case 'celebrate': kind = 'celebrate'; break;
           case 'agent.status': kind = 'status'; break;
+          case 'agent.anim':
+          case 'agent.swoop':
+          case 'agent.spin':
+          case 'agent.jump':
+            kind = 'anim'; break;
+          case 'stage.mode':
+          case 'stage.light':
+          case 'stage.music':
+            kind = 'stage'; break;
         }
 
         const actor = inferActor(e);
