@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 const COOLDOWN_MS = 60 * 1000; // 1 minute per IP
 const MAX_FIELD = 300;
 const MAX_GOALS = 800;
+const MAX_COMPETITORS = 1200;
 
 function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
@@ -39,6 +40,10 @@ export async function POST(req: Request) {
   const category = cleanStr(body?.category, MAX_FIELD);
   const spendRange = cleanStr(body?.spendRange, 80);
   const contact = cleanStr(body?.contact, MAX_FIELD);
+  const competitors = cleanStr(body?.competitors, MAX_COMPETITORS);
+  const markets = cleanStr(body?.markets, 120);
+  const primaryChannel = cleanStr(body?.primaryChannel, 80);
+  const deliveryPreference = cleanStr(body?.deliveryPreference, 80);
   const goals = cleanStr(body?.goals, MAX_GOALS);
 
   if (!brandUrl || !contact) {
@@ -53,6 +58,10 @@ export async function POST(req: Request) {
     category: category || undefined,
     spendRange: spendRange || undefined,
     contact,
+    competitors: competitors || undefined,
+    markets: markets || undefined,
+    primaryChannel: primaryChannel || undefined,
+    deliveryPreference: deliveryPreference || undefined,
     goals: goals || undefined,
     source: 'landing',
   };
@@ -62,4 +71,3 @@ export async function POST(req: Request) {
 
   return Response.json({ ok: true, id: lead.id });
 }
-

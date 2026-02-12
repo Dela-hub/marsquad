@@ -12,12 +12,20 @@ const SPEND_RANGES = [
   '$100k+/mo',
 ] as const;
 
+const MARKET_OPTIONS = ['US', 'UK', 'EU', 'AU', 'Global'] as const;
+const CHANNEL_OPTIONS = ['Meta', 'TikTok', 'Both'] as const;
+const DELIVERY_OPTIONS = ['Email', 'WhatsApp', 'Both'] as const;
+
 export default function BeautyIntakeForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [brandUrl, setBrandUrl] = useState('');
   const [category, setCategory] = useState('');
   const [spendRange, setSpendRange] = useState<(typeof SPEND_RANGES)[number] | ''>('');
   const [contact, setContact] = useState('');
+  const [competitors, setCompetitors] = useState('');
+  const [markets, setMarkets] = useState<(typeof MARKET_OPTIONS)[number] | ''>('');
+  const [primaryChannel, setPrimaryChannel] = useState<(typeof CHANNEL_OPTIONS)[number] | ''>('');
+  const [deliveryPreference, setDeliveryPreference] = useState<(typeof DELIVERY_OPTIONS)[number] | ''>('');
   const [goals, setGoals] = useState('');
   const [leadId, setLeadId] = useState('');
 
@@ -42,6 +50,10 @@ export default function BeautyIntakeForm() {
           category: category.trim(),
           spendRange: spendRange || undefined,
           contact: contact.trim(),
+          competitors: competitors.trim() || undefined,
+          markets: markets || undefined,
+          primaryChannel: primaryChannel || undefined,
+          deliveryPreference: deliveryPreference || undefined,
           goals: goals.trim(),
         }),
       });
@@ -80,6 +92,10 @@ export default function BeautyIntakeForm() {
             setCategory('');
             setSpendRange('');
             setContact('');
+            setCompetitors('');
+            setMarkets('');
+            setPrimaryChannel('');
+            setDeliveryPreference('');
             setGoals('');
           }}
         >
@@ -154,6 +170,67 @@ export default function BeautyIntakeForm() {
       </div>
 
       <div className="sf-field">
+        <label className="sf-label" htmlFor="bi-competitors">
+          Competitors (3-10)
+        </label>
+        <textarea
+          id="bi-competitors"
+          className="sf-textarea"
+          rows={3}
+          maxLength={1200}
+          placeholder="paste URLs/handles (IG/TikTok/Meta pages) — one per line"
+          value={competitors}
+          onChange={(e) => setCompetitors(e.target.value)}
+        />
+        <span className="sf-charcount">If you don&apos;t have them, paste 1-2 and we&apos;ll fill the rest.</span>
+      </div>
+
+      <div className="sf-field">
+        <label className="sf-label" htmlFor="bi-markets">
+          Markets <span className="sf-optional">(optional)</span>
+        </label>
+        <select
+          id="bi-markets"
+          className="sf-input"
+          value={markets}
+          onChange={(e) => setMarkets(e.target.value as any)}
+        >
+          <option value="">Select</option>
+          {MARKET_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      <div className="sf-field">
+        <label className="sf-label" htmlFor="bi-channel">
+          Primary channel <span className="sf-optional">(optional)</span>
+        </label>
+        <select
+          id="bi-channel"
+          className="sf-input"
+          value={primaryChannel}
+          onChange={(e) => setPrimaryChannel(e.target.value as any)}
+        >
+          <option value="">Select</option>
+          {CHANNEL_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      <div className="sf-field">
+        <label className="sf-label" htmlFor="bi-delivery">
+          Delivery preference <span className="sf-optional">(optional)</span>
+        </label>
+        <select
+          id="bi-delivery"
+          className="sf-input"
+          value={deliveryPreference}
+          onChange={(e) => setDeliveryPreference(e.target.value as any)}
+        >
+          <option value="">Select</option>
+          {DELIVERY_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      <div className="sf-field">
         <label className="sf-label" htmlFor="bi-goals">
           Goals <span className="sf-optional">(optional)</span>
         </label>
@@ -193,4 +270,3 @@ export default function BeautyIntakeForm() {
     </form>
   );
 }
-
