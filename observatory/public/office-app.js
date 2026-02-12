@@ -801,6 +801,77 @@ function walkAgentToAndBack(id, targetX, targetY) {
   });
 }
 
+const _fightState = { active: false, timers: [], ringEl: null };
+function clearFightSequence() {
+  _fightState.active = false;
+  for (const t of _fightState.timers) clearTimeout(t);
+  _fightState.timers.length = 0;
+  if (_fightState.ringEl && _fightState.ringEl.parentNode) _fightState.ringEl.parentNode.removeChild(_fightState.ringEl);
+  _fightState.ringEl = null;
+  for (const [, a] of agents) {
+    if (!a?.el) continue;
+    a.el.classList.remove('agent-fight-jab', 'agent-fight-block', 'agent-fight-dodge', 'agent-fight-ko');
+  }
+}
+
+function pulseFightClass(agentId, cls, ms = 380) {
+  const a = agents.get(agentId);
+  if (!a || !a.el) return;
+  a.el.classList.add(cls);
+  const t = setTimeout(() => a.el && a.el.classList.remove(cls), ms);
+  _fightState.timers.push(t);
+}
+
+function startFightSequence(aId, bId, params = {}) {
+  const a = agents.get(aId);
+  const b = agents.get(bId);
+  if (!a || !b || !a.hasDesk || !b.hasDesk) return;
+  clearFightSequence();
+  _fightState.active = true;
+
+  const wrap = canvas.parentElement;
+  const w = wrap?.clientWidth || 900;
+  const h = wrap?.clientHeight || 560;
+  const cx = Math.max(120, Math.min(w - 120, Number(params.cx || w * 0.5)));
+  const cy = Math.max(160, Math.min(h - 120, Number(params.cy || h * 0.58)));
+  const sep = Math.max(56, Math.min(120, Number(params.sep || 88)));
+
+  const ring = document.createElement('div');
+  ring.className = 'fight-ring';
+  ring.style.left = `${cx}px`;
+  ring.style.top = `${cy}px`;
+  agentLayerEl.appendChild(ring);
+  _fightState.ringEl = ring;
+
+  const leftPos = { x: cx - sep, y: cy };
+  const rightPos = { x: cx + sep, y: cy };
+  walkAgentTo(aId, leftPos.x, leftPos.y);
+  walkAgentTo(bId, rightPos.x, rightPos.y);
+
+  const rounds = Math.max(1, Math.min(8, Number(params.rounds || 4)));
+  const beat = Math.max(320, Math.min(900, Number(params.beat || 520)));
+  const winner = String(params.winner || '').toLowerCase();
+  const loser = winner === aId ? bId : winner === bId ? aId : (Math.random() < 0.5 ? aId : bId);
+
+  let t = 850;
+  for (let i = 0; i < rounds; i++) {
+    const first = i % 2 === 0 ? aId : bId;
+    const second = first === aId ? bId : aId;
+    _fightState.timers.push(setTimeout(() => pulseFightClass(first, 'agent-fight-jab'), t));
+    _fightState.timers.push(setTimeout(() => pulseFightClass(second, i % 3 === 0 ? 'agent-fight-dodge' : 'agent-fight-block'), t + Math.floor(beat * 0.45)));
+    t += beat;
+  }
+
+  _fightState.timers.push(setTimeout(() => pulseFightClass(loser, 'agent-fight-ko', 900), t + 220));
+  _fightState.timers.push(setTimeout(() => {
+    const aa = agents.get(aId);
+    const bb = agents.get(bId);
+    if (aa?.homePos) walkAgentTo(aId, aa.homePos.x, aa.homePos.y);
+    if (bb?.homePos) walkAgentTo(bId, bb.homePos.x, bb.homePos.y);
+    clearFightSequence();
+  }, t + 1800));
+}
+
 function runAgentAnim(id, kind, params = {}) {
   const a = agents.get(id);
   if (!a || !a.el || !a.hasDesk) return;
@@ -837,6 +908,15 @@ function runAgentAnim(id, kind, params = {}) {
   if (mode === 'jump') {
     a.el.classList.add('agent-anim-jump');
     setTimeout(() => a.el.classList.remove('agent-anim-jump'), 750);
+    return;
+  }
+
+  // Frontend choreography mode: boxing/fight showcase between 2 agents.
+  if (mode === 'fight') {
+    const opponent = normalizeAgentId(params.opponent || params.target || params.with || 'wraith');
+    if (opponent && opponent !== id && agents.has(opponent)) {
+      startFightSequence(id, opponent, params);
+    }
   }
 }
 
@@ -1966,7 +2046,9 @@ function handleEventCore(evt, replay = false) {
   if (evt.type === 'agent.anim' || evt.type === 'agent.swoop' || evt.type === 'agent.spin' || evt.type === 'agent.jump') {
     if (!agents.has(agent)) upsertAgent(agent, { status: 'active' });
     const animKind = evt.type === 'agent.anim' ? (evt.kind || evt.task || 'jump') : evt.type.replace('agent.', '');
-    runAgentAnim(agent, animKind, evt.params || {});
+    const params = { ...(evt.params || {}) };
+    if (!params.opponent && evt.task && typeof evt.task === 'string') params.opponent = evt.task;
+    runAgentAnim(agent, animKind, params);
     if (evt.text && (!replay || evtAge < 30_000)) showSpeechBubble(agent, evt.text);
     return;
   }
