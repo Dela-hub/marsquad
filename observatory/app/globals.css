@@ -3019,6 +3019,20 @@ body {
   text-align: left;
 }
 
+.lp2-agent-image-wrap {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow: 0 18px 70px rgba(0,0,0,.35);
+}
+
+.lp2-agent-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .lp2-agent-card {
   background: var(--bg-elevated);
   border: 1px solid var(--border);

@@ -1,5 +1,4 @@
 import BeautyIntakeForm from '../components/BeautyIntakeForm';
-import LastPacks from '../components/LastPacks';
 
 /* ── Agent SVG Icons ── */
 function IconDilo({ color }: { color: string }) {
@@ -124,37 +123,17 @@ const AGENTS = [
   { name: 'Specter', role: 'Content & Comms', color: '#f59e0b', desc: 'Writes copy, drafts reports, handles outbound.' },
 ];
 
-const TIERS = [
-  {
-    name: 'Scout',
-    price: '$2,000',
-    interval: '/mo',
-    desc: 'Competitor monitoring for focused teams.',
-    features: ['Up to 5 competitors', 'Weekly brief', 'Top creative shifts', 'What to run next recommendations'],
-    accent: false,
-  },
-  {
-    name: 'Ops',
-    price: '$3,500',
-    interval: '/mo',
-    desc: 'Most popular plan for active spenders.',
-    features: ['Up to 10 competitors', 'Weekly brief + midweek alert', 'WhatsApp delivery', 'Priority turnaround'],
-    accent: true,
-  },
-  {
-    name: 'Intel',
-    price: '$5,000',
-    interval: '/mo',
-    desc: 'High-volume monitoring with deeper creator coverage.',
-    features: ['Up to 15 competitors', 'Weekly + alerts', 'Creator shortlist', 'Higher volume output'],
-    accent: false,
-  },
-];
-
-const SAMPLE_PACK = {
-  name: 'Single sample pack',
-  price: '$99',
-  desc: 'Delivered in 48h. Includes: 5 competitor creatives + 10 hooks + 2 scripts + 3 tests.',
+const SINGLE_PLAN = {
+  name: 'All Access',
+  price: '$99.99',
+  interval: '/mo',
+  desc: 'Everything included in one simple plan.',
+  features: [
+    'Weekly competitor brief',
+    'Top creative shifts + swipe file',
+    'What to run next recommendations',
+    'Email + WhatsApp delivery',
+  ],
 };
 
 const BEAUTY_DELIVERABLES = [
@@ -180,7 +159,6 @@ export default function Page() {
           <a href="#observation" className="lp-nav-link">observation</a>
           <a href="#deliverables" className="lp-nav-link">weekly brief</a>
           <a href="#sources" className="lp-nav-link">sources</a>
-          <a href="#packs" className="lp-nav-link">packs</a>
           <a href="#pricing" className="lp-nav-link">pricing</a>
           <a href="#deploy" className="lp-nav-cta">
             <span className="lp-pulse" />
@@ -337,52 +315,28 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Recent Packs (default) ── */}
-      <section id="packs" className="lp2-live-section">
-        <LastPacks />
-      </section>
-
       {/* ── Pricing ── */}
       <section id="pricing" className="lp2-pricing">
         <div className="lp2-pricing-inner">
           <div className="lp2-section-label">Pricing</div>
-          <h2 className="lp2-h2">Monthly retainers (built for brands)</h2>
+          <h2 className="lp2-h2">One simple plan</h2>
           <div className="lp2-pricing-grid">
-            {TIERS.map((t, i) => (
-              <div
-                key={t.name}
-                className={`lp2-tier-card ${t.accent ? 'lp2-tier-card--accent' : ''}`}
-                style={{ '--tier-i': i } as React.CSSProperties}
-              >
-                {t.accent && <span className="lp2-tier-badge">Most popular</span>}
-                <h3 className="lp2-tier-name">{t.name}</h3>
-                <div className="lp2-tier-price">
-                  <span className="lp2-tier-amount">{t.price}</span>
-                  <span className="lp2-tier-interval">{t.interval}</span>
-                </div>
-                <p className="lp2-tier-desc">{t.desc}</p>
-                <ul className="lp2-tier-features">
-                  {t.features.map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
-                <a href="#deploy" className={`lp-btn ${t.accent ? 'lp-btn--primary' : 'lp-btn--ghost'} lp2-tier-btn`}>
-                  {t.accent ? 'Get Growth' : 'Choose'}
-                  <span className="lp-btn-arrow">→</span>
-                </a>
+            <div className="lp2-tier-card lp2-tier-card--accent" style={{ '--tier-i': 0 } as React.CSSProperties}>
+              <h3 className="lp2-tier-name">{SINGLE_PLAN.name}</h3>
+              <div className="lp2-tier-price">
+                <span className="lp2-tier-amount">{SINGLE_PLAN.price}</span>
+                <span className="lp2-tier-interval">{SINGLE_PLAN.interval}</span>
               </div>
-            ))}
-          </div>
-          <div className="lp2-pricing-note">
-            <div className="lp2-section-label">Try it first</div>
-            <div className="lp2-pricing-note-row">
-              <div>
-                <div className="lp2-tier-name">{SAMPLE_PACK.name}</div>
-                <div className="lp2-tier-desc">{SAMPLE_PACK.desc}</div>
-              </div>
-              <div className="lp2-tier-price" style={{ justifyContent: 'flex-end' }}>
-                <span className="lp2-tier-amount">{SAMPLE_PACK.price}</span>
-              </div>
+              <p className="lp2-tier-desc">{SINGLE_PLAN.desc}</p>
+              <ul className="lp2-tier-features">
+                {SINGLE_PLAN.features.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+              <a href="#deploy" className="lp-btn lp-btn--primary lp2-tier-btn">
+                Get started
+                <span className="lp-btn-arrow">→</span>
+              </a>
             </div>
           </div>
         </div>
@@ -409,25 +363,13 @@ export default function Page() {
         <div className="lp2-squad-inner">
           <div className="lp2-section-label">How It Works</div>
           <h2 className="lp2-h2">Analyst squad behind the weekly brief.</h2>
-          <div className="lp2-squad-grid">
-            {AGENTS.map((a, i) => (
-              <div
-                key={a.name}
-                className="lp2-agent-card"
-                style={{ '--agent-color': a.color, '--agent-i': i } as React.CSSProperties}
-              >
-                <div className="lp2-agent-header">
-                  <div className="lp2-agent-avatar">
-                    {AGENT_ICONS[a.name]?.({ color: a.color })}
-                  </div>
-                  <div className="lp2-agent-meta">
-                    <span className="lp2-agent-name">{a.name}</span>
-                    <span className="lp2-agent-role">{a.role}</span>
-                  </div>
-                </div>
-                <p className="lp2-agent-desc">{a.desc}</p>
-              </div>
-            ))}
+          <div className="lp2-agent-image-wrap">
+            <img
+              className="lp2-agent-image"
+              src="/images/analyst-squad.png"
+              alt="Analyst squad behind the weekly brief"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
@@ -445,7 +387,6 @@ export default function Page() {
           <div className="lp2-footer-links">
             <a href="#deliverables">Weekly Brief</a>
             <a href="#sources">Sources</a>
-            <a href="#packs">Packs</a>
             <a href="#pricing">Pricing</a>
             <a href="/live" target="_blank" rel="noreferrer">Live</a>
           </div>
