@@ -3030,11 +3030,9 @@ body {
 .lp2-agent-image-bg {
   width: 100%;
   min-height: 520px;
-  background-image:
-    linear-gradient(145deg, rgba(5,8,16,.82), rgba(11,18,30,.78)),
-    url('/images/analyst-squad.png');
-  background-size: cover, cover;
-  background-position: center, center;
+  background-image: url('/images/analyst-squad.png');
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
