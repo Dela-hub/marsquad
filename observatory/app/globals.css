@@ -1032,6 +1032,65 @@ body {
 }
 .ms-evt-stage .ms-evt-text { color: #f9a8d4; font-weight: 500; }
 
+/* Landing: last packs */
+.lp2-packs {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.lp2-packs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.lp2-pack-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(10,14,20,.55);
+  box-shadow: 0 18px 70px rgba(0,0,0,.35);
+  padding: 16px 16px 14px;
+}
+.lp2-pack-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lp2-pack-title {
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+.lp2-pack-time {
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.lp2-pack-note {
+  margin-top: 10px;
+  color: rgba(255,255,255,.78);
+  line-height: 1.55;
+  font-size: 13px;
+}
+.lp2-pricing-note {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.lp2-pricing-note-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (max-width: 920px) {
+  .lp2-packs-grid { grid-template-columns: 1fr; }
+  .lp2-packs { padding: 0 18px; }
+  .lp2-pricing-note-row { flex-direction: column; align-items: flex-start; }
+}
+
 /* Break (coffee/smoke) */
 .ms-evt-break {
   border-left-color: rgba(148,163,184,.15);
