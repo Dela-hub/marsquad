@@ -177,6 +177,7 @@ export default function Page() {
           <span className="lp-logo-text">marsquad</span>
         </a>
         <div className="lp-nav-links">
+          <a href="#observation" className="lp-nav-link">observation</a>
           <a href="#deliverables" className="lp-nav-link">weekly brief</a>
           <a href="#sources" className="lp-nav-link">sources</a>
           <a href="#packs" className="lp-nav-link">packs</a>
@@ -266,6 +267,36 @@ export default function Page() {
                 Phantom deploying hotfix
               </span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Observation (hero proof) ── */}
+      <section id="observation" className="lp2-observation">
+        <div className="lp2-observation-inner">
+          <div className="lp2-section-label">Observation</div>
+          <h2 className="lp2-h2">Live competitor-monitoring operation</h2>
+          <p className="lp2-deploy-sub">
+            This is the actual office view. We removed the noisy text feed from landing, but kept live observation as the main proof.
+          </p>
+
+          <div className="ms-stage">
+            <div className="ms-stage-chrome">
+              <div className="ms-terminal-bar">
+                <div className="ms-terminal-dots"><span /><span /><span /></div>
+                <span className="ms-terminal-title">marsquad — observation</span>
+                <div className="ms-terminal-live"><span className="lp-pulse lp-pulse--red" /><span>LIVE</span></div>
+              </div>
+              <div className="ms-stage-frame lp2-observation-frame">
+                <iframe title="Marsquad Live Observation" src="/live" loading="lazy" />
+              </div>
+            </div>
+          </div>
+
+          <div className="lp2-live-actions">
+            <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
+              Open full live view <span className="lp-btn-arrow">→</span>
+            </a>
           </div>
         </div>
       </section>

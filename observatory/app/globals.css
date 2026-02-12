@@ -2977,6 +2977,30 @@ body {
   text-align: center;
 }
 
+/* ── Observation (landing hero proof) ── */
+.lp2-observation {
+  padding: 40px 20px 70px;
+}
+.lp2-observation-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  text-align: center;
+}
+.lp2-observation .lp2-h2 {
+  margin-bottom: 24px;
+}
+.lp2-observation .lp2-deploy-sub {
+  margin: 0 auto 24px;
+}
+.lp2-observation-frame {
+  min-height: 680px;
+}
+.lp2-live-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
 /* ── Squad ── */
 .lp2-squad {
   padding: 80px 40px 100px;
@@ -3323,6 +3347,8 @@ body {
   .lp2-hero-actions { gap: 10px; }
   .lp2-proof { margin: 0 -20px; }
   .lp2-services { padding: 60px 20px 60px; }
+  .lp2-observation { padding: 24px 8px 36px; }
+  .lp2-observation-frame { min-height: 0; aspect-ratio: 3 / 4; }
   .lp2-services-grid { grid-template-columns: 1fr; }
   .lp2-squad { padding: 60px 20px 60px; }
   .lp2-squad-grid { grid-template-columns: 1fr; }
