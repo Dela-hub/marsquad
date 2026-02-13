@@ -63,9 +63,9 @@ export default function AgentIllustration() {
         {/* ── Flow arrows at bottom ── */}
         <g opacity="0.25">
           <path d="M20 430 Q140 405 270 425 Q400 445 530 420" stroke="#3b82f6" strokeWidth="2.5" fill="none" strokeDasharray="8 5" className="svg-flow-line" />
-          <path d="M0 442 Q130 460 260 438 Q390 418 540 440" stroke="#22c55e" strokeWidth="2" fill="none" strokeDasharray="5 7" className="svg-flow-line svg-flow-line--2" />
+          <path d="M0 442 Q130 460 260 438 Q390 418 540 440" stroke="#3b82f6" strokeWidth="2" fill="none" strokeDasharray="5 7" className="svg-flow-line svg-flow-line--2" />
           <polygon points="528,417 540,420 528,423" fill="#3b82f6" opacity="0.6" />
-          <polygon points="538,437 550,440 538,443" fill="#22c55e" opacity="0.5" />
+          <polygon points="538,437 550,440 538,443" fill="#3b82f6" opacity="0.5" />
         </g>
 
         {/* ═══════════ BACK ROW (3 agents) ═══════════ */}
@@ -255,7 +255,7 @@ export default function AgentIllustration() {
 
         {/* ── Ambient dots ── */}
         <circle cx="80" cy="20" r="2" fill="#3b82f6" opacity="0.3" className="svg-ambient-dot" />
-        <circle cx="300" cy="8" r="1.5" fill="#22c55e" opacity="0.25" className="svg-ambient-dot" style={{ animationDelay: '1s' } as any} />
+        <circle cx="300" cy="8" r="1.5" fill="#3b82f6" opacity="0.25" className="svg-ambient-dot" style={{ animationDelay: '1s' } as any} />
         <circle cx="490" cy="25" r="2" fill="#a855f7" opacity="0.2" className="svg-ambient-dot" style={{ animationDelay: '2s' } as any} />
         <circle cx="140" cy="420" r="1.5" fill="#06b6d4" opacity="0.3" className="svg-ambient-dot" style={{ animationDelay: '0.5s' } as any} />
         <circle cx="400" cy="410" r="2" fill="#f59e0b" opacity="0.2" className="svg-ambient-dot" style={{ animationDelay: '1.5s' } as any} />

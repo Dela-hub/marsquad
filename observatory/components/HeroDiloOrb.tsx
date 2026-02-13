@@ -39,11 +39,11 @@ export default function HeroDiloOrb() {
         </filter>
 
         <linearGradient id="ringGrad" x1="120" y1="380" x2="400" y2="380" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#22c55e" stopOpacity="0.0" />
-          <stop offset="0.25" stopColor="#22c55e" stopOpacity="0.45" />
+          <stop stopColor="#3b82f6" stopOpacity="0.0" />
+          <stop offset="0.25" stopColor="#3b82f6" stopOpacity="0.45" />
           <stop offset="0.55" stopColor="#a855f7" stopOpacity="0.55" />
           <stop offset="0.85" stopColor="#3b82f6" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#22c55e" stopOpacity="0.0" />
+          <stop offset="1" stopColor="#3b82f6" stopOpacity="0.0" />
         </linearGradient>
       </defs>
 
@@ -93,4 +93,3 @@ export default function HeroDiloOrb() {
     </svg>
   );
 }
-

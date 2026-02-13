@@ -643,7 +643,7 @@ main{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr;g
 }
 
 body.stage-mode-community #world-wrap{
-  box-shadow:0 0 0 1px rgba(34,197,94,.25),0 0 70px rgba(16,185,129,.18) inset;
+  box-shadow:0 0 0 1px rgba(59,130,246,.25),0 0 70px rgba(59,130,246,.16) inset;
 }
 body.stage-mode-intense #world-wrap{
   box-shadow:0 0 0 1px rgba(239,68,68,.25),0 0 70px rgba(239,68,68,.16) inset;
