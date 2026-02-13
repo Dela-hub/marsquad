@@ -1,11 +1,14 @@
 export const dynamic = 'force-dynamic';
 
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const FINGERPRINT_COOLDOWN_MS = 10 * 60 * 1000; // 10 min for same whatsapp+name
 const IP_BURST_COOLDOWN_MS = 20 * 1000; // short anti-spam burst control per IP
 const MAX_FIELD = 300;
 const MAX_HELP = 900;
+
+const OFFICE_URL = process.env.OFFICE_URL || 'http://76.13.255.23:3010';
 
 function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
@@ -20,6 +23,58 @@ function cleanStr(v: any, max: number) {
 function fingerprint(whatsapp: string, name: string, ua: string) {
   const base = `${whatsapp.toLowerCase()}|${name.toLowerCase()}|${(ua || '').slice(0, 120)}`;
   return crypto.createHash('sha256').update(base).digest('hex').slice(0, 24);
+}
+
+async function notifyOfficeLead(lead: {
+  id: string;
+  name: string;
+  whatsapp: string;
+  email?: string;
+  help: string;
+}) {
+  // Fire-and-forget: even if Office is down, we still store lead in KV.
+  await fetch(`${OFFICE_URL}/api/event`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      type: 'message',
+      agent: 'dilo',
+      text: `New lead: ${lead.name} (${lead.whatsapp}${lead.email ? `, ${lead.email}` : ''}) — ${lead.help.slice(0, 180)}`,
+      ts: Date.now(),
+    }),
+    signal: AbortSignal.timeout(5000),
+  });
+}
+
+async function notifyByEmailLead(lead: {
+  id: string;
+  name: string;
+  whatsapp: string;
+  email?: string;
+  help: string;
+}) {
+  const user = process.env.AGENT_EMAIL;
+  const pass = process.env.AGENT_EMAIL_APP_PASSWORD;
+  if (!user || !pass) return;
+
+  const transport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user, pass },
+  });
+
+  await transport.sendMail({
+    from: `Marsquad <${user}>`,
+    to: user,
+    subject: `New lead: ${lead.name} (${lead.whatsapp})`,
+    text: [
+      `Lead ID: ${lead.id}`,
+      `Name: ${lead.name}`,
+      `WhatsApp: ${lead.whatsapp}`,
+      `Email: ${lead.email || 'none'}`,
+      '',
+      lead.help,
+    ].join('\n'),
+  });
 }
 
 export async function POST(req: Request) {
@@ -81,6 +136,12 @@ export async function POST(req: Request) {
   await Promise.all([
     kv.set(fpRateKey, ts, { ex: Math.ceil(FINGERPRINT_COOLDOWN_MS / 1000) }),
     kv.set(ipRateKey, ts, { ex: Math.ceil(IP_BURST_COOLDOWN_MS / 1000) }),
+  ]);
+
+  // Notify (best-effort, non-blocking)
+  await Promise.allSettled([
+    notifyOfficeLead(lead),
+    notifyByEmailLead(lead),
   ]);
 
   return Response.json({ ok: true, id: lead.id });
