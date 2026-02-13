@@ -125,24 +125,22 @@ const AGENTS = [
 ];
 
 const SINGLE_PLAN = {
-  name: 'All Access',
+  name: 'Setup + Monthly',
   price: '$99.99',
   interval: '/mo',
-  desc: 'Everything included in one simple plan.',
+  desc: 'Private WhatsApp assistant. One number. One thread. Always on.',
   features: [
-    'Weekly competitor brief',
-    'Top creative shifts + swipe file',
-    'What to run next recommendations',
-    'Email + WhatsApp delivery',
+    'Reminders + follow-ups that actually stick',
+    'Turn messages into tasks and weekly plans',
+    'Daily focus in 2 minutes',
+    'Optional calendar/email connect later',
   ],
 };
 
-const BEAUTY_DELIVERABLES = [
-  { icon: '🔄', title: 'What changed this week', desc: 'Offer shifts, angle changes, and creator moves across your competitor set.' },
-  { icon: '🎬', title: 'Top 20 competitor creatives', desc: 'Tagged by hook, format, and CTA so your team can spot patterns fast.' },
-  { icon: '🧷', title: 'Swipe file links + screenshots', desc: 'Direct references you can review with your media buyer and creative team.' },
-  { icon: '🚀', title: '3 concepts to run next week', desc: 'Actionable concepts with scripts + angles, based on recent market movement.' },
-  { icon: '🧪', title: 'Landing page test list', desc: '3–5 tests prioritized for likely impact next sprint.' },
+const WEEK1_WINS = [
+  { icon: '🧾', title: 'Never miss bills / appointments / birthdays', desc: 'Text it once. Dilo remembers it, pings you, and follows up.' },
+  { icon: '✅', title: 'Turn texts into tasks + follow-ups', desc: 'Forward messages and get a clean to-do list with deadlines and nudges.' },
+  { icon: '🗓️', title: 'Plan your week + daily focus in 2 minutes', desc: 'A quick check-in turns chaos into a simple plan and next actions.' },
 ];
 
 export default function Page() {
@@ -157,13 +155,11 @@ export default function Page() {
           <span className="lp-logo-text">marsquad</span>
         </a>
         <div className="lp-nav-links">
-          <a href="#observation" className="lp-nav-link">observation</a>
-          <a href="#deliverables" className="lp-nav-link">weekly brief</a>
-          <a href="#sources" className="lp-nav-link">sources</a>
+          <a href="#wins" className="lp-nav-link">week 1 wins</a>
           <a href="#pricing" className="lp-nav-link">pricing</a>
           <a href="#deploy" className="lp-nav-cta">
             <span className="lp-pulse" />
-            Get a sample pack
+            Set up my assistant
           </a>
         </div>
       </nav>
@@ -173,143 +169,91 @@ export default function Page() {
         <div className="lp2-hero-inner">
           <div className="lp2-hero-badge">
             <span className="lp-pulse" />
-            <span className="lp2-hero-badge-text">COMPETITOR MONITORING — BEAUTY</span>
+            <span className="lp2-hero-badge-text">A 24/7 assistant you can text</span>
           </div>
 
           <h1 className="lp2-h1">
-            <span className="lp2-h1-line">Weekly competitor intel</span>
-            <span className="lp2-h1-line lp2-h1-line--accent">for beauty brands</span>
+            <span className="lp2-h1-line">Meet Dilo</span>
+            <span className="lp2-h1-line lp2-h1-line--accent">your private 24/7 assistant.</span>
           </h1>
 
           <p className="lp2-hero-sub">
-            You send us your brand + competitors. We monitor their ads, socials, offers, and landing pages and deliver a what-changed + what-to-run-next brief every week.
+            Reminders, planning, follow-ups, and turning messages into an organised life.
           </p>
 
           <div className="lp2-hero-actions">
-            <a href="#deploy" className="lp-btn lp-btn--primary">Get a sample pack <span className="lp-btn-arrow">→</span></a>
-            <a href="#deploy" className="lp-btn lp-btn--ghost">Book a 15-min fit call</a>
+            <a href="#deploy" className="lp-btn lp-btn--primary">Message Dilo for a demo <span className="lp-btn-arrow">→</span></a>
+            <a href="#deploy" className="lp-btn lp-btn--ghost">Set up my assistant</a>
           </div>
-          <p className="lp2-deploy-sub" style={{ marginTop: 10 }}>
-            Best for brands spending $20k+/mo on Meta/TikTok.
-          </p>
 
           {/* Proof ticker */}
           <div className="lp2-proof">
             <div className="lp2-proof-track">
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                Dilo screening inbound task
+                reminders that stick
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                Nyx monitoring 12 data feeds
+                inbox → tasks in one thread
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                Specter drafting market brief
+                follow-ups handled
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                Cipher running security audit
+                weekly planning in minutes
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                Phantom deploying hotfix
+                calm, organised life
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                Dilo screening inbound task
+                reminders that stick
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                Nyx monitoring 12 data feeds
+                inbox → tasks in one thread
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                Specter drafting market brief
+                follow-ups handled
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                Cipher running security audit
+                weekly planning in minutes
               </span>
               <span className="lp2-proof-sep">·</span>
               <span className="lp2-proof-item">
                 <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                Phantom deploying hotfix
+                calm, organised life
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Observation (hero proof) ── */}
-      <section id="observation" className="lp2-observation">
-        <div className="lp2-observation-inner">
-          <div className="lp2-section-label">Observation</div>
-          <h2 className="lp2-h2">Live competitor-monitoring operation</h2>
-          <p className="lp2-deploy-sub">
-            This is the actual office view. We removed the noisy text feed from landing, but kept live observation as the main proof.
-          </p>
-
-          <div className="ms-stage">
-            <div className="ms-stage-chrome">
-              <div className="ms-terminal-bar">
-                <div className="ms-terminal-dots"><span /><span /><span /></div>
-                <span className="ms-terminal-title">marsquad — observation</span>
-                <div className="ms-terminal-live"><span className="lp-pulse lp-pulse--red" /><span>LIVE</span></div>
-              </div>
-              <div className="ms-stage-frame lp2-observation-frame">
-                <iframe title="Marsquad Live Observation" src="/live" loading="lazy" />
-              </div>
-            </div>
-          </div>
-
-          <div className="lp2-live-actions">
-            <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
-              Open full live view <span className="lp-btn-arrow">→</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Weekly Brief ── */}
-      <section id="deliverables" className="lp2-services">
+      {/* ── Week 1 Wins ── */}
+      <section id="wins" className="lp2-services">
         <div className="lp2-services-inner">
-          <div className="lp2-section-label">What’s inside the weekly brief</div>
-          <h2 className="lp2-h2">Everything your team needs to decide next week&apos;s creative bets.</h2>
+          <div className="lp2-section-label">Week 1 wins</div>
+          <h2 className="lp2-h2">The first week feels like cheating.</h2>
           <div className="lp2-services-grid">
-            {BEAUTY_DELIVERABLES.map((s, i) => (
+            {WEEK1_WINS.map((s, i) => (
               <div key={i} className="lp2-service-card" style={{ '--svc-i': i } as React.CSSProperties}>
                 <span className="lp2-service-icon">{s.icon}</span>
                 <h3 className="lp2-service-title">{s.title}</h3>
                 <p className="lp2-service-desc">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="sources" className="lp2-services">
-        <div className="lp2-services-inner">
-          <div className="lp2-section-label">Sources We Monitor</div>
-          <div className="lp2-services-grid">
-            {[
-              'Meta Ad Library',
-              'TikTok Creative Center',
-              'Instagram/TikTok organic',
-              'Landing pages + checkout offers',
-              'Comments/Q&A patterns',
-            ].map((s, i) => (
-              <div key={s} className="lp2-service-card" style={{ '--svc-i': i } as React.CSSProperties}>
-                <h3 className="lp2-service-title">{s}</h3>
               </div>
             ))}
           </div>
@@ -347,10 +291,10 @@ export default function Page() {
       <section id="deploy" className="lp2-deploy">
         <div className="lp2-deploy-inner">
           <div className="lp2-deploy-header">
-            <div className="lp2-section-label">Deploy</div>
-            <h2 className="lp2-h2">Send your intake. Get a sample pack.</h2>
+            <div className="lp2-section-label">Setup</div>
+            <h2 className="lp2-h2">Set up Dilo in your WhatsApp.</h2>
             <p className="lp2-deploy-sub">
-              Brand URL + goals is enough. We&apos;ll send a sample pack, then you can decide on a monthly retainer.
+              Tell us what you want help with. We&apos;ll reply with a demo thread and setup steps.
             </p>
           </div>
           <div className="lp2-deploy-form-wrap">
@@ -359,11 +303,41 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── The Squad (moved down) ── */}
+      {/* ── How It Works (for nerds) ── */}
+      <section id="observation" className="lp2-observation">
+        <div className="lp2-observation-inner">
+          <div className="lp2-section-label">How it works (for nerds)</div>
+          <h2 className="lp2-h2">Optional proof: live office view</h2>
+          <p className="lp2-deploy-sub">
+            You don&apos;t need to care about this. If you&apos;re curious, this is the live environment where tasks and movement get emitted.
+          </p>
+
+          <div className="ms-stage">
+            <div className="ms-stage-chrome">
+              <div className="ms-terminal-bar">
+                <div className="ms-terminal-dots"><span /><span /><span /></div>
+                <span className="ms-terminal-title">marsquad — office</span>
+                <div className="ms-terminal-live"><span className="lp-pulse lp-pulse--red" /><span>LIVE</span></div>
+              </div>
+              <div className="ms-stage-frame lp2-observation-frame">
+                <iframe title="Marsquad Live Office" src="/live" loading="lazy" />
+              </div>
+            </div>
+          </div>
+
+          <div className="lp2-live-actions">
+            <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
+              Open full live view <span className="lp-btn-arrow">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Squad (optional visual) ── */}
       <section id="squad" className="lp2-squad">
         <div className="lp2-squad-inner">
-          <div className="lp2-section-label">How It Works</div>
-          <h2 className="lp2-h2">Analyst squad behind the weekly brief.</h2>
+          <div className="lp2-section-label">Behind the scenes</div>
+          <h2 className="lp2-h2">The office (optional)</h2>
           <div className="lp2-agent-image-wrap lp2-agent-illustration">
             <AgentIllustration />
           </div>
@@ -378,11 +352,10 @@ export default function Page() {
             <span>marsquad</span>
           </div>
           <p className="lp2-footer-tagline">
-            autonomous agents, working live
+            private assistant, working live
           </p>
           <div className="lp2-footer-links">
-            <a href="#deliverables">Weekly Brief</a>
-            <a href="#sources">Sources</a>
+            <a href="#wins">Week 1 wins</a>
             <a href="#pricing">Pricing</a>
             <a href="/live" target="_blank" rel="noreferrer">Live</a>
           </div>

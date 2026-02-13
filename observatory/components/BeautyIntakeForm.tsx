@@ -4,37 +4,20 @@ import { useMemo, useState } from 'react';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error' | 'rate_limited';
 
-const SPEND_RANGES = [
-  'Under $10k/mo',
-  '$10k-$25k/mo',
-  '$25k-$50k/mo',
-  '$50k-$100k/mo',
-  '$100k+/mo',
-] as const;
-
-const MARKET_OPTIONS = ['US', 'UK', 'EU', 'AU', 'Global'] as const;
-const CHANNEL_OPTIONS = ['Meta', 'TikTok', 'Both'] as const;
-const DELIVERY_OPTIONS = ['Email', 'WhatsApp', 'Both'] as const;
-
 export default function BeautyIntakeForm() {
   const [status, setStatus] = useState<Status>('idle');
-  const [brandUrl, setBrandUrl] = useState('');
-  const [category, setCategory] = useState('');
-  const [spendRange, setSpendRange] = useState<(typeof SPEND_RANGES)[number] | ''>('');
-  const [contact, setContact] = useState('');
-  const [competitors, setCompetitors] = useState('');
-  const [markets, setMarkets] = useState<(typeof MARKET_OPTIONS)[number] | ''>('');
-  const [primaryChannel, setPrimaryChannel] = useState<(typeof CHANNEL_OPTIONS)[number] | ''>('');
-  const [deliveryPreference, setDeliveryPreference] = useState<(typeof DELIVERY_OPTIONS)[number] | ''>('');
-  const [goals, setGoals] = useState('');
+  const [name, setName] = useState('');
+  const [whatsApp, setWhatsApp] = useState('');
+  const [help, setHelp] = useState('');
   const [leadId, setLeadId] = useState('');
 
   const canSubmit = useMemo(() => {
     if (status === 'sending') return false;
-    if (brandUrl.trim().length < 6) return false;
-    if (contact.trim().length < 5) return false;
+    if (name.trim().length < 2) return false;
+    if (whatsApp.trim().length < 8) return false;
+    if (help.trim().length < 6) return false;
     return true;
-  }, [status, brandUrl, contact]);
+  }, [status, name, whatsApp, help]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,15 +29,9 @@ export default function BeautyIntakeForm() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          brandUrl: brandUrl.trim(),
-          category: category.trim(),
-          spendRange: spendRange || undefined,
-          contact: contact.trim(),
-          competitors: competitors.trim() || undefined,
-          markets: markets || undefined,
-          primaryChannel: primaryChannel || undefined,
-          deliveryPreference: deliveryPreference || undefined,
-          goals: goals.trim(),
+          name: name.trim(),
+          whatsapp: whatsApp.trim(),
+          help: help.trim(),
         }),
       });
 
@@ -80,7 +57,7 @@ export default function BeautyIntakeForm() {
         <div className="sf-success-icon">&#x2713;</div>
         <h3 className="sf-success-title">Request received</h3>
         <p className="sf-success-desc">
-          We&apos;ll send a sample pack to your contact shortly. If it&apos;s a fit, we&apos;ll follow up with a simple monthly retainer.
+          We&apos;ll reply on WhatsApp with a demo thread and setup steps.
         </p>
         {leadId && <p className="sf-success-id">Ref: {leadId}</p>}
         <button
@@ -88,15 +65,9 @@ export default function BeautyIntakeForm() {
           onClick={() => {
             setStatus('idle');
             setLeadId('');
-            setBrandUrl('');
-            setCategory('');
-            setSpendRange('');
-            setContact('');
-            setCompetitors('');
-            setMarkets('');
-            setPrimaryChannel('');
-            setDeliveryPreference('');
-            setGoals('');
+            setName('');
+            setWhatsApp('');
+            setHelp('');
           }}
         >
           Send another
@@ -108,142 +79,53 @@ export default function BeautyIntakeForm() {
   return (
     <form className="sf-form" onSubmit={submit}>
       <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-brand">
-          Brand URL
+        <label className="sf-label" htmlFor="ai-name">
+          Name
         </label>
         <input
-          id="bi-brand"
-          className="sf-input"
-          type="url"
-          inputMode="url"
-          placeholder="https://yourbrand.com"
-          value={brandUrl}
-          onChange={(e) => setBrandUrl(e.target.value)}
-          maxLength={300}
-        />
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-category">
-          Category <span className="sf-optional">(optional)</span>
-        </label>
-        <input
-          id="bi-category"
+          id="ai-name"
           className="sf-input"
           type="text"
-          placeholder="e.g. skincare, haircare, fragrance"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          maxLength={300}
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={120}
+          autoComplete="name"
         />
       </div>
 
       <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-spend">
-          Ad spend range <span className="sf-optional">(optional)</span>
-        </label>
-        <select
-          id="bi-spend"
-          className="sf-input"
-          value={spendRange}
-          onChange={(e) => setSpendRange(e.target.value as any)}
-        >
-          <option value="">Select</option>
-          {SPEND_RANGES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-contact">
-          Email or WhatsApp
+        <label className="sf-label" htmlFor="ai-wa">
+          WhatsApp number
         </label>
         <input
-          id="bi-contact"
+          id="ai-wa"
           className="sf-input"
-          type="text"
-          inputMode="email"
-          placeholder="name@brand.com or +1 555..."
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          maxLength={300}
+          type="tel"
+          inputMode="tel"
+          placeholder="+1 555 123 4567"
+          value={whatsApp}
+          onChange={(e) => setWhatsApp(e.target.value)}
+          maxLength={40}
+          autoComplete="tel"
         />
+        <span className="sf-charcount">Use international format (starts with +).</span>
       </div>
 
       <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-competitors">
-          Competitors (3-10)
+        <label className="sf-label" htmlFor="ai-help">
+          What do you want help with?
         </label>
         <textarea
-          id="bi-competitors"
+          id="ai-help"
           className="sf-textarea"
-          rows={3}
-          maxLength={1200}
-          placeholder="paste URLs/handles (IG/TikTok/Meta pages) — one per line"
-          value={competitors}
-          onChange={(e) => setCompetitors(e.target.value)}
+          rows={4}
+          maxLength={900}
+          placeholder="Reminders, planning, follow-ups, cleaning up your inbox, organizing life admin..."
+          value={help}
+          onChange={(e) => setHelp(e.target.value)}
         />
-        <span className="sf-charcount">If you don&apos;t have them, paste 1-2 and we&apos;ll fill the rest.</span>
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-markets">
-          Markets <span className="sf-optional">(optional)</span>
-        </label>
-        <select
-          id="bi-markets"
-          className="sf-input"
-          value={markets}
-          onChange={(e) => setMarkets(e.target.value as any)}
-        >
-          <option value="">Select</option>
-          {MARKET_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-channel">
-          Primary channel <span className="sf-optional">(optional)</span>
-        </label>
-        <select
-          id="bi-channel"
-          className="sf-input"
-          value={primaryChannel}
-          onChange={(e) => setPrimaryChannel(e.target.value as any)}
-        >
-          <option value="">Select</option>
-          {CHANNEL_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-delivery">
-          Delivery preference <span className="sf-optional">(optional)</span>
-        </label>
-        <select
-          id="bi-delivery"
-          className="sf-input"
-          value={deliveryPreference}
-          onChange={(e) => setDeliveryPreference(e.target.value as any)}
-        >
-          <option value="">Select</option>
-          {DELIVERY_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-
-      <div className="sf-field">
-        <label className="sf-label" htmlFor="bi-goals">
-          Goals <span className="sf-optional">(optional)</span>
-        </label>
-        <textarea
-          id="bi-goals"
-          className="sf-textarea"
-          rows={3}
-          maxLength={800}
-          placeholder="What are you trying to improve? (CPA, CTR, AOV, retention, new angles...)"
-          value={goals}
-          onChange={(e) => setGoals(e.target.value)}
-        />
-        <span className="sf-charcount">{goals.length}/800</span>
+        <span className="sf-charcount">{help.length}/900</span>
       </div>
 
       <div className="sf-actions">
@@ -252,14 +134,14 @@ export default function BeautyIntakeForm() {
           className={`sf-btn sf-btn--primary ${!canSubmit ? 'sf-btn--disabled' : ''}`}
           disabled={!canSubmit}
         >
-          {status === 'sending' ? 'Sending...' : 'Send sample pack'}
+          {status === 'sending' ? 'Sending...' : 'Send'}
           {status !== 'sending' && <span className="sf-btn-arrow">&rarr;</span>}
         </button>
       </div>
 
       {status === 'rate_limited' && (
         <p className="sf-error">
-          Already received—check your inbox/WhatsApp in a minute.
+          Already received. Give it a minute and we&apos;ll reply on WhatsApp.
         </p>
       )}
       {status === 'error' && (
@@ -270,3 +152,4 @@ export default function BeautyIntakeForm() {
     </form>
   );
 }
+

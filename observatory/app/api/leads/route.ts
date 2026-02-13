@@ -2,11 +2,10 @@ export const dynamic = 'force-dynamic';
 
 import crypto from 'crypto';
 
-const FINGERPRINT_COOLDOWN_MS = 10 * 60 * 1000; // 10 min for same contact+brand
+const FINGERPRINT_COOLDOWN_MS = 10 * 60 * 1000; // 10 min for same whatsapp+name
 const IP_BURST_COOLDOWN_MS = 20 * 1000; // short anti-spam burst control per IP
 const MAX_FIELD = 300;
-const MAX_GOALS = 800;
-const MAX_COMPETITORS = 1200;
+const MAX_HELP = 900;
 
 function getClientIp(req: Request) {
   const xf = req.headers.get('x-forwarded-for');
@@ -18,8 +17,8 @@ function cleanStr(v: any, max: number) {
   return String(v || '').trim().slice(0, max);
 }
 
-function fingerprint(contact: string, brandUrl: string, ua: string) {
-  const base = `${contact.toLowerCase()}|${brandUrl.toLowerCase()}|${(ua || '').slice(0, 120)}`;
+function fingerprint(whatsapp: string, name: string, ua: string) {
+  const base = `${whatsapp.toLowerCase()}|${name.toLowerCase()}|${(ua || '').slice(0, 120)}`;
   return crypto.createHash('sha256').update(base).digest('hex').slice(0, 24);
 }
 
@@ -37,23 +36,17 @@ export async function POST(req: Request) {
     return new Response('invalid json', { status: 400 });
   }
 
-  const brandUrl = cleanStr(body?.brandUrl, MAX_FIELD);
-  const category = cleanStr(body?.category, MAX_FIELD);
-  const spendRange = cleanStr(body?.spendRange, 80);
-  const contact = cleanStr(body?.contact, MAX_FIELD);
-  const competitors = cleanStr(body?.competitors, MAX_COMPETITORS);
-  const markets = cleanStr(body?.markets, 120);
-  const primaryChannel = cleanStr(body?.primaryChannel, 80);
-  const deliveryPreference = cleanStr(body?.deliveryPreference, 80);
-  const goals = cleanStr(body?.goals, MAX_GOALS);
+  const name = cleanStr(body?.name, 120);
+  const whatsapp = cleanStr(body?.whatsapp, 40);
+  const help = cleanStr(body?.help, MAX_HELP);
 
-  if (!brandUrl || !contact) {
+  if (!name || !whatsapp || !help) {
     return new Response('missing fields', { status: 400 });
   }
 
   // Rate limit by lead fingerprint (contact + brand + ua), with a short IP burst guard.
   const ua = req.headers.get('user-agent') || '';
-  const fp = fingerprint(contact, brandUrl, ua);
+  const fp = fingerprint(whatsapp, name, ua);
   const fpRateKey = `observatory:leads:rate:fp:${fp}`;
   const ipRateKey = `observatory:leads:rate:ip:${ip}`;
   const now = Date.now();
@@ -75,16 +68,11 @@ export async function POST(req: Request) {
   const lead = {
     id: `lead_${ts}_${Math.random().toString(36).slice(2, 8)}`,
     ts,
-    brandUrl,
-    category: category || undefined,
-    spendRange: spendRange || undefined,
-    contact,
-    competitors: competitors || undefined,
-    markets: markets || undefined,
-    primaryChannel: primaryChannel || undefined,
-    deliveryPreference: deliveryPreference || undefined,
-    goals: goals || undefined,
+    name,
+    whatsapp,
+    help,
     source: 'landing',
+    kind: 'assistant_setup',
   };
 
   await kv.zadd('observatory:leads', { score: ts, member: JSON.stringify(lead) });
