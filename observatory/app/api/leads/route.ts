@@ -38,6 +38,7 @@ export async function POST(req: Request) {
 
   const name = cleanStr(body?.name, 120);
   const whatsapp = cleanStr(body?.whatsapp, 40);
+  const email = cleanStr(body?.email, 200);
   const help = cleanStr(body?.help, MAX_HELP);
 
   if (!name || !whatsapp || !help) {
@@ -70,6 +71,7 @@ export async function POST(req: Request) {
     ts,
     name,
     whatsapp,
+    email: email || undefined,
     help,
     source: 'landing',
     kind: 'assistant_setup',

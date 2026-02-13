@@ -8,6 +8,7 @@ export default function BeautyIntakeForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [name, setName] = useState('');
   const [whatsApp, setWhatsApp] = useState('');
+  const [email, setEmail] = useState('');
   const [help, setHelp] = useState('');
   const [leadId, setLeadId] = useState('');
 
@@ -31,6 +32,7 @@ export default function BeautyIntakeForm() {
         body: JSON.stringify({
           name: name.trim(),
           whatsapp: whatsApp.trim(),
+          email: email.trim() || undefined,
           help: help.trim(),
         }),
       });
@@ -67,6 +69,7 @@ export default function BeautyIntakeForm() {
             setLeadId('');
             setName('');
             setWhatsApp('');
+            setEmail('');
             setHelp('');
           }}
         >
@@ -113,6 +116,23 @@ export default function BeautyIntakeForm() {
       </div>
 
       <div className="sf-field">
+        <label className="sf-label" htmlFor="ai-email">
+          Email <span className="sf-optional">(optional)</span>
+        </label>
+        <input
+          id="ai-email"
+          className="sf-input"
+          type="email"
+          inputMode="email"
+          placeholder="you@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          maxLength={200}
+          autoComplete="email"
+        />
+      </div>
+
+      <div className="sf-field">
         <label className="sf-label" htmlFor="ai-help">
           What do you want help with?
         </label>
@@ -152,4 +172,3 @@ export default function BeautyIntakeForm() {
     </form>
   );
 }
-

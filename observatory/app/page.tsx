@@ -125,10 +125,10 @@ const AGENTS = [
 ];
 
 const SINGLE_PLAN = {
-  name: 'Setup + Monthly',
+  name: 'One-time setup',
   price: '$99.99',
-  interval: '/mo',
-  desc: 'Private WhatsApp assistant. One number. One thread. Always on.',
+  interval: 'one-time',
+  desc: 'Private WhatsApp assistant setup. One number. One thread. Always on.',
   features: [
     'Reminders + follow-ups that actually stick',
     'Turn messages into tasks and weekly plans',
