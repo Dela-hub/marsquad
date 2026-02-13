@@ -1,5 +1,4 @@
 import BeautyIntakeForm from '../components/BeautyIntakeForm';
-import AgentIllustration from '../components/AgentIllustration';
 
 /* ── Agent SVG Icons ── */
 function IconDilo({ color }: { color: string }) {
@@ -167,77 +166,85 @@ export default function Page() {
       {/* ── Hero ── */}
       <section className="lp2-hero">
         <div className="lp2-hero-inner">
-          <div className="lp2-hero-badge">
-            <span className="lp-pulse" />
-            <span className="lp2-hero-badge-text">A 24/7 assistant you can text</span>
-          </div>
+          <div className="lp2-hero-grid">
+            <div className="lp2-hero-left">
+              <div className="lp2-hero-badge">
+                <span className="lp-pulse" />
+                <span className="lp2-hero-badge-text">A 24/7 assistant you can text</span>
+              </div>
 
-          <h1 className="lp2-h1">
-            <span className="lp2-h1-line">Meet Dilo</span>
-            <span className="lp2-h1-line lp2-h1-line--accent">your private 24/7 assistant.</span>
-          </h1>
+              <h1 className="lp2-h1">
+                <span className="lp2-h1-line">Meet Dilo</span>
+                <span className="lp2-h1-line lp2-h1-line--accent">your private 24/7 assistant.</span>
+              </h1>
 
-          <p className="lp2-hero-sub">
-            Reminders, planning, follow-ups, and turning messages into an organised life.
-          </p>
+              <p className="lp2-hero-sub">
+                Reminders, planning, follow-ups, and turning messages into an organised life.
+              </p>
 
-          <div className="lp2-hero-actions">
-            <a href="#deploy" className="lp-btn lp-btn--primary">Message Dilo for a demo <span className="lp-btn-arrow">→</span></a>
-            <a href="#deploy" className="lp-btn lp-btn--ghost">Set up my assistant</a>
-          </div>
+              <div className="lp2-hero-actions">
+                <a href="#deploy" className="lp-btn lp-btn--primary">Message Dilo for a demo <span className="lp-btn-arrow">→</span></a>
+                <a href="#deploy" className="lp-btn lp-btn--ghost">Set up my assistant</a>
+              </div>
 
-          {/* Proof ticker */}
-          <div className="lp2-proof">
-            <div className="lp2-proof-track">
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                reminders that stick
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                inbox → tasks in one thread
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                follow-ups handled
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                weekly planning in minutes
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                calm, organised life
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                reminders that stick
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                inbox → tasks in one thread
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                follow-ups handled
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                weekly planning in minutes
-              </span>
-              <span className="lp2-proof-sep">·</span>
-              <span className="lp2-proof-item">
-                <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                calm, organised life
-              </span>
+              {/* Proof ticker */}
+              <div className="lp2-proof">
+                <div className="lp2-proof-track">
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
+                    reminders that stick
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
+                    inbox → tasks in one thread
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
+                    follow-ups handled
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
+                    weekly planning in minutes
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
+                    calm, organised life
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
+                    reminders that stick
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
+                    inbox → tasks in one thread
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
+                    follow-ups handled
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
+                    weekly planning in minutes
+                  </span>
+                  <span className="lp2-proof-sep">·</span>
+                  <span className="lp2-proof-item">
+                    <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
+                    calm, organised life
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lp2-hero-right" aria-hidden="true">
+              <div className="lp2-hero-image" />
             </div>
           </div>
         </div>
@@ -329,17 +336,6 @@ export default function Page() {
             <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
               Open full live view <span className="lp-btn-arrow">→</span>
             </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Squad (optional visual) ── */}
-      <section id="squad" className="lp2-squad">
-        <div className="lp2-squad-inner">
-          <div className="lp2-section-label">Behind the scenes</div>
-          <h2 className="lp2-h2">The office (optional)</h2>
-          <div className="lp2-agent-image-wrap lp2-agent-illustration">
-            <AgentIllustration />
           </div>
         </div>
       </section>

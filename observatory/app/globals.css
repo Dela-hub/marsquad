@@ -2726,10 +2726,43 @@ body {
 }
 
 .lp2-hero-inner {
-  max-width: 860px;
+  max-width: 1100px;
   margin: 0 auto;
   text-align: center;
   position: relative;
+}
+
+.lp2-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) minmax(320px, 440px);
+  gap: 40px;
+  align-items: center;
+}
+
+.lp2-hero-left {
+  text-align: left;
+}
+
+.lp2-hero-right {
+  display: flex;
+  justify-content: center;
+}
+
+.lp2-hero-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background:
+    url('/images/dilo.PNG') center / cover no-repeat,
+    radial-gradient(120% 120% at 20% 10%, rgba(34,197,94,.12) 0%, rgba(15,23,42,0) 55%),
+    radial-gradient(120% 120% at 80% 90%, rgba(59,130,246,.14) 0%, rgba(15,23,42,0) 55%),
+    linear-gradient(145deg, rgba(10,14,24,.8), rgba(2,6,12,.92));
+  box-shadow:
+    0 18px 70px rgba(0,0,0,.45),
+    0 0 0 1px rgba(255,255,255,.02) inset;
+  position: relative;
+  overflow: hidden;
 }
 
 .lp2-hero-badge {
@@ -3378,6 +3411,9 @@ body {
   .lp2-hero-sub { margin-bottom: 32px; }
   .lp2-hero-actions { gap: 10px; }
   .lp2-proof { margin: 0 -20px; }
+  .lp2-hero-grid { grid-template-columns: 1fr; gap: 22px; }
+  .lp2-hero-left { text-align: center; }
+  .lp2-hero-image { max-width: 420px; margin: 0 auto; }
   .lp2-services { padding: 60px 20px 60px; }
   .lp2-observation { padding: 24px 8px 36px; }
   .lp2-observation-frame { min-height: 0; aspect-ratio: 3 / 4; }
