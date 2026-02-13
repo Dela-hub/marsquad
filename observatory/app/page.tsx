@@ -1,4 +1,5 @@
 import BeautyIntakeForm from '../components/BeautyIntakeForm';
+import HeroDiloOrb from '../components/HeroDiloOrb';
 
 /* ── Agent SVG Icons ── */
 function IconDilo({ color }: { color: string }) {
@@ -244,7 +245,9 @@ export default function Page() {
             </div>
 
             <div className="lp2-hero-right" aria-hidden="true">
-              <div className="lp2-hero-image" />
+              <div className="lp2-hero-orb-wrap">
+                <HeroDiloOrb />
+              </div>
             </div>
           </div>
         </div>
