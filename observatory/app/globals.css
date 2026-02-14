@@ -2709,7 +2709,8 @@ body {
 .lp2-hero {
   padding: 100px 40px 0;
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .lp2-hero::before {
@@ -2738,7 +2739,7 @@ body {
 
 .lp2-hero-grid {
   display: grid;
-  grid-template-columns: minmax(420px, 1fr) minmax(320px, 440px);
+  grid-template-columns: 1fr minmax(0, 440px);
   gap: 40px;
   align-items: center;
 }
