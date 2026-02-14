@@ -187,66 +187,20 @@ export default function Page() {
                 <a href="#deploy" className="lp-btn lp-btn--primary">Message Dilo for a demo <span className="lp-btn-arrow">→</span></a>
                 <a href="#deploy" className="lp-btn lp-btn--ghost">Set up my assistant</a>
               </div>
-
-              {/* Proof ticker */}
-              <div className="lp2-proof">
-                <div className="lp2-proof-track">
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                    reminders that stick
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                    inbox → tasks in one thread
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                    follow-ups handled
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                    weekly planning in minutes
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                    calm, organised life
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#3b82f6' }} />
-                    reminders that stick
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#a855f7' }} />
-                    inbox → tasks in one thread
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#f59e0b' }} />
-                    follow-ups handled
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#06b6d4' }} />
-                    weekly planning in minutes
-                  </span>
-                  <span className="lp2-proof-sep">·</span>
-                  <span className="lp2-proof-item">
-                    <span className="lp2-proof-dot" style={{ background: '#f43f5e' }} />
-                    calm, organised life
-                  </span>
-                </div>
-              </div>
             </div>
 
             <div className="lp2-hero-right" aria-hidden="true">
               <div className="lp2-hero-orb-wrap">
                 <HeroDiloOrb />
+              </div>
+              <div className="lp2-hero-demo">
+                <div className="lp2-demo-bubble lp2-demo-bubble--user">
+                  Remind me to pay rent on the 1st.
+                </div>
+                <div className="lp2-demo-bubble lp2-demo-bubble--dilo">
+                  Done. I’ll ping you 3 days before, 1 day before, and morning-of.
+                </div>
+                <div className="lp2-demo-meta">Text Dilo on WhatsApp. No app to install.</div>
               </div>
             </div>
           </div>
