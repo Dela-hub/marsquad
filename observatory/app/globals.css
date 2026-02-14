@@ -3498,21 +3498,30 @@ body {
 }
 
 @media (max-width: 768px) {
-  .lp2-hero { padding: 70px 20px 0; }
-  /* Force hero elements visible — mobile Safari can stall fadeUp animations at opacity:0 */
+  .lp2-hero { padding: 70px 20px 0; overflow: visible !important; }
+  /* Force hero elements visible — nuke all animations + ensure visibility */
+  .lp2-hero *,
   .lp2-hero-badge,
+  .lp2-h1,
   .lp2-h1-line,
   .lp2-hero-sub,
   .lp2-hero-actions,
   .lp2-proof,
-  .lp2-hero-orb-wrap { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .lp2-hero-right,
+  .lp2-hero-orb-wrap {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
   .lp2-hero-badge { font-size: 10px; padding: 6px 14px 6px 12px; }
   .lp2-hero-sub { margin-bottom: 32px; }
   .lp2-hero-actions { gap: 10px; }
   .lp2-proof { margin: 0 -20px; }
-  .lp2-hero-grid { grid-template-columns: 1fr; gap: 22px; }
-  .lp2-hero-left { text-align: center; }
-  .lp2-hero-orb-wrap { max-width: 420px; margin: 0 auto; }
+  .lp2-hero-grid { display: flex !important; flex-direction: column !important; gap: 22px; }
+  .lp2-hero-left { text-align: center; width: 100%; }
+  .lp2-hero-right { width: 100%; }
+  .lp2-hero-orb-wrap { max-width: 320px; margin: 0 auto; }
   .lp2-services { padding: 60px 20px 60px; }
   .lp2-observation { padding: 24px 8px 36px; }
   .lp2-observation-frame { min-height: 0; aspect-ratio: 3 / 4; }
