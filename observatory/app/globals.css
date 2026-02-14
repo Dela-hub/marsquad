@@ -1904,6 +1904,9 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* Mobile Safari can struggle with fixed SVG turbulence overlays. */
+  .lp-grain { display: none; }
+
   .lp-nav { padding: 16px 20px; }
   .lp-nav-links { gap: 16px; }
   .lp-nav-link { display: none; }
