@@ -2710,7 +2710,7 @@ body {
   padding: 100px 40px 0;
   position: relative;
   overflow-x: clip;
-  overflow-y: visible;
+  overflow-y: hidden;
 }
 
 .lp2-hero::before {
@@ -2932,7 +2932,7 @@ body {
 .lp2-proof {
   overflow: hidden;
   position: relative;
-  margin: 0 -40px;
+  margin: 0;
   padding: 20px 0 40px;
   animation: lp-fadeUp .6s ease both;
   animation-delay: .8s;
@@ -3498,27 +3498,12 @@ body {
 }
 
 @media (max-width: 768px) {
-  .lp2-hero { padding: 70px 20px 0; overflow: visible !important; }
-  /* Force hero elements visible — nuke all animations + ensure visibility */
-  .lp2-hero *,
-  .lp2-hero-badge,
-  .lp2-h1,
-  .lp2-h1-line,
-  .lp2-hero-sub,
-  .lp2-hero-actions,
-  .lp2-proof,
-  .lp2-hero-right,
-  .lp2-hero-orb-wrap {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-    visibility: visible !important;
-  }
+  .lp2-hero { padding: 70px 20px 0; }
   .lp2-hero-badge { font-size: 10px; padding: 6px 14px 6px 12px; }
   .lp2-hero-sub { margin-bottom: 32px; }
   .lp2-hero-actions { gap: 10px; }
-  .lp2-proof { margin: 0 -20px; }
-  .lp2-hero-grid { display: flex !important; flex-direction: column !important; gap: 22px; }
+  .lp2-proof { margin: 0; }
+  .lp2-hero-grid { grid-template-columns: 1fr; gap: 22px; }
   .lp2-hero-left { text-align: center; width: 100%; }
   .lp2-hero-right { width: 100%; }
   .lp2-hero-orb-wrap { max-width: 320px; margin: 0 auto; }
