@@ -155,8 +155,6 @@ export default function Page() {
           <span className="lp-logo-text">marsquad</span>
         </a>
         <div className="lp-nav-links">
-          <a href="#wins" className="lp-nav-link">week 1 wins</a>
-          <a href="#pricing" className="lp-nav-link">pricing</a>
           <a href="#deploy" className="lp-nav-cta">
             <span className="lp-pulse" />
             Set up my assistant
@@ -207,49 +205,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Week 1 Wins ── */}
-      <section id="wins" className="lp2-services">
-        <div className="lp2-services-inner">
-          <div className="lp2-section-label">Week 1 wins</div>
-          <h2 className="lp2-h2">The first week feels like cheating.</h2>
-          <div className="lp2-services-grid">
-            {WEEK1_WINS.map((s, i) => (
-              <div key={i} className="lp2-service-card" style={{ '--svc-i': i } as React.CSSProperties}>
-                <span className="lp2-service-icon">{s.icon}</span>
-                <h3 className="lp2-service-title">{s.title}</h3>
-                <p className="lp2-service-desc">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="pricing" className="lp2-pricing">
-        <div className="lp2-pricing-inner">
-          <div className="lp2-section-label">Pricing</div>
-          <h2 className="lp2-h2">One simple plan</h2>
-          <div className="lp2-pricing-grid">
-            <div className="lp2-tier-card lp2-tier-card--accent" style={{ '--tier-i': 0 } as React.CSSProperties}>
-              <h3 className="lp2-tier-name">{SINGLE_PLAN.name}</h3>
-              <div className="lp2-tier-price">
-                <span className="lp2-tier-amount">{SINGLE_PLAN.price}</span>
-                <span className="lp2-tier-interval">{SINGLE_PLAN.interval}</span>
-              </div>
-              <p className="lp2-tier-desc">{SINGLE_PLAN.desc}</p>
-              <ul className="lp2-tier-features">
-                {SINGLE_PLAN.features.map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-              <a href="#deploy" className="lp-btn lp-btn--primary lp2-tier-btn">
-                Get started
-                <span className="lp-btn-arrow">→</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Week 1 wins + Pricing hidden for now (keep landing minimal). */}
 
       {/* ── Intake (lead capture) ── */}
       <section id="deploy" className="lp2-deploy">
@@ -293,6 +249,9 @@ export default function Page() {
             <a className="lp-btn lp-btn--ghost" href="/live" target="_blank" rel="noreferrer">
               Open full live view <span className="lp-btn-arrow">→</span>
             </a>
+            <a className="lp-btn lp-btn--primary" href="#deploy">
+              Message Dilo to try <span className="lp-btn-arrow">→</span>
+            </a>
           </div>
         </div>
       </section>
@@ -308,9 +267,8 @@ export default function Page() {
             private assistant, working live
           </p>
           <div className="lp2-footer-links">
-            <a href="#wins">Week 1 wins</a>
-            <a href="#pricing">Pricing</a>
             <a href="/live" target="_blank" rel="noreferrer">Live</a>
+            <a href="#deploy">Try Dilo</a>
           </div>
           <p className="lp2-footer-copy">
             © 2026 marsquad. All systems operational.

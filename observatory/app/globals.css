@@ -3175,6 +3175,14 @@ body {
   margin-top: 16px;
   display: flex;
   justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.live-bottom-cta {
+  display: flex;
+  justify-content: center;
+  padding: 18px 14px 34px;
 }
 
 /* ── Squad ── */
