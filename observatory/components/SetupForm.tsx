@@ -160,7 +160,10 @@ export default function SetupForm() {
       }
 
       setResultRoomId(data.roomId);
-      setResultApiKey(data.apiKey);
+      setResultApiKey(data.apiKey || '');
+      if (data.existing && !data.apiKey) {
+        setError('Room already exists. Opening existing room (API key cannot be re-shown).');
+      }
       setStatus('done');
       setStep(3);
     } catch {
@@ -359,14 +362,21 @@ export default function SetupForm() {
           </div>
 
           {/* API Key */}
-          <div className="su-result-card">
-            <div className="su-result-header">
-              <span className="su-result-label">API Key</span>
-              <CopyBtn text={resultApiKey} />
+          {resultApiKey ? (
+            <div className="su-result-card">
+              <div className="su-result-header">
+                <span className="su-result-label">API Key</span>
+                <CopyBtn text={resultApiKey} />
+              </div>
+              <code className="su-result-mono">{resultApiKey}</code>
+              <p className="su-result-warn">Save this — it won&rsquo;t be shown again.</p>
             </div>
-            <code className="su-result-mono">{resultApiKey}</code>
-            <p className="su-result-warn">Save this — it won&rsquo;t be shown again.</p>
-          </div>
+          ) : (
+            <div className="su-result-card">
+              <span className="su-result-label">API Key</span>
+              <p className="su-result-hint">Existing room detected. API keys are not re-shown for security.</p>
+            </div>
+          )}
 
           {/* Room Links */}
           <div className="su-result-card">
@@ -384,6 +394,7 @@ export default function SetupForm() {
           </div>
 
           {/* Quick Test */}
+          {resultApiKey && (
           <div className="su-result-card">
             <div className="su-result-header">
               <span className="su-result-label">Quick Test</span>
@@ -397,12 +408,15 @@ export default function SetupForm() {
               <CopyBtn text={`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'https://marsquad.vercel.app'}/api/rooms/${resultRoomId}/ingest -H "Authorization: Bearer ${resultApiKey}" -H "Content-Type: application/json" -d '{"agent": "${firstAgentName}", "text": "Hello from ${firstAgentName}"}'`} />
             </div>
           </div>
+          )}
 
           {/* Code Snippets */}
+          {resultApiKey && (
           <div className="su-result-card">
             <span className="su-result-label">Code Snippets</span>
             <SnippetTabs roomId={resultRoomId} apiKey={resultApiKey} agentName={firstAgentName} />
           </div>
+          )}
 
           {/* Embed */}
           <div className="su-result-card">

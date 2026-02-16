@@ -52,7 +52,14 @@ export async function POST(req: Request) {
   // Check if room exists
   const existing = await getRoomConfig(roomId);
   if (existing) {
-    return Response.json({ ok: false, error: `Room "${roomId}" already exists — try a different name` }, { status: 409 });
+    return Response.json({
+      ok: true,
+      existing: true,
+      roomId,
+      error: `Room "${roomId}" already exists — opening existing room`,
+      roomUrl: `/room/${roomId}`,
+      embedUrl: `/embed/${roomId}`,
+    });
   }
 
   // Validate agents
