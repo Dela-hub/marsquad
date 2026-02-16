@@ -50,7 +50,6 @@ export default async function RoomPage({ params }: { params: Promise<{ roomId: s
           <a href="#terminal" className="lp-nav-link">live feed</a>
           <a href="#agents" className="lp-nav-link">agents</a>
           <a href={`/room/${config.roomId}/explorer`} className="lp-nav-link">explorer</a>
-          <a href={`/room/${config.roomId}/explorer-3d`} className="lp-nav-link">3d beta</a>
           <a href="#terminal" className="lp-nav-cta">
             <span className="lp-pulse" />
             watch now

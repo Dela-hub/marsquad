@@ -1,48 +1,11 @@
-import { notFound } from 'next/navigation';
-import Explorer3DClient from '../../../../components/Explorer3DClient';
-import { getRoomConfig, hasKv } from '../../../../lib/rooms';
-import type { RoomConfig } from '../../../../lib/types';
-
-const MARSQUAD_FALLBACK: RoomConfig = {
-  roomId: 'marsquad',
-  name: 'marsquad',
-  apiKey: '',
-  created: 0,
-  agents: [
-    { id: 'dilo', name: 'Dilo', avatar: '🧿', color: '#3b82f6' },
-    { id: 'phantom', name: 'Phantom', avatar: '🟥', color: '#f43f5e' },
-    { id: 'nyx', name: 'Nyx', avatar: '🟪', color: '#a855f7' },
-    { id: 'cipher', name: 'Cipher', avatar: '🟦', color: '#06b6d4' },
-    { id: 'pulse', name: 'Pulse', avatar: '🟩', color: '#10b981' },
-    { id: 'wraith', name: 'Wraith', avatar: '🟣', color: '#6366f1' },
-    { id: 'specter', name: 'Specter', avatar: '🟧', color: '#f59e0b' },
-  ],
-};
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await params;
-  if (!hasKv()) {
-    if (roomId === 'marsquad') return { title: 'marsquad — 3D Explorer Beta' };
-    return { title: '3D Explorer Beta' };
-  }
-  const config = await getRoomConfig(roomId);
-  if (!config) return { title: 'Room Not Found' };
-  return { title: `${config.name} — 3D Explorer Beta` };
+  return { title: `${roomId} — Explorer` };
 }
 
 export default async function Explorer3DPage({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await params;
-  let config: RoomConfig | null = null;
-  if (hasKv()) config = await getRoomConfig(roomId);
-  if (!config && roomId === 'marsquad') config = MARSQUAD_FALLBACK;
-  if (!config) notFound();
-
-  return (
-    <Explorer3DClient
-      roomId={config.roomId}
-      roomName={config.name}
-      agents={config.agents}
-    />
-  );
+  redirect(`/room/${roomId}/explorer`);
 }
-
