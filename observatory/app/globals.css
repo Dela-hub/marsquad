@@ -3775,3 +3775,167 @@ body {
   .explorer-panel { min-height: 0; }
   .explorer-stage { height: min(68vh, 640px); }
 }
+
+/* 3D Explorer beta (CSS perspective scene) */
+.explorer3d-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(59,130,246,.1) 0%, transparent 60%),
+    linear-gradient(180deg, #030712 0%, #020617 100%);
+}
+
+.explorer3d-main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+  padding: 14px;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+.explorer3d-stage-wrap {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(7,12,22,.75);
+  overflow: hidden;
+}
+
+.explorer3d-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,14,24,.65);
+}
+
+.explorer3d-toolbar .lp-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.explorer3d-stage {
+  position: relative;
+  height: min(74vh, 760px);
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+
+.explorer3d-stage.is-dragging { cursor: grabbing; }
+
+.explorer3d-scene {
+  position: absolute;
+  inset: 0;
+  perspective: 1200px;
+  overflow: hidden;
+}
+
+.explorer3d-world {
+  position: absolute;
+  width: 1400px;
+  height: 900px;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.explorer3d-floor {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background:
+    linear-gradient(to right, rgba(148,163,184,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148,163,184,.08) 1px, transparent 1px),
+    radial-gradient(120% 90% at 50% 10%, rgba(99,102,241,.18), rgba(6,12,24,.96));
+  background-size: 100px 100px, 100px 100px, auto;
+  border: 1px solid rgba(148,163,184,.12);
+  box-shadow: 0 30px 120px rgba(0,0,0,.55);
+}
+
+.explorer3d-huddle {
+  position: absolute;
+  right: 120px;
+  top: 170px;
+  width: 320px;
+  height: 220px;
+  border-radius: 26px;
+  border: 1px solid rgba(168,85,247,.3);
+  background: rgba(168,85,247,.1);
+  color: #c4b5fd;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.explorer3d-agent {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.explorer3d-agent-orb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background:
+    radial-gradient(45% 45% at 35% 30%, rgba(255,255,255,.28), rgba(255,255,255,0)),
+    color-mix(in oklab, var(--agent-color) 58%, #0b1020 42%);
+  border: 1px solid color-mix(in oklab, var(--agent-color) 55%, white 8%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.05) inset,
+    0 8px 20px rgba(0,0,0,.45),
+    0 0 24px color-mix(in oklab, var(--agent-color) 28%, transparent);
+}
+
+.explorer3d-agent-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #dbe4f0;
+  background: rgba(11,16,32,.75);
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.explorer3d-agent.is-selected .explorer3d-agent-orb {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--agent-color) 72%, white 8%),
+    0 8px 20px rgba(0,0,0,.45),
+    0 0 28px color-mix(in oklab, var(--agent-color) 36%, transparent);
+}
+
+.explorer3d-panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(10,14,24,.72);
+  padding: 14px;
+  min-height: 540px;
+}
+
+.explorer3d-panel h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 980px) {
+  .explorer3d-main { grid-template-columns: 1fr; }
+  .explorer3d-panel { min-height: 0; }
+  .explorer3d-stage { height: min(66vh, 620px); }
+}
