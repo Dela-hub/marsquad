@@ -3856,6 +3856,30 @@ body {
   box-shadow: 0 30px 120px rgba(0,0,0,.55);
 }
 
+.explorer3d-wall {
+  position: absolute;
+  background: linear-gradient(180deg, rgba(148,163,184,.16), rgba(30,41,59,.2));
+  border: 1px solid rgba(148,163,184,.18);
+}
+.explorer3d-wall--top {
+  left: 80px;
+  top: 60px;
+  width: 1240px;
+  height: 24px;
+}
+.explorer3d-wall--left {
+  left: 80px;
+  top: 80px;
+  width: 24px;
+  height: 740px;
+}
+.explorer3d-wall--right {
+  left: 1296px;
+  top: 80px;
+  width: 24px;
+  height: 640px;
+}
+
 .explorer3d-huddle {
   position: absolute;
   right: 120px;
@@ -3874,6 +3898,62 @@ body {
   justify-content: center;
   padding-top: 14px;
 }
+
+.explorer3d-projector,
+.explorer3d-reception,
+.explorer3d-entrance {
+  position: absolute;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(148,163,184,.3);
+}
+
+.explorer3d-projector {
+  left: 580px;
+  top: 90px;
+  width: 220px;
+  height: 36px;
+  color: #7dd3fc;
+  background: rgba(14,116,144,.2);
+}
+
+.explorer3d-reception {
+  left: 980px;
+  top: 680px;
+  width: 180px;
+  height: 70px;
+  color: #fcd34d;
+  background: rgba(120,53,15,.18);
+}
+
+.explorer3d-entrance {
+  left: 1210px;
+  top: 790px;
+  width: 110px;
+  height: 32px;
+  color: #86efac;
+  background: rgba(20,83,45,.2);
+}
+
+.explorer3d-desk {
+  position: absolute;
+  width: 130px;
+  height: 70px;
+  border-radius: 12px;
+  border: 1px solid rgba(148,163,184,.22);
+  background: linear-gradient(180deg, rgba(30,41,59,.55), rgba(15,23,42,.75));
+}
+.explorer3d-desk--1 { left: 180px; top: 200px; }
+.explorer3d-desk--2 { left: 360px; top: 200px; }
+.explorer3d-desk--3 { left: 540px; top: 220px; }
+.explorer3d-desk--4 { left: 200px; top: 420px; }
+.explorer3d-desk--5 { left: 380px; top: 420px; }
+.explorer3d-desk--6 { left: 560px; top: 420px; }
 
 .explorer3d-agent {
   position: absolute;
@@ -3919,6 +3999,31 @@ body {
     0 0 0 2px color-mix(in oklab, var(--agent-color) 72%, white 8%),
     0 8px 20px rgba(0,0,0,.45),
     0 0 28px color-mix(in oklab, var(--agent-color) 36%, transparent);
+}
+
+.explorer3d-visitor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: visitor-bob 2.2s ease-in-out infinite;
+}
+
+.explorer3d-visitor-avatar {
+  width: 30px;
+  height: 38px;
+  border-radius: 10px 10px 14px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fbbf24, #b45309);
+  border: 1px solid rgba(255,255,255,.3);
+  box-shadow: 0 8px 16px rgba(0,0,0,.35);
+  font-size: 14px;
+}
+
+@keyframes visitor-bob {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-2px); }
 }
 
 .explorer3d-panel {

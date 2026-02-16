@@ -27,6 +27,14 @@ type AgentState = {
   lastTs: number;
 };
 
+type VisitorState = {
+  id: string;
+  x: number;
+  y: number;
+  text?: string;
+  lastTs: number;
+};
+
 type Props = {
   roomId: string;
   roomName: string;
@@ -82,6 +90,7 @@ function mapGridToWorld(pos: { x?: number; y?: number }) {
 
 export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
   const [agentMap, setAgentMap] = useState<Record<string, AgentState>>(() => initialAgentState(agents));
+  const [visitors, setVisitors] = useState<Record<string, VisitorState>>({});
   const [since, setSince] = useState(0);
   const sinceRef = useRef(0);
   const [selectedId, setSelectedId] = useState('');
@@ -126,6 +135,7 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
           for (const e of events) {
             const id = normalizeId(e.agent);
             if (!id) continue;
+            if (id === 'visitor') continue;
             if (!next[id]) {
               next[id] = {
                 id,
@@ -152,6 +162,35 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
           }
           return next;
         });
+
+        setVisitors((prev) => {
+          const next = { ...prev };
+          let changed = false;
+          for (const e of events) {
+            const id = normalizeId(e.agent);
+            if (id !== 'visitor') continue;
+            const vId = e.id ? `v-${e.id}` : `v-${Number(e.ts || Date.now())}`;
+            const ts = Number(e.ts || Date.now());
+            const p = e.pos ? mapGridToWorld(e.pos) : { x: 1180, y: 740 };
+            next[vId] = {
+              id: vId,
+              x: p.x + (Math.random() * 40 - 20),
+              y: p.y + (Math.random() * 20 - 10),
+              text: e.text || e.task || 'visitor',
+              lastTs: ts,
+            };
+            changed = true;
+          }
+          // expire old visitors
+          const cutoff = Date.now() - 90_000;
+          for (const [k, v] of Object.entries(next)) {
+            if (v.lastTs < cutoff) {
+              delete next[k];
+              changed = true;
+            }
+          }
+          return changed ? next : prev;
+        });
       } catch {
         if (active) setStats((s) => ({ ...s, connected: false }));
       }
@@ -168,6 +207,10 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
   const agentsList = useMemo(
     () => Object.values(agentMap).sort((a, b) => a.name.localeCompare(b.name)),
     [agentMap],
+  );
+  const visitorList = useMemo(
+    () => Object.values(visitors).sort((a, b) => b.lastTs - a.lastTs),
+    [visitors],
   );
   const selected = selectedId ? agentMap[selectedId] : null;
 
@@ -253,7 +296,19 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
             <div className="explorer3d-scene">
               <div className="explorer3d-world" style={worldStyle}>
                 <div className="explorer3d-floor" />
+                <div className="explorer3d-wall explorer3d-wall--top" />
+                <div className="explorer3d-wall explorer3d-wall--left" />
+                <div className="explorer3d-wall explorer3d-wall--right" />
                 <div className="explorer3d-huddle">HUDDLE</div>
+                <div className="explorer3d-projector">PROJECTOR</div>
+                <div className="explorer3d-reception">RECEPTION</div>
+                <div className="explorer3d-entrance">ENTRANCE</div>
+                <div className="explorer3d-desk explorer3d-desk--1" />
+                <div className="explorer3d-desk explorer3d-desk--2" />
+                <div className="explorer3d-desk explorer3d-desk--3" />
+                <div className="explorer3d-desk explorer3d-desk--4" />
+                <div className="explorer3d-desk explorer3d-desk--5" />
+                <div className="explorer3d-desk explorer3d-desk--6" />
                 {agentsList.map((a) => (
                   <button
                     key={a.id}
@@ -267,6 +322,16 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
                     <span className="explorer3d-agent-orb">{a.avatar}</span>
                     <span className="explorer3d-agent-name">{a.name}</span>
                   </button>
+                ))}
+                {visitorList.map((v) => (
+                  <div
+                    key={v.id}
+                    className="explorer3d-visitor"
+                    style={{ left: `${v.x}px`, top: `${v.y}px` }}
+                    title={v.text || 'visitor'}
+                  >
+                    <span className="explorer3d-visitor-avatar">🧍</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -288,6 +353,18 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
                 <span className="explorer-list-dot" style={{ background: a.color }} />
                 <span className="explorer-list-name">{a.name}</span>
               </button>
+            ))}
+          </div>
+
+          <h2 style={{ marginTop: 14 }}>Visitors</h2>
+          <div className="explorer-list">
+            {visitorList.length === 0 ? (
+              <div className="explorer-list-item"><span className="explorer-list-name">No recent visitors</span></div>
+            ) : visitorList.slice(0, 8).map((v) => (
+              <div key={v.id} className="explorer-list-item">
+                <span className="explorer-list-dot" style={{ background: '#fbbf24' }} />
+                <span className="explorer-list-name">{v.text || 'visitor'}</span>
+              </div>
             ))}
           </div>
 
@@ -314,4 +391,3 @@ export default function Explorer3DClient({ roomId, roomName, agents }: Props) {
     </main>
   );
 }
-
