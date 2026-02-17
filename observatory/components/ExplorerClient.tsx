@@ -72,8 +72,15 @@ function agentDefaults(agents: AgentConfig[]): Record<string, AgentState> {
 }
 
 function mapGridToWorld(pos: { x?: number; y?: number }) {
-  const gx = clamp(Number(pos?.x ?? 0), 0, GRID_W - 1);
-  const gy = clamp(Number(pos?.y ?? 0), 0, GRID_H - 1);
+  let gx = Number(pos?.x ?? 0);
+  let gy = Number(pos?.y ?? 0);
+  // Accept both normalized coordinates (0..1) and grid coordinates (0..GRID_*).
+  if (gx >= 0 && gx <= 1 && gy >= 0 && gy <= 1) {
+    gx *= (GRID_W - 1);
+    gy *= (GRID_H - 1);
+  }
+  gx = clamp(gx, 0, GRID_W - 1);
+  gy = clamp(gy, 0, GRID_H - 1);
   return {
     x: 120 + (gx / (GRID_W - 1)) * (WORLD_W - 240),
     y: 120 + (gy / (GRID_H - 1)) * (WORLD_H - 240),
@@ -306,4 +313,3 @@ export default function ExplorerClient({ roomId, roomName, agents }: Props) {
     </main>
   );
 }
-
