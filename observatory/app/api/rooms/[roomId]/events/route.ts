@@ -29,10 +29,18 @@ export async function GET(
     return Response.json({ events: [] });
   }
 
-  const config = await getRoomConfig(roomId);
-  if (!config) return new Response('room not found', { status: 404 });
+  // Marsquad is a built-in fallback room and should still stream even if KV room config is missing.
+  if (roomId !== 'marsquad') {
+    const config = await getRoomConfig(roomId);
+    if (!config) return new Response('room not found', { status: 404 });
+  }
 
-  const events = await getEvents(roomId, since, limit);
+  let events: unknown[] = [];
+  try {
+    events = await getEvents(roomId, since, limit);
+  } catch {
+    events = [];
+  }
 
   // Marsquad: fall back to bridge if KV has no events yet
   if (events.length === 0 && roomId === 'marsquad') {

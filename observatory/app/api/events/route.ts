@@ -22,7 +22,12 @@ export async function GET(req: Request) {
     }
   }
 
-  const events = await getEvents('marsquad', since, limit);
+  let events: unknown[] = [];
+  try {
+    events = await getEvents('marsquad', since, limit);
+  } catch {
+    events = [];
+  }
 
   // Fall back to bridge if KV has no events yet
   if (events.length === 0) {

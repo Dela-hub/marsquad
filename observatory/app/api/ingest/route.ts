@@ -24,6 +24,11 @@ export async function POST(req: Request) {
     return Response.json({ ok: true, store: 'proxy-mode' });
   }
 
-  const result = await ingestEvent('marsquad', event);
-  return Response.json(result);
+  try {
+    const result = await ingestEvent('marsquad', event);
+    return Response.json(result);
+  } catch {
+    // Keep bridge emitters alive even if KV is transiently unavailable.
+    return Response.json({ ok: true, store: 'proxy-mode' });
+  }
 }
